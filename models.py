@@ -127,6 +127,36 @@ class Workspace(db.Model):
         }
 
 
+class WorkspaceInvite(db.Model):
+    """Convites para participação em workspaces"""
+    __tablename__ = 'workspace_invites'
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
+    email = db.Column(db.String(120), nullable=False)
+    status = db.Column(db.String(20), default='pending')  # pending, accepted, canceled
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    accepted_at = db.Column(db.DateTime)
+
+    workspace_id = db.Column(db.Integer, db.ForeignKey('workspaces.id'), nullable=False)
+    invited_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    workspace = db.relationship('Workspace', backref='invites')
+    inviter = db.relationship('User', backref='sent_invites')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'token': self.token,
+            'email': self.email,
+            'status': self.status,
+            'workspace_id': self.workspace_id,
+            'invited_by': self.invited_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'accepted_at': self.accepted_at.isoformat() if self.accepted_at else None
+        }
+
+
 class Space(db.Model):
     """Space - Agrupamento de projetos"""
     __tablename__ = 'spaces'

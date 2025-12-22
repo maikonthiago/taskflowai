@@ -10,7 +10,7 @@ import json
 from sqlalchemy import or_
 
 from config import config
-from models import db, User, Workspace, Space, Project, TaskList, Task, Comment, Attachment, Message, Notification
+from models import db, User, Workspace, Space, Project, TaskList, Task, Comment, Attachment, Message, Notification, WorkspaceInvite
 from ai_service import AIService
 
 # Inicializar Flask
@@ -84,6 +84,8 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     """Página de registro"""
+    invite_token = request.args.get('invite_token') or request.form.get('invite_token')
+
     if current_user.is_authenticated:
         return redirect('/taskflowai/dashboard')
     
@@ -128,6 +130,17 @@ def register():
         db.session.add(workspace)
         workspace.members.append(user)
         db.session.commit()
+
+        if invite_token:
+            invite = WorkspaceInvite.query.filter_by(token=invite_token, status='pending').first()
+            if invite:
+                target_workspace = invite.workspace
+                if user not in target_workspace.members:
+                    target_workspace.members.append(user)
+                invite.status = 'accepted'
+                invite.accepted_at = datetime.utcnow()
+                db.session.commit()
+                flash(f'Convite aceito! Você agora participa do workspace {target_workspace.name}', 'success')
         
         login_user(user)
         
@@ -141,7 +154,7 @@ def register():
         flash('Conta criada com sucesso!', 'success')
         return redirect('/taskflowai/dashboard')
     
-    return render_template('register.html')
+    return render_template('register.html', invite_token=invite_token)
 
 @app.route('/logout')
 @login_required
@@ -162,9 +175,17 @@ def pricing():
 @login_required
 def dashboard():
     """Dashboard principal"""
-    workspaces = current_user.workspaces
-    if not workspaces:
-        workspaces = current_user.owned_workspaces
+    member_workspaces = list(current_user.workspaces)
+    owned_workspaces = list(current_user.owned_workspaces)
+    workspace_options = list({w.id: w for w in (member_workspaces + owned_workspaces)}.values())
+    workspaces = workspace_options
+    workspace_ids = [w.id for w in workspace_options]
+    projects = []
+    if workspace_ids:
+        projects = Project.query.filter(
+            Project.workspace_id.in_(workspace_ids),
+            Project.is_active == True
+        ).order_by(Project.name.asc()).all()
     
     # Estatísticas rápidas
     total_tasks = Task.query.filter_by(creator_id=current_user.id).count()
@@ -188,6 +209,8 @@ def dashboard():
     
     return render_template('dashboard.html',
                          workspaces=workspaces,
+                         workspace_options=workspace_options,
+                         projects=projects,
                          stats=stats,
                          recent_tasks=recent_tasks,
                          notifications=notifications)
@@ -261,7 +284,7 @@ def tasks_view():
     """Lista tarefas criadas ou atribuídas ao usuário atual"""
     tasks = Task.query.filter(
         or_(Task.creator_id == current_user.id,
-            Task.assignees.any(id=current_user.id))
+            Task.assignees.any(User.id == current_user.id))
     ).filter_by(is_active=True)
     tasks = tasks.order_by(Task.due_date.asc(), Task.created_at.desc()).all()
     return render_template('tasks.html', tasks=tasks)
@@ -344,6 +367,35 @@ def api_workspaces():
         db.session.commit()
         return jsonify(workspace.to_dict()), 201
 
+
+@app.route('/api/workspaces/<int:workspace_id>/invite', methods=['POST'])
+@login_required
+def api_workspace_invite(workspace_id):
+    workspace = Workspace.query.get_or_404(workspace_id)
+    if current_user not in workspace.members and workspace.owner_id != current_user.id:
+        return jsonify({'error': 'Você não tem permissão para convidar membros neste workspace'}), 403
+    data = request.get_json()
+    email = data.get('email')
+    if not email:
+        return jsonify({'error': 'Email é obrigatório'}), 400
+    user = User.query.filter_by(email=email).first()
+    if user:
+        if user not in workspace.members:
+            workspace.members.append(user)
+            db.session.commit()
+        return jsonify({'success': True, 'message': 'Usuário adicionado ao workspace'}), 200
+    invite = WorkspaceInvite.query.filter_by(workspace_id=workspace.id, email=email, status='pending').first()
+    if not invite:
+        invite = WorkspaceInvite(
+            workspace_id=workspace.id,
+            email=email,
+            invited_by=current_user.id
+        )
+        db.session.add(invite)
+        db.session.commit()
+    invite_link = url_for('register', invite_token=invite.token, _external=True)
+    return jsonify({'success': True, 'message': 'Convite criado', 'invite_link': invite_link}), 201
+
 # API - Projects
 @app.route('/api/projects', methods=['GET', 'POST'])
 @login_required
@@ -395,10 +447,21 @@ def api_tasks():
     
     elif request.method == 'POST':
         data = request.get_json()
+        if 'project_id' not in data:
+            return jsonify({'error': 'Projeto é obrigatório'}), 400
+        project_id = data['project_id']
+        try:
+            project_id = int(project_id)
+        except (TypeError, ValueError):
+            return jsonify({'error': 'Projeto inválido'}), 400
+        project = Project.query.get_or_404(project_id)
+        workspace = project.workspace
+        if current_user not in workspace.members and workspace.owner_id != current_user.id:
+            return jsonify({'error': 'Você não tem acesso a este projeto'}), 403
         task = Task(
             title=data['title'],
             description=data.get('description'),
-            project_id=data['project_id'],
+            project_id=project_id,
             list_id=data.get('list_id'),
             creator_id=current_user.id,
             status=data.get('status', 'todo'),
@@ -517,6 +580,16 @@ def api_ai_generate_tasks():
     
     if not description:
         return jsonify({'error': 'Descrição é obrigatória'}), 400
+    if not project_id:
+        return jsonify({'error': 'Projeto destino é obrigatório'}), 400
+    try:
+        project_id = int(project_id)
+    except (TypeError, ValueError):
+        return jsonify({'error': 'Projeto inválido'}), 400
+    target_project = Project.query.get_or_404(project_id)
+    workspace = target_project.workspace
+    if current_user not in workspace.members and workspace.owner_id != current_user.id:
+        return jsonify({'error': 'Você não tem acesso a este projeto'}), 403
     
     try:
         tasks_data = ai_service.generate_tasks_from_description(description)
@@ -527,7 +600,7 @@ def api_ai_generate_tasks():
             task = Task(
                 title=task_data['title'],
                 description=task_data.get('description'),
-                project_id=project_id,
+                project_id=target_project.id,
                 creator_id=current_user.id,
                 priority=task_data.get('priority', 'medium'),
                 status='todo'

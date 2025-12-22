@@ -12,7 +12,7 @@
                     <div class="card-body p-5">
                         <!-- Logo -->
                         <div class="text-center mb-4">
-                            <a href="/taskflowai/" class="text-decoration-none">
+                            <a href="{{ url_for('index') }}" class="text-decoration-none">
                                 <h2 class="fw-bold text-primary">
                                     <i class="bi bi-check2-circle"></i> TaskFlowAI
                                 </h2>
@@ -44,7 +44,8 @@
                         </div>
                         
                         <!-- Register Form -->
-                        <form method="POST" action="/register" id="registerForm">
+                        <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+                            <input type="hidden" name="invite_token" value="{{ invite_token or '' }}">
                             <div class="mb-3">
                                 <label for="full_name" class="form-label fw-semibold">
                                     <i class="bi bi-person-badge me-1"></i> Nome Completo
@@ -149,7 +150,7 @@
                         <div class="text-center mt-4">
                             <p class="text-muted mb-0">
                                 Já tem uma conta? 
-                                <a href="/taskflowai/login" class="text-primary fw-semibold text-decoration-none">
+                                <a href="{{ url_for('login') }}" class="text-primary fw-semibold text-decoration-none">
                                     Faça login
                                 </a>
                             </p>
@@ -159,7 +160,7 @@
                 
                 <!-- Back to Home -->
                 <div class="text-center mt-3">
-                    <a href="/taskflowai/" class="text-white text-decoration-none">
+                    <a href="{{ url_for('index') }}" class="text-white text-decoration-none">
                         <i class="bi bi-arrow-left me-2"></i>
                         Voltar para home
                     </a>

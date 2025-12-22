@@ -180,7 +180,7 @@
         <i class="bi bi-robot display-4 text-primary"></i>
         <h6 class="fw-bold mt-2">Assistente IA</h6>
         <p class="small text-muted mb-2">Precisa de ajuda?</p>
-        <button class="btn btn-primary btn-sm">Perguntar à IA</button>
+        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#aiHelperModal">Perguntar à IA</button>
     </div>
 </div>
 
@@ -295,7 +295,7 @@
                             <div class="text-center py-5">
                                 <i class="bi bi-inbox display-1 text-muted"></i>
                                 <p class="text-muted mt-3">Nenhuma tarefa recente</p>
-                                <button class="btn btn-primary">Criar primeira tarefa</button>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTaskModal">Criar primeira tarefa</button>
                             </div>
                         {% endif %}
                     </div>
@@ -311,16 +311,16 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary text-start">
+                        <button class="btn btn-outline-primary text-start" data-bs-toggle="modal" data-bs-target="#newTaskModal">
                             <i class="bi bi-plus-circle me-2"></i>Nova Tarefa
                         </button>
-                        <button class="btn btn-outline-primary text-start">
+                        <button class="btn btn-outline-primary text-start" data-bs-toggle="modal" data-bs-target="#newProjectModal">
                             <i class="bi bi-folder-plus me-2"></i>Novo Projeto
                         </button>
-                        <button class="btn btn-outline-primary text-start">
+                        <button class="btn btn-outline-primary text-start" data-bs-toggle="modal" data-bs-target="#inviteMemberModal">
                             <i class="bi bi-people me-2"></i>Convidar Membro
                         </button>
-                        <button class="btn btn-outline-primary text-start">
+                        <button class="btn btn-outline-primary text-start" data-bs-toggle="modal" data-bs-target="#aiHelperModal">
                             <i class="bi bi-robot me-2"></i>Gerar com IA
                         </button>
                     </div>
@@ -344,6 +344,217 @@
                     {% endif %}
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Create Modal -->
+<div class="modal fade" id="newItemModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Criar novo item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-bs-toggle="modal" data-bs-target="#newTaskModal" data-bs-dismiss="modal">
+                        <span><i class="bi bi-plus-circle me-2"></i>Nova Tarefa</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-bs-toggle="modal" data-bs-target="#newProjectModal" data-bs-dismiss="modal">
+                        <span><i class="bi bi-folder-plus me-2"></i>Novo Projeto</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-bs-toggle="modal" data-bs-target="#inviteMemberModal" data-bs-dismiss="modal">
+                        <span><i class="bi bi-people me-2"></i>Convidar Membro</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-bs-toggle="modal" data-bs-target="#aiHelperModal" data-bs-dismiss="modal">
+                        <span><i class="bi bi-robot me-2"></i>Gerar com IA</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Task Modal -->
+<div class="modal fade" id="newTaskModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Criar nova tarefa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="newTaskForm" data-endpoint="{{ url_for('api_tasks') }}">
+                <div class="modal-body">
+                    {% if projects %}
+                    <div class="mb-3">
+                        <label class="form-label">Projeto</label>
+                        <select class="form-select" name="project_id" id="taskProject" required>
+                            {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }} · {{ project.workspace.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        Crie um projeto para poder adicionar tarefas.
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="title" id="taskTitle" required placeholder="Resumo da tarefa">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" rows="3" name="description" id="taskDescription" placeholder="Detalhes opcionais"></textarea>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Prioridade</label>
+                            <select class="form-select" name="priority" id="taskPriority">
+                                <option value="low">Baixa</option>
+                                <option value="medium" selected>Média</option>
+                                <option value="high">Alta</option>
+                                <option value="urgent">Urgente</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Entrega</label>
+                            <input type="date" class="form-control" name="due_date" id="taskDueDate">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" {% if not projects %}disabled{% endif %}>Criar tarefa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal fade" id="newProjectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Criar novo projeto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="newProjectForm" data-endpoint="{{ url_for('api_projects') }}">
+                <div class="modal-body">
+                    {% if workspace_options %}
+                    <div class="mb-3">
+                        <label class="form-label">Workspace</label>
+                        <select class="form-select" name="workspace_id" id="projectWorkspace" required>
+                            {% for workspace in workspace_options %}
+                            <option value="{{ workspace.id }}">{{ workspace.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        Nenhum workspace disponível. Crie um workspace antes de adicionar projetos.
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Nome do projeto</label>
+                        <input type="text" class="form-control" name="name" id="projectName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" rows="3" name="description" id="projectDescription" placeholder="Objetivos do projeto"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" {% if not workspace_options %}disabled{% endif %}>Criar projeto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Invite Member Modal -->
+<div class="modal fade" id="inviteMemberModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Convidar membro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="inviteMemberForm">
+                <div class="modal-body">
+                    {% if workspace_options %}
+                    <div class="mb-3">
+                        <label class="form-label">Workspace</label>
+                        <select class="form-select" id="inviteWorkspace" required>
+                            {% for workspace in workspace_options %}
+                            <option value="{{ workspace.id }}" data-invite-url="{{ url_for('api_workspace_invite', workspace_id=workspace.id) }}">{{ workspace.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        Crie um workspace para enviar convites.
+                    </div>
+                    {% endif %}
+                    <div class="mb-3">
+                        <label class="form-label">Email do convidado</label>
+                        <input type="email" class="form-control" id="inviteEmail" placeholder="nome@empresa.com" required {% if not workspace_options %}disabled{% endif %}>
+                    </div>
+                    <div id="inviteResult" class="alert alert-info d-none"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" {% if not workspace_options %}disabled{% endif %}>Enviar convite</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- AI Helper Modal -->
+<div class="modal fade" id="aiHelperModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assistente IA</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="aiHelperForm" data-endpoint="{{ url_for('api_ai_generate_tasks') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Descreva o que você precisa</label>
+                        <textarea class="form-control" id="aiPrompt" rows="4" placeholder="Ex: Planeje uma campanha de lançamento para o novo produto" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Projeto destino</label>
+                        {% if projects %}
+                        <select class="form-select" id="aiProject" required>
+                            <option value="" disabled selected>Selecione...</option>
+                            {% for project in projects %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <div class="alert alert-warning">Crie um projeto para salvar as tarefas geradas pela IA.</div>
+                        {% endif %}
+                    </div>
+                    <div id="aiResults" class="d-none">
+                        <h6 class="fw-bold">Tarefas sugeridas</h6>
+                        <ul class="list-group" id="aiTasksList"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary" {% if not projects %}disabled{% endif %}>Gerar tarefas</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -372,5 +583,185 @@
             }
         }
     });
+
+    const toastContainer = document.createElement('div');
+    toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+    document.body.appendChild(toastContainer);
+
+    const showToast = (message, type = 'success') => {
+        const toastEl = document.createElement('div');
+        const variant = {
+            success: 'success',
+            danger: 'danger',
+            warning: 'warning',
+            info: 'info'
+        }[type] || 'primary';
+        toastEl.className = `toast align-items-center text-bg-${variant} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        toastContainer.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+        toast.show();
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    };
+
+    const handleJsonRequest = async (url, payload) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.message || data.error || 'Não foi possível completar a ação');
+        }
+        return data;
+    };
+
+    const closeModal = (modalId) => {
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl) return;
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        modalInstance?.hide();
+    };
+
+    const newTaskForm = document.getElementById('newTaskForm');
+    if (newTaskForm) {
+        newTaskForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const endpoint = newTaskForm.dataset.endpoint;
+            const payload = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                project_id: document.getElementById('taskProject')?.value,
+                priority: document.getElementById('taskPriority').value,
+                due_date: document.getElementById('taskDueDate').value || null
+            };
+            if (!payload.project_id) {
+                showToast('Selecione um projeto para criar a tarefa.', 'warning');
+                return;
+            }
+            try {
+                await handleJsonRequest(endpoint, payload);
+                showToast('Tarefa criada com sucesso!');
+                closeModal('newTaskModal');
+                setTimeout(() => window.location.href = "{{ url_for('tasks_view') }}", 800);
+            } catch (error) {
+                showToast(error.message, 'danger');
+            }
+        });
+    }
+
+    const newProjectForm = document.getElementById('newProjectForm');
+    if (newProjectForm) {
+        newProjectForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const endpoint = newProjectForm.dataset.endpoint;
+            const payload = {
+                name: document.getElementById('projectName').value,
+                description: document.getElementById('projectDescription').value,
+                workspace_id: document.getElementById('projectWorkspace')?.value
+            };
+            try {
+                await handleJsonRequest(endpoint, payload);
+                showToast('Projeto criado com sucesso!');
+                closeModal('newProjectModal');
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (error) {
+                showToast(error.message, 'danger');
+            }
+        });
+    }
+
+    const inviteForm = document.getElementById('inviteMemberForm');
+    const inviteResult = document.getElementById('inviteResult');
+    if (inviteForm) {
+        inviteForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const workspaceSelect = document.getElementById('inviteWorkspace');
+            const endpoint = workspaceSelect?.selectedOptions[0]?.dataset.inviteUrl;
+            if (!endpoint) {
+                showToast('Selecione um workspace válido', 'warning');
+                return;
+            }
+            const payload = { email: document.getElementById('inviteEmail').value };
+            try {
+                const data = await handleJsonRequest(endpoint, payload);
+                if (data.invite_link) {
+                    inviteResult.classList.remove('d-none');
+                    inviteResult.innerHTML = `Convite gerado! Compartilhe este link:<br><strong>${data.invite_link}</strong>`;
+                } else {
+                    inviteResult.classList.add('d-none');
+                    inviteResult.innerHTML = '';
+                    closeModal('inviteMemberModal');
+                    showToast('Usuário adicionado ao workspace!');
+                }
+            } catch (error) {
+                showToast(error.message, 'danger');
+            }
+        });
+    }
+
+    document.getElementById('inviteMemberModal')?.addEventListener('hidden.bs.modal', () => {
+        if (inviteResult) {
+            inviteResult.classList.add('d-none');
+            inviteResult.innerHTML = '';
+        }
+        inviteForm?.reset();
+    });
+
+    const aiForm = document.getElementById('aiHelperForm');
+    const aiResults = document.getElementById('aiResults');
+    const aiTasksList = document.getElementById('aiTasksList');
+    const projectUrlTemplate = "{{ url_for('project_detail', project_id=0) }}";
+    if (aiForm) {
+        aiForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            aiResults?.classList.add('d-none');
+            aiTasksList.innerHTML = '';
+            const endpoint = aiForm.dataset.endpoint;
+            const projectSelect = document.getElementById('aiProject');
+            if (projectSelect && !projectSelect.value) {
+                showToast('Selecione um projeto para salvar as tarefas geradas.', 'warning');
+                return;
+            }
+            const payload = {
+                description: document.getElementById('aiPrompt').value,
+                project_id: projectSelect ? projectSelect.value : null
+            };
+            try {
+                const data = await handleJsonRequest(endpoint, payload);
+                if (data.tasks && data.tasks.length) {
+                    aiResults.classList.remove('d-none');
+                    data.tasks.forEach((task) => {
+                        const item = document.createElement('li');
+                        item.className = 'list-group-item';
+                        const projectId = task.project_id || payload.project_id;
+                        const projectLink = projectId ? projectUrlTemplate.replace('0', String(projectId)) : '';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between gap-3">
+                                <div>
+                                    <h6 class="mb-1">${task.title}</h6>
+                                    <p class="mb-0 text-muted small">${task.description || 'Sem descrição'}</p>
+                                </div>
+                                ${projectLink ? `<a href="${projectLink}" class="btn btn-sm btn-outline-primary">Ver projeto</a>` : ''}
+                            </div>
+                        `;
+                        aiTasksList.appendChild(item);
+                    });
+                    showToast('Tarefas geradas com sucesso!');
+                } else {
+                    showToast('A IA não retornou sugestões desta vez.', 'warning');
+                }
+            } catch (error) {
+                showToast(error.message, 'danger');
+            }
+        });
+    }
 </script>
 {% endblock %}
