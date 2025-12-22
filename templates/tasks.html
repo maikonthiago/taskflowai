@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Minhas Tarefas - TaskFlowAI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">Minhas Tarefas</h1>
+            <p class="text-muted mb-0">Tarefas criadas por você ou atribuídas à sua pessoa.</p>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Voltar ao Dashboard
+        </a>
+    </div>
+
+    {% if tasks %}
+    <div class="table-responsive shadow-sm rounded-4">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Título</th>
+                    <th>Projeto</th>
+                    <th>Status</th>
+                    <th>Prioridade</th>
+                    <th>Entrega</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td class="fw-semibold">
+                        {{ task.title }}
+                        {% if task.creator_id == current_user.id %}
+                            <span class="badge bg-secondary ms-2">Criada por você</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span>{{ task.project.icon or '📁' }}</span>
+                            <span>{{ task.project.name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% set status_classes = {
+                            'todo': 'bg-secondary',
+                            'in_progress': 'bg-primary',
+                            'review': 'bg-warning text-dark',
+                            'done': 'bg-success'
+                        } %}
+                        <span class="badge {{ status_classes.get(task.status, 'bg-secondary') }} text-uppercase">
+                            {{ task.status.replace('_', ' ') }}
+                        </span>
+                    </td>
+                    <td>
+                        {% set priority_classes = {
+                            'low': 'text-muted',
+                            'medium': 'text-primary',
+                            'high': 'text-warning',
+                            'urgent': 'text-danger fw-bold'
+                        } %}
+                        <span class="{{ priority_classes.get(task.priority, 'text-muted') }}">
+                            {{ task.priority|capitalize }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if task.due_date %}
+                            {{ task.due_date.strftime('%d/%m/%Y') }}
+                        {% else %}
+                            <span class="text-muted">Sem data</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('task_detail', task_id=task.id) }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-clipboard-check display-4 text-muted"></i>
+        <h5 class="fw-bold mt-3">Nenhuma tarefa encontrada</h5>
+        <p class="text-muted">Crie uma nova tarefa ou peça para que alguém o atribua em um projeto.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-2"></i>Criar tarefa
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

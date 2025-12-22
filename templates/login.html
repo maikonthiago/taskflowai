@@ -12,7 +12,7 @@
                     <div class="card-body p-5">
                         <!-- Logo -->
                         <div class="text-center mb-4">
-                            <a href="/taskflowai/" class="text-decoration-none">
+                            <a href="{{ url_for('index') }}" class="text-decoration-none">
                                 <h2 class="fw-bold text-primary">
                                     <i class="bi bi-check2-circle"></i> TaskFlowAI
                                 </h2>
@@ -33,7 +33,7 @@
                         {% endwith %}
                         
                         <!-- Login Form -->
-                        <form method="POST" action="/login" id="loginForm">
+                        <form method="POST" action="{{ url_for('login') }}" id="loginForm">
                             <div class="mb-3">
                                 <label for="username" class="form-label fw-semibold">
                                     <i class="bi bi-person me-1"></i> Usuário ou Email
@@ -93,7 +93,7 @@
                         <div class="text-center mt-4">
                             <p class="text-muted mb-0">
                                 Não tem uma conta? 
-                                <a href="/taskflowai/register" class="text-primary fw-semibold text-decoration-none">
+                                <a href="{{ url_for('register') }}" class="text-primary fw-semibold text-decoration-none">
                                     Cadastre-se gratuitamente
                                 </a>
                             </p>
@@ -103,7 +103,7 @@
                 
                 <!-- Back to Home -->
                 <div class="text-center mt-3">
-                    <a href="/taskflowai/" class="text-white text-decoration-none">
+                    <a href="{{ url_for('index') }}" class="text-white text-decoration-none">
                         <i class="bi bi-arrow-left me-2"></i>
                         Voltar para home
                     </a>

@@ -7,6 +7,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from datetime import datetime, timedelta
 import json
+from sqlalchemy import or_
 
 from config import config
 from models import db, User, Workspace, Space, Project, TaskList, Task, Comment, Attachment, Message, Notification
@@ -254,6 +255,17 @@ def project_calendar(project_id):
 
 # ==================== TASKS ====================
 
+@app.route('/tasks')
+@login_required
+def tasks_view():
+    """Lista tarefas criadas ou atribuídas ao usuário atual"""
+    tasks = Task.query.filter(
+        or_(Task.creator_id == current_user.id,
+            Task.assignees.any(id=current_user.id))
+    ).filter_by(is_active=True)
+    tasks = tasks.order_by(Task.due_date.asc(), Task.created_at.desc()).all()
+    return render_template('tasks.html', tasks=tasks)
+
 @app.route('/task/<int:task_id>')
 @login_required
 def task_detail(task_id):
@@ -303,6 +315,13 @@ def subscription_settings():
     return render_template('subscription.html', user=current_user, plans=app.config['PLANS'])
 
 # ==================== API ENDPOINTS ====================
+
+@app.route('/api/check-auth', methods=['GET'])
+def api_check_auth():
+    """Verifica o status de autenticação do usuário"""
+    if current_user.is_authenticated:
+        return jsonify({'authenticated': True}), 200
+    return jsonify({'authenticated': False}), 401
 
 # API - Workspaces
 @app.route('/api/workspaces', methods=['GET', 'POST'])

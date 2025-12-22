@@ -6,15 +6,15 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
-        <a class="navbar-brand" href="/taskflowai/"><i class="bi bi-check2-circle"></i> TaskFlowAI</a>
+        <a class="navbar-brand" href="{{ url_for('index') }}"><i class="bi bi-check2-circle"></i> TaskFlowAI</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="/taskflowai/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/taskflowai/login">Entrar</a></li>
-                <li class="nav-item"><a href="/taskflowai/register" class="btn btn-primary-custom">Começar Grátis</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Entrar</a></li>
+                <li class="nav-item"><a href="{{ url_for('register') }}" class="btn btn-primary-custom">Começar Grátis</a></li>
             </ul>
         </div>
     </div>
@@ -51,7 +51,7 @@
                             <span class="text-muted">para sempre</span>
                         </div>
                         
-                        <a href="/taskflowai/register" class="btn btn-outline-primary w-100 mb-4">Começar Agora</a>
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 mb-4">Começar Agora</a>
                         
                         <ul class="list-unstyled">
                             <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>1 Workspace</li>
@@ -236,6 +236,9 @@
 <script>
     let selectedPlan = null;
     let selectedBilling = 'monthly';
+    const checkAuthUrl = "{{ url_for('api_check_auth') }}";
+    const registerUrl = "{{ url_for('register') }}";
+    const subscriptionUrl = "{{ url_for('subscription_settings') }}";
     
     function toggleBilling() {
         const toggle = document.getElementById('billingToggle');
@@ -258,14 +261,14 @@
         selectedBilling = billing;
         
         // Verificar se usuário está logado
-        const response = await fetch('/api/check-auth');
+        const response = await fetch(checkAuthUrl);
         if (!response.ok) {
-            window.location.href = '/register?plan=' + plan;
+            window.location.href = `${registerUrl}?plan=${plan}`;
             return;
         }
         
-        // Abrir modal de pagamento ou redirecionar para checkout Stripe
-        window.location.href = '/checkout/' + plan + '/' + billing;
+        // Redirecionar para as configurações de assinatura com o plano selecionado
+        window.location.href = `${subscriptionUrl}?plan=${plan}&billing=${billing}`;
     }
 </script>
 {% endblock %}

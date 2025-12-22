@@ -31,8 +31,9 @@
     </div>
 </div>
 <script>
-// Carregar tarefas via API e permitir drag & drop
-fetch('/api/tasks?project_id={{ project.id }}')
+// Carregar tarefas via API e permitir drag & drop respeitando o subpath
+const tasksEndpoint = '{{ url_for('api_tasks') }}?project_id={{ project.id }}';
+fetch(tasksEndpoint)
     .then(r => r.json())
     .then(tasks => {
         tasks.forEach(task => {

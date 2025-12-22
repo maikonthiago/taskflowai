@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <h5>{{ project.icon }} {{ project.name }}</h5>
                     <p>{{ project.description }}</p>
-                    <a href="/taskflowai/project/{{ project.id }}" class="btn btn-sm btn-primary">Abrir</a>
+                    <a href="{{ url_for('project_detail', project_id=project.id) }}" class="btn btn-sm btn-primary">Abrir</a>
                 </div>
             </div>
         </div>
