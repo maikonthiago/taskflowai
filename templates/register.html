@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - TaskFlowAI{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5" 
+     style="background: linear-gradient(135deg, #1E64F0 0%, #5AE4C3 100%);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-5">
+                        <!-- Logo -->
+                        <div class="text-center mb-4">
+                            <a href="/" class="text-decoration-none">
+                                <h2 class="fw-bold text-primary">
+                                    <i class="bi bi-check2-circle"></i> TaskFlowAI
+                                </h2>
+                            </a>
+                            <p class="text-muted">Crie sua conta gratuita</p>
+                        </div>
+                        
+                        <!-- Flash Messages -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        
+                        <!-- Benefits -->
+                        <div class="alert alert-info border-0 mb-4">
+                            <h6 class="fw-bold mb-2">✨ Ao se cadastrar você ganha:</h6>
+                            <ul class="mb-0 small">
+                                <li>14 dias grátis do plano Pro</li>
+                                <li>Acesso a todos os recursos</li>
+                                <li>Suporte prioritário</li>
+                                <li>Sem cartão de crédito necessário</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Register Form -->
+                        <form method="POST" action="/register" id="registerForm">
+                            <div class="mb-3">
+                                <label for="full_name" class="form-label fw-semibold">
+                                    <i class="bi bi-person-badge me-1"></i> Nome Completo
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="full_name" name="full_name" required
+                                       placeholder="Digite seu nome completo">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="username" class="form-label fw-semibold">
+                                    <i class="bi bi-at me-1"></i> Nome de Usuário
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="username" name="username" required
+                                       placeholder="Escolha um nome de usuário"
+                                       pattern="[a-zA-Z0-9_]+" 
+                                       title="Apenas letras, números e underscore">
+                                <small class="text-muted">Apenas letras, números e underscore (_)</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="bi bi-envelope me-1"></i> Email
+                                </label>
+                                <input type="email" class="form-control form-control-lg" 
+                                       id="email" name="email" required
+                                       placeholder="seu@email.com">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-semibold">
+                                    <i class="bi bi-lock me-1"></i> Senha
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg" 
+                                           id="password" name="password" required
+                                           placeholder="Crie uma senha forte"
+                                           minlength="6">
+                                    <button class="btn btn-outline-secondary" type="button" 
+                                            onclick="togglePassword('password')">
+                                        <i class="bi bi-eye" id="toggleIcon1"></i>
+                                    </button>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar" id="passwordStrength" 
+                                             role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <small class="text-muted" id="strengthText"></small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password_confirm" class="form-label fw-semibold">
+                                    <i class="bi bi-lock-fill me-1"></i> Confirmar Senha
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control form-control-lg" 
+                                           id="password_confirm" name="password_confirm" required
+                                           placeholder="Confirme sua senha">
+                                    <button class="btn btn-outline-secondary" type="button" 
+                                            onclick="togglePassword('password_confirm')">
+                                        <i class="bi bi-eye" id="toggleIcon2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           id="terms" name="terms" required>
+                                    <label class="form-check-label small" for="terms">
+                                        Eu concordo com os 
+                                        <a href="#" class="text-primary">Termos de Uso</a> e 
+                                        <a href="#" class="text-primary">Política de Privacidade</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3"
+                                    style="background: linear-gradient(135deg, #1E64F0, #1450c4); border: none;">
+                                <i class="bi bi-rocket-takeoff me-2"></i>
+                                Criar Conta Gratuitamente
+                            </button>
+                        </form>
+                        
+                        <!-- Social Register -->
+                        <div class="text-center mb-3">
+                            <p class="text-muted mb-3">Ou cadastre-se com</p>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-dark flex-fill">
+                                    <i class="bi bi-google me-2"></i> Google
+                                </button>
+                                <button class="btn btn-outline-primary flex-fill">
+                                    <i class="bi bi-microsoft me-2"></i> Microsoft
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Login Link -->
+                        <div class="text-center mt-4">
+                            <p class="text-muted mb-0">
+                                Já tem uma conta? 
+                                <a href="/login" class="text-primary fw-semibold text-decoration-none">
+                                    Faça login
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Back to Home -->
+                <div class="text-center mt-3">
+                    <a href="/" class="text-white text-decoration-none">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Voltar para home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword(fieldId) {
+        const passwordInput = document.getElementById(fieldId);
+        const toggleIcon = document.getElementById('toggleIcon' + (fieldId === 'password' ? '1' : '2'));
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        }
+    }
+    
+    // Verificação de força da senha
+    document.getElementById('password').addEventListener('input', function(e) {
+        const password = e.target.value;
+        const strengthBar = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('strengthText');
+        
+        let strength = 0;
+        if (password.length >= 6) strength += 25;
+        if (password.length >= 10) strength += 25;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+        if (/[0-9]/.test(password)) strength += 15;
+        if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+        
+        strengthBar.style.width = strength + '%';
+        
+        if (strength < 30) {
+            strengthBar.className = 'progress-bar bg-danger';
+            strengthText.textContent = 'Senha fraca';
+            strengthText.className = 'text-danger small';
+        } else if (strength < 60) {
+            strengthBar.className = 'progress-bar bg-warning';
+            strengthText.textContent = 'Senha média';
+            strengthText.className = 'text-warning small';
+        } else {
+            strengthBar.className = 'progress-bar bg-success';
+            strengthText.textContent = 'Senha forte';
+            strengthText.className = 'text-success small';
+        }
+    });
+    
+    // Validação do formulário
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password_confirm').value;
+        const terms = document.getElementById('terms').checked;
+        
+        if (password !== passwordConfirm) {
+            e.preventDefault();
+            alert('As senhas não coincidem!');
+            return false;
+        }
+        
+        if (!terms) {
+            e.preventDefault();
+            alert('Você precisa aceitar os Termos de Uso');
+            return false;
+        }
+        
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('A senha deve ter no mínimo 6 caracteres');
+            return false;
+        }
+    });
+    
+    // Validação em tempo real do username
+    document.getElementById('username').addEventListener('input', function(e) {
+        const username = e.target.value;
+        const pattern = /^[a-zA-Z0-9_]+$/;
+        
+        if (username && !pattern.test(username)) {
+            e.target.classList.add('is-invalid');
+        } else {
+            e.target.classList.remove('is-invalid');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Preços - TaskFlowAI{% endblock %}
+
+{% block content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="bi bi-check2-circle"></i> TaskFlowAI</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/login">Entrar</a></li>
+                <li class="nav-item"><a href="/register" class="btn btn-primary-custom">Começar Grátis</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-3 fw-bold mb-3">Escolha o plano perfeito para você</h1>
+                <p class="lead text-muted">Comece grátis. Faça upgrade quando precisar.</p>
+                
+                <!-- Toggle Anual/Mensal -->
+                <div class="d-inline-flex align-items-center gap-3 mt-4 p-2 bg-light rounded-pill">
+                    <span class="fw-semibold">Mensal</span>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="billingToggle" onchange="toggleBilling()">
+                    </div>
+                    <span class="fw-semibold">Anual <span class="badge bg-success">-20%</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4 align-items-center">
+            <!-- Free Plan -->
+            <div class="col-lg-4">
+                <div class="card card-custom h-100 p-4">
+                    <div class="card-body">
+                        <h4 class="fw-bold mb-2">Free</h4>
+                        <p class="text-muted mb-4">Para começar</p>
+                        
+                        <div class="mb-4">
+                            <h1 class="display-4 fw-bold">R$ 0</h1>
+                            <span class="text-muted">para sempre</span>
+                        </div>
+                        
+                        <a href="/register" class="btn btn-outline-primary w-100 mb-4">Começar Agora</a>
+                        
+                        <ul class="list-unstyled">
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>1 Workspace</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>3 Projetos</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>100 Tarefas</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>3 Membros</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>100 MB de armazenamento</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>10 requisições IA/mês</li>
+                            <li class="mb-3"><i class="bi bi-x-circle text-muted me-2"></i>Automações</li>
+                            <li class="mb-3"><i class="bi bi-x-circle text-muted me-2"></i>Suporte prioritário</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pro Plan -->
+            <div class="col-lg-4">
+                <div class="card card-custom h-100 p-4 border-primary" style="transform: scale(1.05);">
+                    <div class="position-absolute top-0 start-50 translate-middle">
+                        <span class="badge bg-primary px-4 py-2">MAIS POPULAR</span>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="fw-bold mb-2">Pro</h4>
+                        <p class="text-muted mb-4">Para profissionais</p>
+                        
+                        <div class="mb-4">
+                            <h1 class="display-4 fw-bold">
+                                <span class="monthly-price">R$ 29,90</span>
+                                <span class="annual-price d-none">R$ 23,92</span>
+                            </h1>
+                            <span class="text-muted">/mês</span>
+                        </div>
+                        
+                        <button class="btn btn-primary w-100 mb-4" onclick="selectPlan('pro', 'monthly')">
+                            Começar Teste Grátis
+                        </button>
+                        <p class="text-center small text-muted">14 dias grátis • Cancele quando quiser</p>
+                        
+                        <ul class="list-unstyled">
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>5 Workspaces</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Projetos ilimitados</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Tarefas ilimitadas</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>20 Membros</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>10 GB de armazenamento</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>500 requisições IA/mês</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Automações avançadas</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Suporte prioritário</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business Plan -->
+            <div class="col-lg-4">
+                <div class="card card-custom h-100 p-4">
+                    <div class="card-body">
+                        <h4 class="fw-bold mb-2">Business</h4>
+                        <p class="text-muted mb-4">Para equipes</p>
+                        
+                        <div class="mb-4">
+                            <h1 class="display-4 fw-bold">
+                                <span class="monthly-price">R$ 79,90</span>
+                                <span class="annual-price d-none">R$ 63,92</span>
+                            </h1>
+                            <span class="text-muted">/mês</span>
+                        </div>
+                        
+                        <button class="btn btn-primary w-100 mb-4" onclick="selectPlan('business', 'monthly')">
+                            Começar Teste Grátis
+                        </button>
+                        <p class="text-center small text-muted">14 dias grátis • Cancele quando quiser</p>
+                        
+                        <ul class="list-unstyled">
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Workspaces ilimitados</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Projetos ilimitados</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Tarefas ilimitadas</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Membros ilimitados</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>100 GB de armazenamento</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>IA ilimitada</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Automações ilimitadas</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Suporte 24/7</li>
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Onboarding dedicado</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="row mt-5 pt-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="text-center fw-bold mb-5">Perguntas Frequentes</h2>
+                
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                Posso cancelar a qualquer momento?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Sim! Você pode cancelar sua assinatura a qualquer momento sem taxas ou multas. Seu plano continuará ativo até o final do período pago.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                Como funciona o teste grátis?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Você tem 14 dias para testar todos os recursos do plano escolhido. Não cobramos nada durante o período de teste. Se não cancelar, a cobrança começará automaticamente após os 14 dias.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0 mb-3 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                Posso mudar de plano depois?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As mudanças serão aplicadas imediatamente e ajustaremos o valor proporcionalmente.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item border-0 shadow-sm">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Quais métodos de pagamento são aceitos?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Aceitamos cartões de crédito (Visa, Mastercard, American Express) e PIX. Todos os pagamentos são processados de forma segura pela Stripe.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container text-center">
+        <p class="text-white-50 mb-0">© 2025 TaskFlowAI. Todos os direitos reservados.</p>
+    </div>
+</footer>
+
+<!-- Stripe Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Finalizar Assinatura</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="payment-form">
+                    <div id="card-element" class="form-control mb-3"></div>
+                    <button class="btn btn-primary w-100" id="submit-payment">
+                        Confirmar Pagamento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    let selectedPlan = null;
+    let selectedBilling = 'monthly';
+    
+    function toggleBilling() {
+        const toggle = document.getElementById('billingToggle');
+        const monthlyPrices = document.querySelectorAll('.monthly-price');
+        const annualPrices = document.querySelectorAll('.annual-price');
+        
+        if (toggle.checked) {
+            selectedBilling = 'annual';
+            monthlyPrices.forEach(el => el.classList.add('d-none'));
+            annualPrices.forEach(el => el.classList.remove('d-none'));
+        } else {
+            selectedBilling = 'monthly';
+            monthlyPrices.forEach(el => el.classList.remove('d-none'));
+            annualPrices.forEach(el => el.classList.add('d-none'));
+        }
+    }
+    
+    async function selectPlan(plan, billing) {
+        selectedPlan = plan;
+        selectedBilling = billing;
+        
+        // Verificar se usuário está logado
+        const response = await fetch('/api/check-auth');
+        if (!response.ok) {
+            window.location.href = '/register?plan=' + plan;
+            return;
+        }
+        
+        // Abrir modal de pagamento ou redirecionar para checkout Stripe
+        window.location.href = '/checkout/' + plan + '/' + billing;
+    }
+</script>
+{% endblock %}

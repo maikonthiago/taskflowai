@@ -1,0 +1,30 @@
+/* Custom CSS for TaskFlowAI */
+
+:root {
+    --primary: #1E64F0;
+    --secondary: #5AE4C3;
+    --dark: #111315;
+    --light: #F4F6F8;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover {
+    background: #1450c4;
+    border-color: #1450c4;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}

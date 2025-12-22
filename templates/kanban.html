@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Kanban - {{ project.name }}{% endblock %}
+{% block content %}
+<div class="kanban-board p-4">
+    <h2>{{ project.name }} - Kanban</h2>
+    <div class="row g-3" id="kanban-container">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">A Fazer</div>
+                <div class="card-body kanban-column" data-status="todo"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">Em Progresso</div>
+                <div class="card-body kanban-column" data-status="in_progress"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">Revisão</div>
+                <div class="card-body kanban-column" data-status="review"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-success text-white">Concluído</div>
+                <div class="card-body kanban-column" data-status="done"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+// Carregar tarefas via API e permitir drag & drop
+fetch('/api/tasks?project_id={{ project.id }}')
+    .then(r => r.json())
+    .then(tasks => {
+        tasks.forEach(task => {
+            const col = document.querySelector(`[data-status="${task.status}"]`);
+            const card = document.createElement('div');
+            card.className = 'card mb-2';
+            card.innerHTML = `<div class="card-body"><h6>${task.title}</h6></div>`;
+            col.appendChild(card);
+        });
+    });
+</script>
+{% endblock %}
