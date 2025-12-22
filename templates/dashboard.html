@@ -155,6 +155,13 @@
                 <i class="bi bi-file-text me-2"></i>Documentos
             </a>
         </li>
+        {% if current_user.is_admin %}
+        <li class="nav-item mb-1">
+            <a class="nav-link" href="{{ url_for('admin_console') }}">
+                <i class="bi bi-shield-lock me-2"></i>Admin Console
+            </a>
+        </li>
+        {% endif %}
     </ul>
     
     <hr>

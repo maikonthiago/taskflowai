@@ -1,14 +1,21 @@
 import openai
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class AIService:
     """Serviço de integração com IA (OpenAI)"""
     
     def __init__(self, api_key: str = None):
+        self.api_key = None
+        self.set_api_key(api_key)
+
+    def set_api_key(self, api_key: Optional[str]):
+        """Atualiza a chave da API em tempo real."""
         self.api_key = api_key
         if api_key:
             openai.api_key = api_key
+        else:
+            openai.api_key = None
     
     def generate_tasks_from_description(self, description: str) -> List[Dict[str, Any]]:
         """

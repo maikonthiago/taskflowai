@@ -38,106 +38,54 @@
             </div>
         </div>
         
-        <div class="row g-4 align-items-center">
-            <!-- Free Plan -->
-            <div class="col-lg-4">
-                <div class="card card-custom h-100 p-4">
-                    <div class="card-body">
-                        <h4 class="fw-bold mb-2">Free</h4>
-                        <p class="text-muted mb-4">Para começar</p>
-                        
-                        <div class="mb-4">
-                            <h1 class="display-4 fw-bold">R$ 0</h1>
-                            <span class="text-muted">para sempre</span>
-                        </div>
-                        
-                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 mb-4">Começar Agora</a>
-                        
-                        <ul class="list-unstyled">
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>1 Workspace</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>3 Projetos</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>100 Tarefas</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>3 Membros</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>100 MB de armazenamento</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>10 requisições IA/mês</li>
-                            <li class="mb-3"><i class="bi bi-x-circle text-muted me-2"></i>Automações</li>
-                            <li class="mb-3"><i class="bi bi-x-circle text-muted me-2"></i>Suporte prioritário</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Pro Plan -->
-            <div class="col-lg-4">
-                <div class="card card-custom h-100 p-4 border-primary" style="transform: scale(1.05);">
+        <div class="row g-4 align-items-stretch">
+            {% for plan in plans %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card card-custom h-100 p-4 position-relative {{ 'border-primary shadow-lg' if plan.highlight else '' }}">
+                    {% if plan.badge_text %}
                     <div class="position-absolute top-0 start-50 translate-middle">
-                        <span class="badge bg-primary px-4 py-2">MAIS POPULAR</span>
+                        <span class="badge bg-primary px-4 py-2 text-uppercase">{{ plan.badge_text }}</span>
                     </div>
-                    <div class="card-body">
-                        <h4 class="fw-bold mb-2">Pro</h4>
-                        <p class="text-muted mb-4">Para profissionais</p>
-                        
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="fw-bold mb-2">{{ plan.name }}</h4>
+                        <p class="text-muted mb-4">{{ plan.description }}</p>
+
                         <div class="mb-4">
-                            <h1 class="display-4 fw-bold">
-                                <span class="monthly-price">R$ 29,90</span>
-                                <span class="annual-price d-none">R$ 23,92</span>
+                            {% set monthly_price = 'R$ {:,.2f}'.format(plan.price_monthly).replace(',', 'X').replace('.', ',').replace('X', '.') %}
+                            {% set yearly_monthly = (plan.price_yearly or 0) / 12 %}
+                            {% set annual_price = 'R$ {:,.2f}'.format(yearly_monthly).replace(',', 'X').replace('.', ',').replace('X', '.') %}
+                            <h1 class="display-5 fw-bold">
+                                <span class="price-number" data-plan="{{ plan.slug }}" data-monthly="{{ '{:.2f}'.format(plan.price_monthly) }}" data-annual="{{ '{:.2f}'.format(yearly_monthly) }}">
+                                    {{ monthly_price }}
+                                </span>
+                                <small class="fs-5 text-muted">/mês</small>
                             </h1>
-                            <span class="text-muted">/mês</span>
+                            {% if plan.price_yearly %}
+                            <small class="text-muted">ou R$ {{ '{:,.2f}'.format(plan.price_yearly).replace(',', 'X').replace('.', ',').replace('X', '.') }} / ano</small>
+                            {% else %}
+                            <small class="text-muted">para sempre</small>
+                            {% endif %}
                         </div>
-                        
-                        <button class="btn btn-primary w-100 mb-4" onclick="selectPlan('pro', 'monthly')">
-                            Começar Teste Grátis
+
+                        {% if plan.price_monthly == 0 %}
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 mb-3">Começar Agora</a>
+                        {% else %}
+                        <button class="btn btn-primary w-100 mb-3" onclick="selectPlan('{{ plan.slug }}')">
+                            Escolher este plano
                         </button>
-                        <p class="text-center small text-muted">14 dias grátis • Cancele quando quiser</p>
-                        
-                        <ul class="list-unstyled">
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>5 Workspaces</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Projetos ilimitados</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Tarefas ilimitadas</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>20 Membros</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>10 GB de armazenamento</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>500 requisições IA/mês</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Automações avançadas</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Suporte prioritário</li>
+                        <p class="text-center small text-muted mb-3">14 dias grátis • Cancele quando quiser</p>
+                        {% endif %}
+
+                        <ul class="list-unstyled mt-auto">
+                            {% for feature in plan.features or [] %}
+                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>{{ feature }}</li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
             </div>
-            
-            <!-- Business Plan -->
-            <div class="col-lg-4">
-                <div class="card card-custom h-100 p-4">
-                    <div class="card-body">
-                        <h4 class="fw-bold mb-2">Business</h4>
-                        <p class="text-muted mb-4">Para equipes</p>
-                        
-                        <div class="mb-4">
-                            <h1 class="display-4 fw-bold">
-                                <span class="monthly-price">R$ 79,90</span>
-                                <span class="annual-price d-none">R$ 63,92</span>
-                            </h1>
-                            <span class="text-muted">/mês</span>
-                        </div>
-                        
-                        <button class="btn btn-primary w-100 mb-4" onclick="selectPlan('business', 'monthly')">
-                            Começar Teste Grátis
-                        </button>
-                        <p class="text-center small text-muted">14 dias grátis • Cancele quando quiser</p>
-                        
-                        <ul class="list-unstyled">
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Workspaces ilimitados</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Projetos ilimitados</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Tarefas ilimitadas</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Membros ilimitados</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>100 GB de armazenamento</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>IA ilimitada</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Automações ilimitadas</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Suporte 24/7</li>
-                            <li class="mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i>Onboarding dedicado</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            {% endfor %}
         </div>
         
         <!-- FAQ Section -->
@@ -236,29 +184,31 @@
 <script>
     let selectedPlan = null;
     let selectedBilling = 'monthly';
+    let billingMode = 'monthly';
     const checkAuthUrl = "{{ url_for('api_check_auth') }}";
     const registerUrl = "{{ url_for('register') }}";
     const subscriptionUrl = "{{ url_for('subscription_settings') }}";
     
     function toggleBilling() {
         const toggle = document.getElementById('billingToggle');
-        const monthlyPrices = document.querySelectorAll('.monthly-price');
-        const annualPrices = document.querySelectorAll('.annual-price');
-        
-        if (toggle.checked) {
-            selectedBilling = 'annual';
-            monthlyPrices.forEach(el => el.classList.add('d-none'));
-            annualPrices.forEach(el => el.classList.remove('d-none'));
-        } else {
-            selectedBilling = 'monthly';
-            monthlyPrices.forEach(el => el.classList.remove('d-none'));
-            annualPrices.forEach(el => el.classList.add('d-none'));
-        }
+        billingMode = toggle.checked ? 'annual' : 'monthly';
+        selectedBilling = billingMode;
+        document.querySelectorAll('.price-number').forEach(el => {
+            const monthly = parseFloat(el.dataset.monthly || '0');
+            const annual = parseFloat(el.dataset.annual || monthly);
+            const value = billingMode === 'annual' ? annual : monthly;
+            el.textContent = formatCurrency(value);
+        });
     }
     
-    async function selectPlan(plan, billing) {
+    function formatCurrency(value) {
+        const number = parseFloat(value || 0);
+        return 'R$ ' + number.toFixed(2).replace('.', ',');
+    }
+    
+    async function selectPlan(plan) {
         selectedPlan = plan;
-        selectedBilling = billing;
+        selectedBilling = billingMode;
         
         // Verificar se usuário está logado
         const response = await fetch(checkAuthUrl);
@@ -268,7 +218,11 @@
         }
         
         // Redirecionar para as configurações de assinatura com o plano selecionado
-        window.location.href = `${subscriptionUrl}?plan=${plan}&billing=${billing}`;
+        window.location.href = `${subscriptionUrl}?plan=${plan}&billing=${selectedBilling}`;
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleBilling();
+    });
 </script>
 {% endblock %}

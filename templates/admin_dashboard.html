@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin - TaskFlowAI{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        background: radial-gradient(circle at top, rgba(30,100,240,0.12), transparent 45%), #f3f4f7;
+        font-family: 'Space Grotesk', 'Inter', sans-serif;
+    }
+    .admin-hero {
+        background: linear-gradient(135deg, #111315, #1E1F24);
+        color: #fff;
+        border-radius: 28px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .admin-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at top right, rgba(90,228,195,0.25), transparent 40%);
+        pointer-events: none;
+    }
+    .admin-hero h1 {
+        font-size: 2.75rem;
+    }
+    .glass-panel {
+        backdrop-filter: blur(18px);
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        border: 1px solid rgba(17,19,21,0.08);
+        box-shadow: 0 15px 40px rgba(17,19,21,0.08);
+        padding: 1.5rem;
+    }
+    .stat-chip {
+        border-radius: 18px;
+        padding: 1rem;
+        border: 1px solid rgba(17,19,21,0.08);
+        transition: transform 0.2s ease, border 0.2s ease;
+    }
+    .stat-chip:hover {
+        transform: translateY(-4px);
+        border-color: rgba(30,100,240,0.3);
+    }
+    .stat-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6c757d;
+    }
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    .plan-editor, .setting-card {
+        border: 1px solid #e2e5ec;
+        border-radius: 18px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #fff;
+    }
+    .plan-editor h6 {
+        font-weight: 600;
+    }
+    .table-responsive {
+        border-radius: 18px;
+        background: #fff;
+        padding: 1rem;
+        border: 1px solid #e2e5ec;
+    }
+    .user-row-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .badge-soft {
+        background: rgba(30,100,240,0.1);
+        color: #1E64F0;
+        border-radius: 999px;
+        padding: 0.25rem 0.75rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+    .chart-bar {
+        height: 10px;
+        border-radius: 20px;
+        background: #e2e5ec;
+        overflow: hidden;
+    }
+    .chart-bar span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(135deg, #5AE4C3, #1E64F0);
+    }
+    .btn-command {
+        border-radius: 999px;
+        padding: 0.65rem 1.5rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="admin-hero">
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start gap-4">
+            <div>
+                <p class="text-uppercase text-white-50 small mb-2">Console administrativo</p>
+                <h1 class="fw-bold mb-3">Bem-vindo, {{ current_user.full_name or current_user.username }}</h1>
+                <p class="lead text-white-50 mb-0">Monitore usuários, planos de assinatura e integrações críticas em um único lugar.</p>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-3">
+                <a href="#planSection" class="btn btn-light btn-command text-dark"><i class="bi bi-cash-stack me-2"></i>Gerenciar planos</a>
+                <a href="#settingsSection" class="btn btn-outline-light btn-command"><i class="bi bi-key me-2"></i>Chaves e integrações</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-grid mb-4">
+        <div class="stat-chip">
+            <div class="stat-label">Usuários totais</div>
+            <div class="fs-3 fw-bold" id="statTotalUsers">{{ stats.total_users }}</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-label">Ativos</div>
+            <div class="fs-3 fw-bold text-success" id="statActiveUsers">{{ stats.active_users }}</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-label">Novos (30d)</div>
+            <div class="fs-3 fw-bold text-primary" id="statNewUsers">{{ stats.new_users }}</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-label">Administradores</div>
+            <div class="fs-3 fw-bold text-warning" id="statAdminUsers">{{ stats.admin_users }}</div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="glass-panel h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Usuários & acesso</h5>
+                    <div class="d-flex gap-2">
+                        <input type="search" class="form-control form-control-sm" placeholder="Buscar usuário" id="userSearchInput">
+                        <button class="btn btn-sm btn-outline-primary" id="refreshUsers"><i class="bi bi-arrow-repeat"></i></button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr class="text-muted small text-uppercase">
+                                <th>Usuário</th>
+                                <th>Email</th>
+                                <th>Plano</th>
+                                <th>Status</th>
+                                <th>Admin</th>
+                                <th>Criado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTable">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Carregando usuários...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass-panel mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">Distribuição por plano</h6>
+                    <button class="btn btn-sm btn-outline-secondary" id="refreshOverview"><i class="bi bi-arrow-repeat"></i></button>
+                </div>
+                <div id="planUsageList" class="d-flex flex-column gap-3">
+                    {% for item in plan_usage %}
+                    <div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>{{ item.label }}</span>
+                            <span class="fw-bold">{{ item.value }}</span>
+                        </div>
+                        <div class="chart-bar"><span style="width: {{ (item.value / (stats.total_users or 1)) * 100 }}%"></span></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="glass-panel" id="settingsSection">
+                <h6 class="fw-bold mb-3">Chaves & integrações</h6>
+                <div id="settingsWrapper">
+                    {% for setting in admin_state.settings %}
+                    <div class="setting-card" data-setting-key="{{ setting.key }}">
+                        <label class="form-label fw-semibold">{{ setting.key }}</label>
+                        <input type="text" class="form-control form-control-sm setting-input" value="{{ setting.value }}" placeholder="{{ 'Valor oculto' if setting.is_secret and setting.has_value else '' }}">
+                        <small class="text-muted d-block mt-1">{{ setting.description }}</small>
+                        <div class="d-flex gap-2 mt-2">
+                            <button class="btn btn-sm btn-outline-primary" data-action="save-setting">Salvar</button>
+                            {% if setting.is_secret and setting.has_value %}
+                            <button class="btn btn-sm btn-outline-danger" data-action="clear-setting">Limpar</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel" id="planSection">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">Planos e limites</h5>
+                <p class="text-muted small mb-0">Atualize valores, destaque planos e gerencie benefícios oferecidos.</p>
+            </div>
+            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newPlanModal"><i class="bi bi-plus-circle me-2"></i>Novo plano</button>
+        </div>
+        <div class="row g-4">
+            {% for plan in admin_state.plans %}
+            <div class="col-lg-6">
+                <div class="plan-editor" data-plan-id="{{ plan.id }}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">{{ plan.name }}</h6>
+                        <div class="d-flex gap-2">
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input plan-active-toggle" type="checkbox" {% if plan.is_active %}checked{% endif %}>
+                                <label class="form-check-label small">Ativo</label>
+                            </div>
+                            <button class="btn btn-sm btn-outline-success" data-action="save-plan">Salvar</button>
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Nome</label>
+                            <input type="text" class="form-control form-control-sm plan-name" value="{{ plan.name }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">Preço mensal</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm plan-monthly" value="{{ '{:.2f}'.format(plan.price_monthly) }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small">Preço anual</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm plan-yearly" value="{{ '{:.2f}'.format(plan.price_yearly or 0) }}">
+                        </div>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small">Badge</label>
+                            <input type="text" class="form-control form-control-sm plan-badge" value="{{ plan.badge_text or '' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">Slug</label>
+                            <input type="text" class="form-control form-control-sm" value="{{ plan.slug }}" disabled>
+                        </div>
+                    </div>
+                    <div class="form-check form-switch form-switch-sm mb-2">
+                        <input class="form-check-input plan-highlight" type="checkbox" {% if plan.highlight %}checked{% endif %}>
+                        <label class="form-check-label small">Destacar na página de preços</label>
+                    </div>
+                    <label class="form-label small">Benefícios (1 por linha)</label>
+                    <textarea class="form-control form-control-sm plan-features" rows="4">{{ (plan.features or [])|join('\n') }}</textarea>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Novo plano -->
+<div class="modal fade" id="newPlanModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="newPlanForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastrar novo plano</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nome</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Slug</label>
+                            <input type="text" class="form-control" name="slug" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Badge</label>
+                            <input type="text" class="form-control" name="badge_text">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Descrição</label>
+                            <input type="text" class="form-control" name="description">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Preço mensal</label>
+                            <input type="number" step="0.01" class="form-control" name="price_monthly" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Preço anual</label>
+                            <input type="number" step="0.01" class="form-control" name="price_yearly">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Benefícios (um por linha)</label>
+                            <textarea class="form-control" name="features" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar plano</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+    const ADMIN_STATE = {{ admin_state|tojson }};
+    const endpoints = {
+        users: "{{ url_for('api_admin_users') }}",
+        overview: "{{ url_for('api_admin_overview') }}",
+        plans: "{{ url_for('api_admin_plans') }}",
+        planDetail: "{{ url_for('api_admin_update_plan', plan_id=0)[:-1] }}",
+        settings: "{{ url_for('api_admin_settings') }}",
+        settingDetail: "{{ url_for('api_admin_update_setting', key='__KEY__') }}"
+    };
+
+    function planDetailUrl(id) {
+        return endpoints.planDetail + id;
+    }
+
+    function settingUrl(key) {
+        return endpoints.settingDetail.replace('__KEY__', key);
+    }
+
+    const planOptions = (ADMIN_STATE.plans || []).map(plan => ({ slug: plan.slug, name: plan.name }));
+
+    function renderUsers(users) {
+        const tbody = document.getElementById('adminUsersTable');
+        if (!users.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Nenhum usuário encontrado</td></tr>';
+            return;
+        }
+        tbody.innerHTML = users.map(user => {
+            const planSelect = planOptions.map(plan => `
+                <option value="${plan.slug}" ${plan.slug === user.subscription_plan ? 'selected' : ''}>${plan.name}</option>
+            `).join('');
+            const createdAt = user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-';
+            return `
+            <tr>
+                <td>
+                    <div class="fw-semibold">${user.full_name || user.username}</div>
+                    <small class="text-muted">@${user.username}</small>
+                </td>
+                <td class="small text-muted">${user.email}</td>
+                <td>
+                    <select class="form-select form-select-sm user-plan-select" data-user-id="${user.id}">
+                        ${planSelect}
+                    </select>
+                </td>
+                <td>
+                    <div class="form-check form-switch mb-1">
+                        <input class="form-check-input user-status-toggle" type="checkbox" data-user-id="${user.id}" ${user.is_active ? 'checked' : ''}>
+                    </div>
+                    <span class="badge ${user.is_active ? 'bg-success' : 'bg-secondary'}">${user.is_active ? 'Ativo' : 'Inativo'}</span>
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input user-admin-toggle" type="checkbox" data-user-id="${user.id}" ${user.is_admin ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td class="small text-muted">${createdAt}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function loadUsers(query = '') {
+        const url = new URL(endpoints.users, window.location.origin);
+        if (query) url.searchParams.set('search', query);
+        const response = await fetch(url);
+        const data = await response.json();
+        renderUsers(data);
+    }
+
+    async function updateUser(userId, payload) {
+        const response = await fetch(`${endpoints.users}/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            TaskFlowAI.showNotification(error.error || 'Erro ao atualizar usuário', 'danger');
+            return;
+        }
+        TaskFlowAI.showNotification('Usuário atualizado', 'success');
+        loadUsers(document.getElementById('userSearchInput').value);
+    }
+
+    async function refreshOverview() {
+        const res = await fetch(endpoints.overview);
+        const data = await res.json();
+        document.getElementById('statTotalUsers').textContent = data.stats.total_users;
+        document.getElementById('statActiveUsers').textContent = data.stats.active_users;
+        document.getElementById('statNewUsers').textContent = data.stats.new_users;
+        document.getElementById('statAdminUsers').textContent = data.stats.admin_users;
+        const wrapper = document.getElementById('planUsageList');
+        wrapper.innerHTML = data.plan_usage.map(item => {
+            const percentage = data.stats.total_users ? (item.value / data.stats.total_users) * 100 : 0;
+            return `
+                <div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>${item.label}</span>
+                        <span class="fw-bold">${item.value}</span>
+                    </div>
+                    <div class="chart-bar"><span style="width: ${percentage}%"></span></div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function savePlan(card) {
+        const planId = card.dataset.planId;
+        const payload = {
+            name: card.querySelector('.plan-name').value,
+            price_monthly: card.querySelector('.plan-monthly').value,
+            price_yearly: card.querySelector('.plan-yearly').value,
+            badge_text: card.querySelector('.plan-badge').value,
+            highlight: card.querySelector('.plan-highlight').checked,
+            is_active: card.querySelector('.plan-active-toggle').checked,
+            features: card.querySelector('.plan-features').value.split('\n')
+        };
+        const response = await fetch(planDetailUrl(planId), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (response.ok) {
+            TaskFlowAI.showNotification('Plano atualizado', 'success');
+        } else {
+            const error = await response.json();
+            TaskFlowAI.showNotification(error.error || 'Erro ao atualizar plano', 'danger');
+        }
+    }
+
+    document.addEventListener('change', event => {
+        if (event.target.matches('.user-plan-select')) {
+            updateUser(event.target.dataset.userId, { subscription_plan: event.target.value });
+        }
+        if (event.target.matches('.user-status-toggle')) {
+            updateUser(event.target.dataset.userId, { is_active: event.target.checked });
+        }
+        if (event.target.matches('.user-admin-toggle')) {
+            updateUser(event.target.dataset.userId, { is_admin: event.target.checked });
+        }
+    });
+
+    document.addEventListener('click', event => {
+        if (event.target.matches('[data-action="save-plan"]')) {
+            const card = event.target.closest('.plan-editor');
+            savePlan(card);
+        }
+        if (event.target.matches('[data-action="save-setting"]')) {
+            const card = event.target.closest('.setting-card');
+            const key = card.dataset.settingKey;
+            const value = card.querySelector('.setting-input').value;
+            updateSetting(key, value);
+        }
+        if (event.target.matches('[data-action="clear-setting"]')) {
+            const card = event.target.closest('.setting-card');
+            const key = card.dataset.settingKey;
+            updateSetting(key, '', true);
+        }
+    });
+
+    document.getElementById('refreshUsers').addEventListener('click', () => {
+        loadUsers(document.getElementById('userSearchInput').value);
+    });
+
+    document.getElementById('refreshOverview').addEventListener('click', refreshOverview);
+
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(null, args), delay);
+        };
+    }
+
+    document.getElementById('userSearchInput').addEventListener('input', debounce((event) => {
+        loadUsers(event.target.value);
+    }, 400));
+
+    async function updateSetting(key, value, clear = false) {
+        const response = await fetch(settingUrl(key), {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value, clear })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            TaskFlowAI.showNotification(data.error || 'Erro ao salvar configuração', 'danger');
+            return;
+        }
+        TaskFlowAI.showNotification('Configuração atualizada', 'success');
+    }
+
+    document.getElementById('newPlanForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const payload = Object.fromEntries(formData.entries());
+        payload.features = payload.features ? payload.features.split('\n') : [];
+        const response = await fetch(endpoints.plans, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (response.ok) {
+            TaskFlowAI.showNotification('Plano criado', 'success');
+            event.target.reset();
+            bootstrap.Modal.getInstance(document.getElementById('newPlanModal')).hide();
+            setTimeout(() => window.location.reload(), 700);
+        } else {
+            const error = await response.json();
+            TaskFlowAI.showNotification(error.error || 'Erro ao criar plano', 'danger');
+        }
+    });
+
+    // Inicialização
+    loadUsers();
+    refreshOverview();
+</script>
+{% endblock %}

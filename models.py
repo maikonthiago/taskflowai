@@ -86,8 +86,11 @@ class User(UserMixin, db.Model):
             'avatar': self.avatar,
             'bio': self.bio,
             'is_admin': self.is_admin,
+            'is_active': self.is_active,
             'subscription_plan': self.subscription_plan,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            'subscription_status': self.subscription_status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'last_login': self.last_login.isoformat() if self.last_login else None
         }
 
 
@@ -484,6 +487,79 @@ class Notification(db.Model):
             'is_read': self.is_read,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
+
+
+class SubscriptionPlan(db.Model):
+    """Planos de assinatura administráveis"""
+    __tablename__ = 'subscription_plans'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    slug = db.Column(db.String(50), unique=True, nullable=False)
+    description = db.Column(db.String(255))
+    badge_text = db.Column(db.String(50))
+    highlight = db.Column(db.Boolean, default=False)
+    is_default = db.Column(db.Boolean, default=False)
+    order = db.Column(db.Integer, default=0)
+
+    price_monthly = db.Column(db.Float, default=0)
+    price_yearly = db.Column(db.Float)
+    currency = db.Column(db.String(10), default='BRL')
+    stripe_price_monthly_id = db.Column(db.String(255))
+    stripe_price_yearly_id = db.Column(db.String(255))
+
+    features = db.Column(db.JSON, default=list)
+    is_active = db.Column(db.Boolean, default=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'slug': self.slug,
+            'description': self.description,
+            'badge_text': self.badge_text,
+            'highlight': self.highlight,
+            'is_default': self.is_default,
+            'order': self.order,
+            'price_monthly': self.price_monthly,
+            'price_yearly': self.price_yearly,
+            'currency': self.currency,
+            'stripe_price_monthly_id': self.stripe_price_monthly_id,
+            'stripe_price_yearly_id': self.stripe_price_yearly_id,
+            'features': self.features or [],
+            'is_active': self.is_active
+        }
+
+
+class SystemSetting(db.Model):
+    """Configurações globais administráveis"""
+    __tablename__ = 'system_settings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False)
+    value = db.Column(db.Text)
+    category = db.Column(db.String(50), default='general')
+    description = db.Column(db.Text)
+    is_secret = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self, include_value=False):
+        data = {
+            'id': self.id,
+            'key': self.key,
+            'category': self.category,
+            'description': self.description,
+            'is_secret': self.is_secret,
+            'has_value': bool(self.value)
+        }
+        if include_value or not self.is_secret:
+            data['value'] = self.value
+        return data
 
 
 class Automation(db.Model):
