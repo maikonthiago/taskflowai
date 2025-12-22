@@ -448,6 +448,13 @@ def get_taskflowai_app():
         # Configurar para subpath
         taskflowai_app.config['APPLICATION_ROOT'] = '/taskflowai'
         taskflowai_app.config['DEBUG'] = False
+        
+        # Adicionar DispatcherMiddleware para corrigir rotas
+        from werkzeug.middleware.dispatcher import DispatcherMiddleware
+        taskflowai_app.wsgi_app = DispatcherMiddleware(
+            lambda environ, start_response: [b''],  # Default app (não usado)
+            {'/taskflowai': taskflowai_app.wsgi_app}
+        )
 
         # Guardar no cache
         _taskflowai_app_cache = taskflowai_app
