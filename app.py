@@ -45,14 +45,14 @@ def load_user(user_id):
 def index():
     """Landing page"""
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     return render_template('landing.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Página de login"""
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     
     if request.method == 'POST':
         data = request.form if request.form else request.get_json()
@@ -70,9 +70,9 @@ def login():
                 return jsonify({
                     'success': True,
                     'message': 'Login realizado com sucesso',
-                    'redirect': url_for('dashboard')
+                    'redirect': '/taskflowai/dashboard'
                 })
-            return redirect(url_for('dashboard'))
+            return redirect('/taskflowai/dashboard')
         
         if request.is_json:
             return jsonify({'success': False, 'message': 'Usuário ou senha inválidos'}), 401
@@ -84,7 +84,7 @@ def login():
 def register():
     """Página de registro"""
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     
     if request.method == 'POST':
         data = request.form if request.form else request.get_json()
@@ -134,11 +134,11 @@ def register():
             return jsonify({
                 'success': True,
                 'message': 'Conta criada com sucesso',
-                'redirect': url_for('dashboard')
+                'redirect': '/taskflowai/dashboard'
             })
         
         flash('Conta criada com sucesso!', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     
     return render_template('register.html')
 
@@ -147,7 +147,7 @@ def register():
 def logout():
     """Logout"""
     logout_user()
-    return redirect(url_for('index'))
+    return redirect('/taskflowai/')
 
 @app.route('/pricing')
 def pricing():
@@ -202,7 +202,7 @@ def workspace_detail(workspace_id):
     # Verificar permissão
     if current_user not in workspace.members and workspace.owner_id != current_user.id:
         flash('Você não tem permissão para acessar este workspace', 'danger')
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     
     projects = Project.query.filter_by(workspace_id=workspace_id, is_active=True).all()
     spaces = Space.query.filter_by(workspace_id=workspace_id, is_active=True).all()
@@ -224,7 +224,7 @@ def project_detail(project_id):
     workspace = project.workspace
     if current_user not in workspace.members and workspace.owner_id != current_user.id:
         flash('Você não tem permissão para acessar este projeto', 'danger')
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     
     lists = TaskList.query.filter_by(project_id=project_id, is_active=True)\
         .order_by(TaskList.position).all()
@@ -264,7 +264,7 @@ def task_detail(task_id):
     workspace = task.project.workspace
     if current_user not in workspace.members and workspace.owner_id != current_user.id:
         flash('Você não tem permissão para acessar esta tarefa', 'danger')
-        return redirect(url_for('dashboard'))
+        return redirect('/taskflowai/dashboard')
     
     comments = Comment.query.filter_by(task_id=task_id)\
         .order_by(Comment.created_at.desc()).all()
