@@ -48,7 +48,7 @@ SECRET_KEY=gere-uma-chave-secreta-forte-aqui
 JWT_SECRET_KEY=gere-outra-chave-secreta-aqui
 
 # Database (MySQL do PythonAnywhere)
-DATABASE_URL=mysql+pymysql://lobtechsolutions:SENHA@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$taskflowai
+DATABASE_URL=mysql+pymysql://lobtechsolutions:SENHA@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$lobtechsolutionstaskflowai
 
 # Stripe (suas chaves)
 STRIPE_PUBLIC_KEY=pk_live_sua_chave
@@ -119,7 +119,7 @@ app.wsgi_app = DispatcherMiddleware(simple_app, {
 
 No PythonAnywhere:
 1. Databases tab
-2. Criar banco: `lobtechsolutions$taskflowai`
+2. Banco criado: `lobtechsolutions$lobtechsolutionstaskflowai`
 3. Anotar senha
 4. Atualizar `.env` com credenciais
 
@@ -183,7 +183,7 @@ touch /var/www/lobtechsolutions_pythonanywhere_com_wsgi.py
 
 ```bash
 # Backup do banco
-mysqldump -u lobtechsolutions -p lobtechsolutions$taskflowai > backup.sql
+mysqldump -u lobtechsolutions -p lobtechsolutions$lobtechsolutionstaskflowai > backup.sql
 
 # Backup dos arquivos
 tar -czf taskflowai_backup.tar.gz ~/TaskFlowAI

@@ -19,11 +19,11 @@ pip install -r requirements.txt
 # 5. Criar arquivo .env
 cat > .env << 'EOF'
 FLASK_ENV=production
-SECRET_KEY=GERE_UMA_CHAVE_SECRETA_FORTE_AQUI_123456789
-JWT_SECRET_KEY=GERE_OUTRA_CHAVE_SECRETA_AQUI_987654321
+SECRET_KEY=6f4a9c0e7b8d2f1c9e3a0b7d5e8f4c2a9d1e6b8f0c3a5d7e2b4c9a8f1d6e
+JWT_SECRET_KEY=9b2e7d1c8f0a6e4d5b3c9a1f7e8d2b0c4a6f5e9d1c7b8a3e2f4d0a9b6
 
 # Database MySQL do PythonAnywhere
-DATABASE_URL=mysql+pymysql://lobtechsolutions:SENHA_DO_MYSQL@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$taskflowai
+DATABASE_URL=mysql+pymysql://lobtechsolutions:#Wolf@1902@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$lobtechsolutionstaskflowai
 
 # Stripe (substitua por suas chaves reais)
 STRIPE_PUBLIC_KEY=pk_test_sua_chave_publica
@@ -31,14 +31,14 @@ STRIPE_SECRET_KEY=sk_test_sua_chave_secreta
 STRIPE_WEBHOOK_SECRET=whsec_sua_chave_webhook
 
 # OpenAI (opcional)
-OPENAI_API_KEY=sk-sua_chave_openai
+OPENAI_API_KEY=sk-sua-chave-openai-aqui
 EOF
 
 # 6. Criar banco de dados (no PythonAnywhere Dashboard):
 # - Vá em "Databases"
-# - Crie um banco: lobtechsolutions$taskflowai
+# - Banco criado: lobtechsolutions$lobtechsolutionstaskflowai
 # - Anote a senha do MySQL
-# - Atualize DATABASE_URL no .env acima
+# - Atualize DATABASE_URL no .env acima com a senha real
 
 # 7. Inicializar banco de dados
 python -c "from app import app, db; app.app_context().push(); db.create_all(); print('✅ Banco de dados inicializado!')"

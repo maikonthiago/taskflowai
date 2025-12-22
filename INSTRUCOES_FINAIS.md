@@ -126,7 +126,7 @@ FLASK_ENV=production
 SECRET_KEY=GERE_UMA_CHAVE_FORTE_AQUI
 JWT_SECRET_KEY=OUTRA_CHAVE_FORTE
 
-DATABASE_URL=mysql+pymysql://lobtechsolutions:SUA_SENHA@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$taskflowai
+DATABASE_URL=mysql+pymysql://lobtechsolutions:SUA_SENHA@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$lobtechsolutionstaskflowai
 
 STRIPE_PUBLIC_KEY=pk_test_SUA_CHAVE
 STRIPE_SECRET_KEY=sk_test_SUA_CHAVE
@@ -137,7 +137,7 @@ OPENAI_API_KEY=sk-SUA_CHAVE
 
 ### Passo 8: Criar Banco MySQL
 1. Vá em **"Databases"** tab
-2. Crie banco: `lobtechsolutions$taskflowai`
+2. Banco criado: `lobtechsolutions$lobtechsolutionstaskflowai`
 3. Anote a senha
 4. Atualize o .env com a senha
 
@@ -194,7 +194,7 @@ tail -f /var/log/lobtechsolutions.pythonanywhere.com.error.log
 4. **Backup Regular:**
    ```bash
    # Backup do banco
-   mysqldump -u lobtechsolutions -p lobtechsolutions$taskflowai > backup.sql
+   mysqldump -u lobtechsolutions -p lobtechsolutions$lobtechsolutionstaskflowai > backup.sql
    ```
 
 5. **Monitoramento:**

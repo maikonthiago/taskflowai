@@ -28,7 +28,7 @@ Use este checklist para garantir que todos os passos foram concluídos corretame
 
 ### Fase 3: Banco de Dados
 - [ ] Banco MySQL criado no PythonAnywhere (Databases tab)
-- [ ] Nome do banco: `lobtechsolutions$taskflowai`
+- [ ] Nome do banco: `lobtechsolutions$lobtechsolutionstaskflowai`
 - [ ] Senha do MySQL anotada
 - [ ] Banco inicializado: `python -c "from app import app, db; ..."`
 - [ ] Usuário admin criado: `python create_admin.py`

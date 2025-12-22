@@ -43,9 +43,9 @@ SECRET_KEY=MUDE_ESTA_CHAVE_SECRETA_12345678901234567890
 JWT_SECRET_KEY=MUDE_ESTA_JWT_CHAVE_98765432109876543210
 
 # Banco de Dados MySQL
-# Vá em Databases -> Crie: lobtechsolutions$taskflowai
+# Banco criado: lobtechsolutions$lobtechsolutionstaskflowai
 # Substitua SENHA_MYSQL pela senha do seu banco
-DATABASE_URL=mysql+pymysql://lobtechsolutions:SENHA_MYSQL@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$taskflowai
+DATABASE_URL=mysql+pymysql://lobtechsolutions:SENHA_MYSQL@lobtechsolutions.mysql.pythonanywhere-services.com/lobtechsolutions$lobtechsolutionstaskflowai
 
 # Stripe (substitua por suas chaves reais)
 # Obtenha em: https://dashboard.stripe.com/apikeys
@@ -74,11 +74,9 @@ echo ""
 # PASSO 5: Inicializar banco de dados
 # -----------------------------------------------------------------------------
 echo "🗄️  Inicializando banco de dados..."
-echo "⚠️  Certifique-se de ter criado o banco MySQL primeiro!"
-echo "   1. Vá em Databases no PythonAnywhere"
-echo "   2. Crie um banco: lobtechsolutions\$taskflowai"
-echo "   3. Anote a senha"
-echo "   4. Atualize DATABASE_URL no .env"
+echo "⚠️  Banco MySQL já criado: lobtechsolutions\$lobtechsolutionstaskflowai"
+echo "   1. Anote a senha do banco"
+echo "   2. Atualize DATABASE_URL no .env com a senha real"
 echo ""
 echo "Pressione ENTER para continuar (ou Ctrl+C para parar e configurar)..."
 read
