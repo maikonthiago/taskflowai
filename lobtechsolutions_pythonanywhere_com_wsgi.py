@@ -396,7 +396,7 @@ def get_taskflowai_app():
     import importlib.util
 
     # Definir paths do TaskFlowAI
-    taskflowai_path = '/home/lobtechsolutions/TaskFlowAI'
+    taskflowai_path = '/home/lobtechsolutions/TaskFlowAI/taskflowai'
     taskflowai_venv_path = '/home/lobtechsolutions/.virtualenvs/taskflowai/lib/python3.10/site-packages'
 
     # Salvar sys.path e sys.modules originais
