@@ -374,6 +374,173 @@ def casadococo_health():
 
 
 # ==========================================
+# SISTEMA TASKFLOWAI - /taskflowai
+# ==========================================
+
+# Cache global para o app do TaskFlowAI (será criado na primeira requisição)
+_taskflowai_app_cache = None
+
+def get_taskflowai_app():
+    """
+    Função para criar app do TaskFlowAI com ambiente isolado
+    Usa cache para evitar recriar o app a cada requisição
+    """
+    global _taskflowai_app_cache
+
+    # Se já existe no cache, retornar
+    if _taskflowai_app_cache is not None:
+        return _taskflowai_app_cache
+
+    import sys
+    import os
+    import importlib.util
+
+    # Definir paths do TaskFlowAI
+    taskflowai_path = '/home/lobtechsolutions/TaskFlowAI/taskflowai'
+    taskflowai_venv_path = '/home/lobtechsolutions/.virtualenvs/taskflowai/lib/python3.10/site-packages'
+
+    # Salvar sys.path e sys.modules originais
+    original_sys_path = sys.path.copy()
+    modules_to_restore = {}
+
+    # Módulos que podem causar conflito
+    conflicting_modules = ['models', 'app', 'config', 'ai_service', 'stripe_payment']
+
+    # Salvar e remover módulos conflitantes
+    for mod_name in conflicting_modules:
+        if mod_name in sys.modules:
+            modules_to_restore[mod_name] = sys.modules[mod_name]
+            del sys.modules[mod_name]
+
+    try:
+        # Substituir sys.path completamente
+        sys.path = [
+            taskflowai_path,
+            taskflowai_venv_path,
+            '/usr/lib/python3.10',
+            '/usr/lib/python3.10/lib-dynload',
+        ]
+
+        # Configurar variáveis de ambiente do TaskFlowAI
+        os.environ['FLASK_ENV'] = 'production'
+        os.environ['DATABASE_URL'] = f'sqlite:///{taskflowai_path}/taskflowai.db'
+
+        # Carregar o módulo app.py do TaskFlowAI usando nome único
+        spec = importlib.util.spec_from_file_location(
+            "taskflowai_app_module_isolated",
+            os.path.join(taskflowai_path, "app.py")
+        )
+        taskflowai_module = importlib.util.module_from_spec(spec)
+
+        # Adicionar ao sys.modules com nome único
+        sys.modules["taskflowai_app_module_isolated"] = taskflowai_module
+
+        # Executar o módulo
+        spec.loader.exec_module(taskflowai_module)
+
+        # Obter a aplicação
+        taskflowai_app = taskflowai_module.app
+
+        # Configurar para subpath
+        taskflowai_app.config['APPLICATION_ROOT'] = '/taskflowai'
+        taskflowai_app.config['DEBUG'] = False
+        taskflowai_app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{taskflowai_path}/taskflowai.db'
+
+        # Guardar no cache
+        _taskflowai_app_cache = taskflowai_app
+
+        return taskflowai_app
+
+    finally:
+        # Restaurar sys.path
+        sys.path = original_sys_path
+
+        # Restaurar módulos que foram removidos
+        for mod_name, mod_obj in modules_to_restore.items():
+            sys.modules[mod_name] = mod_obj
+
+
+@application.route('/taskflowai')
+@application.route('/taskflowai/')
+@application.route('/taskflowai/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'])
+def taskflowai_route(path=''):
+    """
+    Roteador principal para TaskFlowAI em /taskflowai/*
+    """
+    from flask import request
+    from werkzeug.datastructures import Headers
+
+    # Obter app (do cache ou criar)
+    taskflowai_app = get_taskflowai_app()
+
+    # Construir path correto
+    if path:
+        full_path = f'/{path}'
+    else:
+        full_path = '/'
+
+    # Adicionar query string ao path se existir
+    if request.query_string:
+        full_path = f'{full_path}?{request.query_string.decode("utf-8")}'
+
+    # Copiar headers para estrutura mutável
+    mutable_headers = Headers()
+    for key, value in request.headers:
+        if key.lower() not in ('content-length', 'content-type', 'host'):
+            mutable_headers[key] = value
+
+    if request.content_type:
+        mutable_headers['Content-Type'] = request.content_type
+
+    # Processar requisição no contexto do TaskFlowAI
+    with taskflowai_app.test_request_context(
+        full_path,
+        method=request.method,
+        headers=dict(mutable_headers),
+        data=request.get_data()
+    ):
+        try:
+            # Processar requisição completa
+            response = taskflowai_app.full_dispatch_request()
+            return response
+        except Exception as e:
+            # Log do erro
+            import traceback
+            error_details = traceback.format_exc()
+            print(f"Erro no TaskFlowAI: {error_details}")
+
+            # Retornar erro formatado
+            from flask import jsonify
+            return jsonify({
+                'error': 'Erro interno no servidor',
+                'message': str(e),
+                'type': type(e).__name__
+            }), 500
+
+
+@application.route('/taskflowai/health')
+def taskflowai_health():
+    """
+    Health check específico do TaskFlowAI
+    """
+    try:
+        taskflowai_app = get_taskflowai_app()
+        with taskflowai_app.test_request_context('/'):
+            from flask import jsonify
+            return jsonify({
+                'status': 'ok',
+                'app': 'TaskFlowAI',
+                'version': '1.0.0'
+            })
+    except Exception as e:
+        from flask import jsonify
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+
+# ==========================================
 # TASKFLOWAI - /taskflowai
 # ==========================================
 

@@ -11,7 +11,7 @@ Sistema completo de gerenciamento de projetos e tarefas com IA integrada, superi
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[🌐 Demo](https://lobtechsolutions.pythonanywhere.com) • [📖 Documentação](INSTRUCOES_FINAIS.md) • [🚀 Deploy](DEPLOY.md)
+[🌐 Demo](https://lobtechsolutions.pythonanywhere.com/taskflowai) • [📖 Documentação](DEPLOY_PYTHONANYWHERE.md) • [🚀 Deploy](RESUMO_SISTEMA.md)
 
 </div>
 
