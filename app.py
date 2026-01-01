@@ -605,7 +605,147 @@ def admin_console():
 
     return render_template('admin_dashboard.html', stats=stats, plan_usage=plan_usage, admin_state=admin_state)
 
-# ==================== API ENDPOINTS ====================
+# ==================== STRIPE WEBHOOK & LIMITS ====================
+
+@app.route('/stripe_webhook', methods=['POST'])
+def stripe_webhook():
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get('Stripe-Signature')
+    webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
+
+    if not webhook_secret:
+        return jsonify({'error': 'Webhook secret not configured'}), 500
+
+    from stripe_payment import StripePayment
+    import stripe
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, webhook_secret
+        )
+    except ValueError as e:
+        return jsonify({'error': 'Invalid payload'}), 400
+    except stripe.error.SignatureVerificationError as e:
+        return jsonify({'error': 'Invalid signature'}), 400
+
+    # Handle events
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        handle_checkout_completed(session)
+    elif event['type'] == 'invoice.paid':
+        invoice = event['data']['object']
+        handle_invoice_paid(invoice)
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        handle_subscription_deleted(subscription)
+
+    return jsonify({'status': 'success'}), 200
+
+def handle_checkout_completed(session):
+    """Grant initial access after checkout"""
+    customer_email = session.get('customer_email')
+    if not customer_email:
+        return
+        
+    user = User.query.filter_by(email=customer_email).first()
+    if user:
+        # Determine plan from line items or metadata
+        # Simpler approach: Map price ID to plan
+        # We need to fetch the subscription to get the price ID
+        import stripe
+        subscription_id = session.get('subscription')
+        if subscription_id:
+            sub = stripe.Subscription.retrieve(subscription_id)
+            price_id = sub['items']['data'][0]['price']['id']
+            
+            # Find which plan matches this price
+            target_plan = SubscriptionPlan.query.filter(
+                or_(
+                    SubscriptionPlan.stripe_price_monthly_id == price_id,
+                    SubscriptionPlan.stripe_price_yearly_id == price_id
+                )
+            ).first()
+            
+            if target_plan:
+                user.subscription_plan = target_plan.slug
+                user.subscription_status = 'active'
+                db.session.commit()
+                # Create notification
+                notif = Notification(
+                    title='Assinatura Confirmada! 🚀',
+                    content=f'Bem-vindo ao plano {target_plan.name}. Aproveite os novos recursos!',
+                    type='system',
+                    user_id=user.id
+                )
+                db.session.add(notif)
+                db.session.commit()
+
+def handle_invoice_paid(invoice):
+    """Extend access on recurring payment"""
+    email = invoice.get('customer_email')
+    user = User.query.filter_by(email=email).first()
+    if user:
+        user.subscription_status = 'active'
+        db.session.commit()
+
+def handle_subscription_deleted(subscription):
+    """Downgrade to free on cancellation"""
+    # We need to find the user by customer ID
+    # Since we didn't store customer_id in User model yet within this context 
+    # (assuming User model relies on email matching for now)
+    # We might need to fetch customer email from Stripe
+    import stripe
+    customer_id = subscription.get('customer')
+    try:
+        customer = stripe.Customer.retrieve(customer_id)
+        email = customer.get('email')
+        if email:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                user.subscription_plan = 'free'
+                user.subscription_status = 'canceled'
+                db.session.commit()
+    except:
+        pass
+
+# Usage Limits Logic
+PLAN_LIMITS = {
+    'free': {'projects': 3, 'members': 3, 'ai_requests': 10},
+    'pro': {'projects': 9999, 'members': 20, 'ai_requests': 500},
+    'business': {'projects': 9999, 'members': 9999, 'ai_requests': 9999}
+}
+
+def check_limit(limit_type):
+    """Check if current_user has reached the limit for a feature"""
+    plan = current_user.subscription_plan or 'free'
+    limits = PLAN_LIMITS.get(plan, PLAN_LIMITS['free'])
+    limit_val = limits.get(limit_type, 0)
+    
+    if limit_val >= 9999: # Unlimited
+        return True, 0
+        
+    current_val = 0
+    if limit_type == 'projects':
+        # Count owned projects
+        current_val = Project.query.filter(
+            Project.workspace_id.in_([w.id for w in current_user.owned_workspaces])
+        ).count()
+    elif limit_type == 'members':
+        # Max members in any workspace owned by user
+        max_members = 0
+        for w in current_user.owned_workspaces:
+            if len(w.members) > max_members:
+                max_members = len(w.members)
+        current_val = max_members
+    elif limit_type == 'ai_requests':
+        # TODO: Implement AI usage counter in User model or Redis
+        # For now, simplistic approximation or placeholder
+        current_val = 0 
+        
+    if current_val >= limit_val:
+        return False, limit_val
+    return True, limit_val
+
 
 @app.route('/api/check-auth', methods=['GET'])
 def api_check_auth():
@@ -639,6 +779,14 @@ def api_workspaces():
 @app.route('/api/workspaces/<int:workspace_id>/invite', methods=['POST'])
 @login_required
 def api_workspace_invite(workspace_id):
+    # Check Member Limits
+    is_allowed, limit = check_limit('members')
+    if not is_allowed:
+        return jsonify({
+            'error': f'Limite de membros atingido ({limit}). Faça upgrade para convidar mais pessoas!',
+            'upgrade_required': True
+        }), 403
+
     workspace = Workspace.query.get_or_404(workspace_id)
     if current_user not in workspace.members and workspace.owner_id != current_user.id:
         return jsonify({'error': 'Você não tem permissão para convidar membros neste workspace'}), 403
@@ -680,6 +828,14 @@ def api_projects():
         return jsonify([p.to_dict() for p in projects])
     
     elif request.method == 'POST':
+        # Check Project Limits
+        is_allowed, limit = check_limit('projects')
+        if not is_allowed:
+            return jsonify({
+                'error': f'Limite de projetos atingido ({limit}). Faça upgrade para criar ilimitados!',
+                'upgrade_required': True
+            }), 403
+
         data = request.get_json()
         project = Project(
             name=data['name'],
@@ -842,6 +998,14 @@ def api_mark_notification_read(notification_id):
 @login_required
 def api_ai_generate_tasks():
     """Gerar tarefas usando IA"""
+    # Check AI Usage Limits
+    is_allowed, limit = check_limit('ai_requests')
+    if not is_allowed:
+        return jsonify({
+            'error': f'Limite de uso da IA atingido ({limit}). Faça upgrade para mais poder!',
+            'upgrade_required': True
+        }), 403
+
     data = request.get_json()
     description = data.get('description')
     project_id = data.get('project_id')

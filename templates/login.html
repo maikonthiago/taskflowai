@@ -3,19 +3,20 @@
 {% block title %}Login - TaskFlowAI{% endblock %}
 
 {% block content %}
-<div class="min-vh-100 d-flex align-items-center justify-content-center animated-bg">
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-5 col-lg-4">
-                <div class="glass-card p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <a href="{{ url_for('index') }}" class="text-decoration-none">
-                            <h2 class="fw-bold text-primary mb-0">
-                                <i class="bi bi-check2-circle"></i> TaskFlowAI
-                            </h2>
-                        </a>
-                        <p class="text-muted small mt-2">Bem-vindo de volta! 👋</p>
-                    </div>
+                <div class="text-center mb-4">
+                    <a href="{{ url_for('index') }}" class="text-decoration-none">
+                        <h3 class="fw-bold text-dark mb-0">
+                            <i class="bi bi-check2-circle text-primary"></i> TaskFlowAI
+                        </h3>
+                    </a>
+                </div>
+
+                <div class="card-clean p-4 p-md-5 bg-white">
+                    <h4 class="fw-bold mb-4 text-center">Boas-vindas</h4>
 
                     <!-- Flash Messages -->
                     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -31,90 +32,44 @@
 
                     <form method="POST" action="{{ url_for('login') }}" id="loginForm">
                         <div class="mb-3">
-                            <label for="username" class="form-label fw-semibold small text-muted">Usuário ou
-                                Email</label>
+                            <label for="username" class="form-label">Email ou Usuário</label>
                             <input type="text" class="form-control" id="username" name="username" required
-                                placeholder="nome@exemplo.com">
+                                placeholder="nome@empresa.com">
                         </div>
 
                         <div class="mb-4">
-                            <label for="password" class="form-label fw-semibold small text-muted">Senha</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password" required
-                                    placeholder="••••••••">
-                                <button class="btn btn-outline-secondary border-start-0" type="button"
-                                    onclick="togglePassword()" style="border-color: #E2E8F0;">
-                                    <i class="bi bi-eye text-muted" id="toggleIcon"></i>
-                                </button>
+                            <div class="d-flex justify-content-between">
+                                <label for="password" class="form-label">Senha</label>
+                                <a href="#" class="text-decoration-none small text-primary fw-medium">Esqueceu?</a>
                             </div>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                placeholder="••••••••">
                         </div>
 
-                        <div class="mb-4 d-flex justify-content-between align-items-center small">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                                <label class="form-check-label text-muted" for="remember">Lembrar-me</label>
-                            </div>
-                            <a href="#" class="text-decoration-none text-primary fw-semibold">Recuperar senha?</a>
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label small text-muted" for="remember">Permanecer conectado</label>
                         </div>
 
-                        <button type="submit" class="btn btn-primary-custom w-100 mb-4 shadow-sm">
-                            Entrar na Plataforma
+                        <button type="submit" class="btn btn-primary-custom w-100 mb-4">
+                            Entrar
                         </button>
                     </form>
 
-                    <div class="text-center">
-                        <p class="text-muted small mb-3">Ou continue com</p>
-                        <div class="d-flex gap-2 justify-content-center mb-4">
-                            <button class="btn btn-light border hover-lift"><i class="bi bi-google"></i></button>
-                            <button class="btn btn-light border hover-lift"><i class="bi bi-microsoft"></i></button>
-                            <button class="btn btn-light border hover-lift"><i class="bi bi-apple"></i></button>
-                        </div>
+                    <div class="text-center border-top pt-4">
                         <p class="text-muted small mb-0">
                             Não tem uma conta?
-                            <a href="{{ url_for('register') }}" class="text-primary fw-bold text-decoration-none">Criar
-                                agora</a>
+                            <a href="{{ url_for('register') }}"
+                                class="text-primary fw-bold text-decoration-none">Cadastre-se</a>
                         </p>
                     </div>
                 </div>
 
                 <div class="text-center mt-4">
-                    <a href="{{ url_for('index') }}"
-                        class="text-white opacity-75 text-decoration-none small hover-lift d-inline-block">
-                        <i class="bi bi-arrow-left me-1"></i> Voltar para o início
-                    </a>
+                    <p class="small text-muted">&copy; 2025 TaskFlowAI. Seguro e criptografado.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    function togglePassword() {
-        const passwordInput = document.getElementById('password');
-        const toggleIcon = document.getElementById('toggleIcon');
-
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            toggleIcon.classList.remove('bi-eye');
-            toggleIcon.classList.add('bi-eye-slash');
-        } else {
-            passwordInput.type = 'password';
-            toggleIcon.classList.remove('bi-eye-slash');
-            toggleIcon.classList.add('bi-eye');
-        }
-    }
-
-    // Validação do formulário
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value;
-
-        if (!username || !password) {
-            e.preventDefault();
-            alert('Por favor, preencha todos os campos');
-        }
-    });
-</script>
 {% endblock %}

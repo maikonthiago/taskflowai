@@ -1,150 +1,158 @@
 /* ==========================================================================
-   TaskFlowAI - Custom Design System (2025)
+   TaskFlowAI - Professional Design System (Refined)
    ========================================================================== */
 
 :root {
-    /* Main Palette - Vibrant & Professional */
-    --primary-color: #2563EB;       /* Royal Blue */
-    --primary-gradient: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
-    --secondary-color: #06B6D4;     /* Cyan */
-    
-    /* Functional Colors */
-    --success-color: #10B981;
-    --warning-color: #F59E0B;
-    --danger-color: #EF4444;
-    --dark-color: #0F172A;          /* Slate 900 */
-    --light-color: #F8FAFC;         /* Slate 50 */
-    
-    /* Glassmorphism Variables */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --blur-strength: 12px;
-    
-    /* Typography */
-    --font-heading: 'Inter', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    
-    /* Spacing & Layout */
-    --border-radius-lg: 16px;
-    --border-radius-sm: 8px;
-    --transition-speed: 0.3s;
+    /* Main Palette - Trust & Clarity */
+    --primary-color: #0F172A;
+    /* Slate 900 (Dark Blue/Black) */
+    --accent-color: #2563EB;
+    /* Royal Blue (Action) */
+
+    /* Backgrounds */
+    --bg-body: #FFFFFF;
+    --bg-light: #F8FAFC;
+    /* Slate 50 */
+    --bg-card: #FFFFFF;
+
+    /* Text */
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+
+    /* Borders & Shadows */
+    --border-color: #E2E8F0;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+    /* Spacing */
+    --radius-md: 8px;
+    --radius-lg: 12px;
 }
 
 body {
-    font-family: var(--font-body);
-    background-color: #F1F5F9; /* Slate 100 */
-    color: #334155;            /* Slate 700 */
-    overflow-x: hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    letter-spacing: -0.025em;
+    /* Tight tracking like Stripe/Apple */
+    font-weight: 700;
 }
 
 /* ==========================================
-   Utilities & Animations
+   Micro-Interactions & Utilities
    ========================================== */
-.text-gradient {
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-@keyframes gradient-move {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-    background: linear-gradient(-45deg, #1E3A8A, #2563EB, #06B6D4, #10B981);
-    background-size: 400% 400%;
-    animation: gradient-move 15s ease infinite;
-}
-
-.hover-lift {
-    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
-}
-
-.hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-/* ==========================================
-   Glassmorphism Components
-   ========================================== */
-.glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--blur-strength));
-    -webkit-backdrop-filter: blur(var(--blur-strength));
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    border-radius: var(--border-radius-lg);
-}
-
-.glass-navbar {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
-/* ==========================================
-   Inputs & Forms
-   ========================================== */
-.form-control {
-    border: 2px solid #E2E8F0;
-    border-radius: var(--border-radius-sm);
-    padding: 0.75rem 1rem;
-    transition: all 0.2s;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
 .btn-primary-custom {
-    background: var(--primary-gradient);
+    background-color: var(--accent-color);
     color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 0.75rem 2rem;
-    font-weight: 600;
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
-    transition: all 0.3s;
+    border: 1px solid transparent;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-primary-custom:hover {
-    filter: brightness(1.1);
+    background-color: #1D4ED8;
     transform: translateY(-1px);
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+    box-shadow: var(--shadow-md);
     color: white;
 }
 
+.card-clean {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-hover:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
 /* ==========================================
-   Dashboard Sidebar
+   Navigation
    ========================================== */
-.sidebar {
-    background: white;
-    border-right: 1px solid #E2E8F0;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+.navbar-clean {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
 }
 
 .nav-link {
-    border-radius: var(--border-radius-sm);
-    margin-bottom: 4px;
-    color: #64748B;
+    color: var(--text-muted);
     font-weight: 500;
+    font-size: 0.95rem;
 }
 
 .nav-link:hover {
-    background: #F8FAFC;
-    color: var(--primary-color);
+    color: var(--accent-color);
 }
 
-.nav-link.active {
-    background: #EFF6FF; /* Blue 50 */
-    color: var(--primary-color);
+/* ==========================================
+   Hero Section & Landing
+   ========================================== */
+.hero-wrapper {
+    padding: 6rem 0 4rem;
+    overflow: hidden;
+}
+
+.hero-tag {
+    background: #EFF6FF;
+    color: var(--accent-color);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
     font-weight: 600;
-    border-left: 3px solid var(--primary-color);
-    border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0; 
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #EFF6FF;
+    color: var(--accent-color);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+/* ==========================================
+   Form Elements
+   ========================================== */
+.form-control {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
 }
