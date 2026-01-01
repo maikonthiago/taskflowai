@@ -3,80 +3,130 @@
 {% block title %}Criar Conta - TaskFlowAI{% endblock %}
 
 {% block content %}
-<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-5 col-lg-5">
-                <div class="text-center mb-4">
-                    <a href="{{ url_for('index') }}" class="text-decoration-none">
-                        <h3 class="fw-bold text-dark mb-0">
-                            <i class="bi bi-check2-circle text-primary"></i> TaskFlowAI
-                        </h3>
-                    </a>
-                </div>
+<div class="row g-0 min-vh-100">
+    <!-- Left Side - Marketing (Hidden on Mobile) -->
+    <div
+        class="col-lg-6 d-none d-lg-flex bg-primary align-items-center justify-content-center position-relative overflow-hidden">
+        <div class="position-absolute w-100 h-100"
+            style="background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);"></div>
+        <!-- Abstract Shapes -->
+        <div class="position-absolute top-0 end-0 bg-white opacity-10 rounded-circle"
+            style="width: 400px; height: 400px; margin-top: -100px; margin-right: -100px;"></div>
+        <div class="position-absolute bottom-0 start-0 bg-white opacity-10 rounded-circle"
+            style="width: 300px; height: 300px; margin-bottom: -50px; margin-left: -50px;"></div>
 
-                <div class="card-clean p-4 p-md-5 bg-white">
-                    <h4 class="fw-bold mb-2 text-center">Crie sua conta grátis</h4>
-                    <p class="text-muted text-center small mb-4">Comece a gerenciar seus projetos hoje.</p>
+        <div class="position-relative z-2 text-white p-5 max-w-lg">
+            <h1 class="display-4 fw-bold mb-4">Comece grátis hoje.</h1>
+            <ul class="list-unstyled lead text-white-75 mb-0 d-flex flex-column gap-3">
+                <li class="d-flex align-items-center gap-3">
+                    <i class="bi bi-check-circle-fill text-white"></i> 14 dias de teste do plano Pro
+                </li>
+                <li class="d-flex align-items-center gap-3">
+                    <i class="bi bi-check-circle-fill text-white"></i> Sem cartão de crédito necessário
+                </li>
+                <li class="d-flex align-items-center gap-3">
+                    <i class="bi bi-check-circle-fill text-white"></i> Acesso a todas as IA features
+                </li>
+            </ul>
+        </div>
+    </div>
 
-                    <!-- Flash Messages -->
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    {% endfor %}
-                    {% endif %}
-                    {% endwith %}
-
-                    <form method="POST" action="{{ url_for('register') }}">
-                        <div class="mb-3">
-                            <label for="full_name" class="form-label">Nome Completo</label>
-                            <input type="text" class="form-control" id="full_name" name="full_name" required
-                                placeholder="Seu nome">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Usuário</label>
-                            <input type="text" class="form-control" id="username" name="username" required
-                                placeholder="usuario">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email Profissional</label>
-                            <input type="email" class="form-control" id="email" name="email" required
-                                placeholder="nome@empresa.com">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="password" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="password" name="password" required
-                                placeholder="Mínimo 8 caracteres">
-                            <div class="form-text text-muted small">Ao se registrar, você concorda com nossos Termos.
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary-custom w-100 mb-4">
-                            Começar Agora
-                        </button>
-                    </form>
-
-                    <div class="text-center border-top pt-4">
-                        <p class="text-muted small mb-0">
-                            Já tem uma conta?
-                            <a href="{{ url_for('login') }}" class="text-primary fw-bold text-decoration-none">Fazer
-                                Login</a>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="text-center mt-4">
-                    <p class="small text-muted">&copy; 2025 TaskFlowAI.</p>
-                </div>
+    <!-- Right Side - Form -->
+    <div class="col-lg-6 d-flex align-items-center justify-content-center bg-white">
+        <div class="w-100 p-4 p-md-5" style="max-width: 550px;">
+            <div class="mb-5">
+                <a href="{{ url_for('landing') }}"
+                    class="d-flex align-items-center gap-2 text-decoration-none text-dark mb-4">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+                <h2 class="fw-bold display-6 mb-2">Crie sua conta</h2>
+                <p class="text-muted">Vamos configurar seu workspace em segundos.</p>
             </div>
+
+            <form method="POST" action="{{ url_for('register') }}">
+                <div class="mb-4">
+                    <label class="form-label text-uppercase small text-muted fw-bold">Nome Completo</label>
+                    <input type="text" name="full_name" class="form-control form-control-lg bg-light border-0"
+                        placeholder="Seu nome" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-uppercase small text-muted fw-bold">Email Profissional</label>
+                    <input type="email" name="email" class="form-control form-control-lg bg-light border-0"
+                        placeholder="nome@empresa.com" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label text-uppercase small text-muted fw-bold">Senha</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password"
+                            class="form-control form-control-lg bg-light border-0" placeholder="Mínimo 8 caracteres"
+                            required onkeyup="checkStrength(this.value)">
+                        <button type="button" class="btn btn-light border-0" onclick="togglePassword()">
+                            <i class="bi bi-eye text-muted"></i>
+                        </button>
+                    </div>
+                    <!-- Password Strength Bar -->
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div class="progress-bar" id="password-strength" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-4 form-check">
+                    <input type="checkbox" class="form-check-input" id="terms" required>
+                    <label class="form-check-label small text-muted" for="terms">
+                        Concordo com os <a href="#" class="text-decoration-none">Termos de Serviço</a> e <a href="#"
+                            class="text-decoration-none">Política de Privacidade</a>.
+                    </label>
+                </div>
+
+                <div class="d-grid gap-3 mb-4">
+                    <button type="submit" class="btn btn-primary-custom btn-lg w-100">Criar Conta Gratuita</button>
+                    <button type="button" class="btn btn-outline-dark btn-lg w-100">
+                        <i class="bi bi-google me-2"></i> Cadastrar com Google
+                    </button>
+                </div>
+
+                <p class="text-center text-muted small mb-0">
+                    Já tem uma conta? <a href="{{ url_for('login') }}"
+                        class="fw-bold text-primary text-decoration-none">Entrar</a>
+                </p>
+            </form>
         </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById('password');
+        const icon = event.currentTarget.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    function checkStrength(password) {
+        const bar = document.getElementById('password-strength');
+        let strength = 0;
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[a-z]+/)) strength += 25;
+        if (password.match(/[A-Z]+/)) strength += 25;
+        if (password.match(/[0-9]+/)) strength += 25;
+
+        bar.style.width = strength + '%';
+        if (strength < 50) {
+            bar.className = 'progress-bar bg-danger';
+        } else if (strength < 75) {
+            bar.className = 'progress-bar bg-warning';
+        } else {
+            bar.className = 'progress-bar bg-success';
+        }
+    }
+</script>
 {% endblock %}

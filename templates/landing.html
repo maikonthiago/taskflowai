@@ -7,132 +7,252 @@
 <nav class="navbar navbar-expand-lg navbar-clean fixed-top">
     <div class="container">
         <a class="navbar-brand fw-bold text-dark" href="#">
-            <i class="bi bi-check2-circle text-primary me-2"></i>TaskFlowAI
-        </a>
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto gap-lg-4">
-                <li class="nav-item"><a class="nav-link" href="#features">Recursos</a></li>
-                <li class="nav-item"><a class="nav-link" href="#pricing">Preços</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
-            </ul>
-            <a href="{{ url_for('register') }}" class="btn btn-primary-custom ms-lg-4">Começar Grátis</a>
-        </div>
-    </div>
-</nav>
-
-<!-- Hero Section -->
-<section class="hero-wrapper text-center">
-    <div class="container">
-        <div class="hero-tag">
-            <i class="bi bi-stars me-2"></i>Agora com Automação IA
-        </div>
-        <h1 class="display-3 fw-bold mb-4 text-dark" style="max-width: 800px; margin: 0 auto;">
-            Gerencie sua equipe com a precisão de uma <span class="text-primary">inteligência artificial</span>.
-        </h1>
-        <p class="lead text-muted mb-5 mx-auto" style="max-width: 600px;">
-            Diga adeus ao microgerenciamento. O TaskFlowAI organiza, prioriza e distribui tarefas automaticamente para
-            você focar no que importa.
-        </p>
-        <div class="d-flex justify-content-center gap-3 mb-5">
-            <a href="{{ url_for('register') }}" class="btn btn-primary-custom btn-lg">Criar Workspace Grátis</a>
-            <a href="#demo" class="btn btn-light border btn-lg">Ver Demonstração</a>
-        </div>
-
-        <!-- Dashboard Preview -->
-        <div class="mt-5 mx-auto card-clean p-2 shadow-lg"
-            style="max-width: 1000px; transform: perspective(1000px) rotateX(2deg);">
-            <img src="https://via.placeholder.com/1200x700/F1F5F9/94A3B8?text=Dashboard+Interface+Clean"
-                alt="TaskFlowAI Interface" class="img-fluid rounded-3 border">
-        </div>
-    </div>
-</section>
-
-<!-- Companies (Social Proof) -->
-<section class="py-5 border-bottom border-top bg-light">
-    <div class="container">
-        <p class="text-center text-muted small fw-bold text-uppercase tracking-wide mb-4 opacity-75">Confiado por
-            empresas inovadoras</p>
-        <div class="d-flex justify-content-center flex-wrap gap-5 opacity-50 grayscale">
-            <h5 class="fw-bold text-muted">ACME Corp</h5>
-            <h5 class="fw-bold text-muted">Stark Industries</h5>
-            <h5 class="fw-bold text-muted">Wayne Tech</h5>
-            <h5 class="fw-bold text-muted">CyberDyne</h5>
-        </div>
-    </div>
-</section>
-
-<!-- Features Grid -->
-<section class="py-5 my-5" id="features">
-    <div class="container">
-        <div class="row g-5">
-            <div class="col-md-4">
-                <div class="feature-icon">
-                    <i class="bi bi-lightning-charge"></i>
+            <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white/90 backdrop-blur-md border-bottom">
+                <div class="container">
+                    <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="#">
+                        <i class="bi bi-check2-circle text-primary"></i>
+                        <span class="tracking-tight text-slate-900">TaskFlowAI</span>
+                    </a>
+                    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav mx-auto">
+                            <li class="nav-item"><a class="nav-link fw-medium" href="#features">Recursos</a></li>
+                            <li class="nav-item"><a class="nav-link fw-medium" href="#pricing">Preços</a></li>
+                            <li class="nav-item"><a class="nav-link fw-medium" href="#testimonials">Clientes</a></li>
+                        </ul>
+                        <div class="d-flex gap-3">
+                            <a href="{{ url_for('login') }}"
+                                class="btn btn-link text-decoration-none text-dark fw-bold">Entrar</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-primary-custom">Começar Grátis</a>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="h4 mb-3">Automação Inteligente</h3>
-                <p class="text-muted">Nossa IA analisa a carga de trabalho e distribui tarefas para o membro mais capaz
-                    automaticamente.</p>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-icon">
-                    <i class="bi bi-layout-wtf"></i>
-                </div>
-                <h3 class="h4 mb-3">Workspaces Ilimitados</h3>
-                <p class="text-muted">Crie áreas de trabalho separadas para cada departamento ou cliente sem custo
-                    adicional.</p>
-            </div>
-            <div class="col-md-4">
-                <div class="feature-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <h3 class="h4 mb-3">Segurança Total</h3>
-                <p class="text-muted">Dados criptografados de ponta a ponta e backups diários garantem a segurança do
-                    seu negócio.</p>
-            </div>
-        </div>
-    </div>
-</section>
+            </nav>
 
-<!-- Footer -->
-<footer class="py-5 border-top">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <h5 class="fw-bold text-dark mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>TaskFlowAI</h5>
-                <p class="text-muted small">
-                    A plataforma de produtividade definitiva para equipes modernas.
-                </p>
-            </div>
-            <div class="col-6 col-md-2 mb-4">
-                <h6 class="fw-bold mb-3">Produto</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Recursos</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Preços</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Enterprise</a></li>
-                </ul>
-            </div>
-            <div class="col-6 col-md-2 mb-4">
-                <h6 class="fw-bold mb-3">Empresa</h6>
-                <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Sobre</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Carreiras</a></li>
-                    <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Blog</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4 mb-4">
-                <h6 class="fw-bold mb-3">Newsletter</h6>
-                <div class="input-group">
-                    <input type="email" class="form-control" placeholder="Seu email">
-                    <button class="btn btn-dark">Assinar</button>
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="container position-relative z-2">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6 mb-5 mb-lg-0">
+                            <div
+                                class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-4 fw-semibold small">
+                                <i class="bi bi-magic me-1"></i> Nova IA 2.0 Disponível
+                            </div>
+                            <h1 class="hero-title fw-bolder mb-4">
+                                Gerencie menos,<br>realize mais com <span class="text-primary">IA</span>
+                            </h1>
+                            <p class="lead text-muted mb-5" style="max-width: 500px;">
+                                O TaskFlowAI une gestão de projetos com inteligência artificial para automatizar
+                                rotinas, planejar sprints e eliminar o caos da sua equipe.
+                            </p>
+                            <div class="d-flex gap-3 flex-column flex-sm-row">
+                                <a href="{{ url_for('register') }}"
+                                    class="btn btn-primary-custom btn-lg px-5 py-3 shadow-lg">
+                                    Começar Agora <i class="bi bi-arrow-right ms-2"></i>
+                                </a>
+                                <a href="#how-it-works" class="btn btn-outline-dark btn-lg px-5 py-3">
+                                    Ver Demo
+                                </a>
+                            </div>
+                            <div class="mt-4 pt-3 d-flex align-items-center gap-3 text-muted small">
+                                <span><i class="bi bi-check-circle-fill text-success me-1"></i> Sem cartão
+                                    necessário</span>
+                                <span><i class="bi bi-check-circle-fill text-success me-1"></i> 14 dias grátis
+                                    Pro</span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="position-relative">
+                                <!-- Abstract Background Blob -->
+                                <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 bg-primary opacity-10 rounded-circle blur-3xl"
+                                    style="filter: blur(80px); z-index: -1;"></div>
+
+                                <div
+                                    class="card card-clean border-0 shadow-lg overflow-hidden glass-card-simple bg-white">
+                                    <div
+                                        class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+                                        <div class="d-flex gap-2">
+                                            <div class="rounded-circle bg-danger p-1"></div>
+                                            <div class="rounded-circle bg-warning p-1"></div>
+                                            <div class="rounded-circle bg-success p-1"></div>
+                                        </div>
+                                        <small class="text-muted fw-bold">Dashboard</small>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <!-- Mock UI Elements -->
+                                        <div class="d-flex justify-content-between mb-4">
+                                            <div>
+                                                <h5 class="fw-bold mb-1">Lançamento Q4</h5>
+                                                <span class="badge bg-success-subtle text-success">Em andamento</span>
+                                            </div>
+                                            <div class="avatar-group d-flex">
+                                                <img src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff"
+                                                    class="rounded-circle border border-2 border-white" width="32">
+                                                <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=random"
+                                                    class="rounded-circle border border-2 border-white ms-n2"
+                                                    width="32">
+                                            </div>
+                                        </div>
+
+                                        <div class="p-3 bg-light rounded-3 mb-3 border">
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="bg-white p-2 rounded shadow-sm">
+                                                    <i class="bi bi-robot text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted d-block"
+                                                        style="font-size: 0.7rem;">Sugestão da IA</small>
+                                                    <strong class="text-dark small">Criar 5 tarefas de marketing para o
+                                                        lançamento</strong>
+                                                </div>
+                                                <button class="btn btn-sm btn-primary ms-auto">Aceitar</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <small class="text-muted fw-bold text-uppercase"
+                                                style="font-size: 0.7rem;">Hoje</small>
+                                        </div>
+                                        <div class="list-group list-group-flush">
+                                            <div
+                                                class="list-group-item px-0 py-2 bg-transparent border-0 d-flex gap-2 align-items-center">
+                                                <i class="bi bi-check-circle text-muted"></i>
+                                                <span class="text-decoration-line-through text-muted small">Revisar copy
+                                                    do site</span>
+                                            </div>
+                                            <div
+                                                class="list-group-item px-0 py-2 bg-transparent border-0 d-flex gap-2 align-items-center">
+                                                <i class="bi bi-circle text-primary"></i>
+                                                <span class="small fw-medium">Configurar Stripe</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="text-center pt-4 border-top mt-4 text-muted small">
-            &copy; 2025 TaskFlowAI. Todos os direitos reservados.
-        </div>
-    </div>
-</footer>
-{% endblock %}
+            </section>
+
+            <!-- Social Proof -->
+            <section class="py-5 border-bottom border-top bg-white">
+                <div class="container text-center">
+                    <p class="small fw-bold text-uppercase text-muted tracking-wide mb-4">Confiado por equipes
+                        inovadoras</p>
+                    <div class="d-flex justify-content-center flex-wrap gap-5 opacity-50 grayscale">
+                        <h4 class="fw-bold text-muted mb-0"><i class="bi bi-microsoft me-2"></i>TechCorp</h4>
+                        <h4 class="fw-bold text-muted mb-0"><i class="bi bi-apple me-2"></i>Studio Design</h4>
+                        <h4 class="fw-bold text-muted mb-0"><i class="bi bi-google me-2"></i>StartUp One</h4>
+                        <h4 class="fw-bold text-muted mb-0"><i class="bi bi-spotify me-2"></i>Agência Flow</h4>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Grid -->
+            <section id="features" class="py-6 bg-light" style="padding: 6rem 0;">
+                <div class="container">
+                    <div class="text-center mb-5" style="max-width: 700px; margin: 0 auto;">
+                        <h2 class="fw-bold mb-3 display-6">Uma suíte completa de ferramentas</h2>
+                        <p class="text-muted lead">Tudo o que você precisa para sair do planejamento e ir para a
+                            execução, em uma única plataforma.</p>
+                    </div>
+
+                    <div class="feature-grid">
+                        <div class="card card-clean border-0 h-100 p-4">
+                            <div class="mb-4 bg-blue-50 text-primary d-inline-block rounded-3"
+                                style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #EFF6FF;">
+                                <i class="bi bi-robot fs-3"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Assistente IA</h4>
+                            <p class="text-muted mb-0">Deixe que nossa IA quebre grandes objetivos em tarefas pequenas e
+                                acionáveis. Planejamento em segundos.</p>
+                        </div>
+
+                        <div class="card card-clean border-0 h-100 p-4">
+                            <div class="mb-4 text-success d-inline-block rounded-3"
+                                style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #ecfdf5;">
+                                <i class="bi bi-kanban fs-3"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Gestão Visual</h4>
+                            <p class="text-muted mb-0">Quadros Kanban, listas e cronogramas. Visualize o progresso do
+                                seu jeito e nunca perca um prazo.</p>
+                        </div>
+
+                        <div class="card card-clean border-0 h-100 p-4">
+                            <div class="mb-4 text-warning d-inline-block rounded-3"
+                                style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; background: #fffbeb;">
+                                <i class="bi bi-people fs-3"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Colaboração Real</h4>
+                            <p class="text-muted mb-0">Comente, anexe arquivos e mencione sua equipe. Tudo sincronizado
+                                em tempo real.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action -->
+            <section class="py-5 bg-dark text-white text-center position-relative overflow-hidden">
+                <div class="container position-relative z-2 py-5">
+                    <h2 class="fw-bold display-5 mb-4">Pronto para organizar seu trabalho?</h2>
+                    <p class="lead text-white-50 mb-5 max-w-2xl mx-auto">Junte-se a milhares de usuários e transforme
+                        sua produtividade hoje mesmo.</p>
+                    <a href="{{ url_for('register') }}"
+                        class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg border-0"
+                        style="background-color: #3b82f6;">
+                        Criar conta gratuita
+                    </a>
+                    <p class="mt-4 small text-white-50">Nenhum cartão de crédito necessário para começar.</p>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="bg-white py-5 border-top">
+                <div class="container">
+                    <div class="row gy-4">
+                        <div class="col-lg-4">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="bi bi-check2-circle fs-4 text-primary"></i>
+                                <span class="fw-bold fs-5 text-dark">TaskFlowAI</span>
+                            </div>
+                            <p class="text-muted small mb-4">A plataforma de gestão de tarefas impulsionada por
+                                inteligência artificial para equipes do futuro.</p>
+                        </div>
+                        <div class="col-lg-2 col-6">
+                            <h6 class="fw-bold mb-3">Produto</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Recursos</a>
+                                </li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Preços</a>
+                                </li>
+                                <li class="mb-2"><a href="#"
+                                        class="text-decoration-none text-muted small">Enterprise</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6 col-md-2 mb-4">
+                            <h6 class="fw-bold mb-3">Empresa</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Sobre</a>
+                                </li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Carreiras</a>
+                                </li>
+                                <li class="mb-2"><a href="#" class="text-decoration-none text-muted small">Blog</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <h6 class="fw-bold mb-3">Newsletter</h6>
+                            <div class="input-group">
+                                <input type="email" class="form-control" placeholder="Seu email">
+                                <button class="btn btn-dark">Assinar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center pt-4 border-top mt-4 text-muted small">
+                        &copy; 2025 TaskFlowAI. Todos os direitos reservados.
+                    </div>
+                </div>
+            </footer>
+            {% endblock %}
