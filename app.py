@@ -270,6 +270,8 @@ with app.app_context():
 def index():
     """Landing page"""
     if current_user.is_authenticated:
+        if current_user.is_admin:
+            return redirect('/admin')
         return redirect('/taskflowai/dashboard')
     return render_template('landing.html')
 
@@ -291,13 +293,20 @@ def login():
             user.last_login = datetime.utcnow()
             db.session.commit()
             
+            next_page = request.args.get('next')
+            if not next_page or not next_page.startswith('/'):
+                if user.is_admin:
+                    next_page = '/admin'
+                else:
+                    next_page = '/taskflowai/dashboard'
+            
             if request.is_json:
                 return jsonify({
                     'success': True,
                     'message': 'Login realizado com sucesso',
-                    'redirect': '/taskflowai/dashboard'
+                    'redirect': next_page
                 })
-            return redirect('/taskflowai/dashboard')
+            return redirect(next_page)
         
         if request.is_json:
             return jsonify({'success': False, 'message': 'Usuário ou senha inválidos'}), 401
