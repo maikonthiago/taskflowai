@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import json
 from functools import wraps
 from sqlalchemy import or_, func
+import stripe
 
 from config import config
 from models import (
@@ -264,6 +265,16 @@ with app.app_context():
     except Exception as e:
         print(f"Erro na inicialização: {e}")
 
+# ==================== ERROR HANDLERS ====================
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
 # ==================== ROTAS PÚBLICAS ====================
 
 @app.route('/')
@@ -313,6 +324,69 @@ def login():
         flash('Usuário ou senha inválidos', 'danger')
     
     return render_template('login.html')
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            # Gerar token de reset (válido por 1 hora)
+            expires = timedelta(hours=1)
+            reset_token = create_access_token(identity=user.id, expires_delta=expires, additional_claims={'type': 'reset'})
+            
+            # Aqui seria o envio de email real. 
+            # Como não temos SMTP configurado, vamos apenas "logar" o link para o admin ver.
+            reset_link = url_for('reset_password_token', token=reset_token, _external=True)
+            print(f"==================================================")
+            print(f"LINK DE RESET DE SENHA PARA {email}:")
+            print(f"{reset_link}")
+            print(f"==================================================")
+            
+            flash('Se o email existir, enviamos um link para redefinir sua senha. (Cheque o console do servidor para o link simulado)', 'info')
+        else:
+             # Mesma mensagem para não vazar usuários
+             flash('Se o email existir, enviamos um link para redefinir sua senha.', 'info')
+             
+        return redirect(url_for('login'))
+        
+    return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password_token(token):
+    try:
+        # Verificar token
+        decoded_token = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
+        user_id = decoded_token['sub']
+        claim_type = decoded_token.get('type')
+        
+        if claim_type != 'reset':
+            flash('Token inválido ou expirado.', 'danger')
+            return redirect(url_for('login'))
+            
+        if request.method == 'POST':
+            password = request.form.get('password')
+            confirm_password = request.form.get('confirm_password')
+            
+            if password != confirm_password:
+                flash('As senhas não coincidem.', 'danger')
+                return render_template('reset_password.html', token=token)
+                
+            user = User.query.get(user_id)
+            if user:
+                user.set_password(password)
+                db.session.commit()
+                flash('Sua senha foi atualizada com sucesso! Faça login.', 'success')
+                return redirect(url_for('login'))
+            else:
+                flash('Usuário não encontrado.', 'danger')
+                return redirect(url_for('login'))
+                
+        return render_template('reset_password.html', token=token)
+        
+    except Exception as e:
+        flash('O link de redefinição é inválido ou expirou.', 'danger')
+        return redirect(url_for('forgot_password'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -1343,6 +1417,114 @@ def api_admin_update_setting(key):
     db.session.commit()
     apply_runtime_setting(setting.key, setting.value)
     return jsonify(serialize_setting(setting))
+
+
+# ==================== STRIPE PAYMENT ====================
+
+@app.before_request
+def setup_stripe():
+    stripe.api_key = app.config['STRIPE_SECRET_KEY']
+
+@app.route('/api/create-checkout-session', methods=['POST'])
+@login_required
+def create_checkout_session():
+    try:
+        data = request.get_json()
+        plan_name = data.get('plan')
+        
+        # Obter ID do preço da configuração
+        plan_config = app.config['PLANS'].get(plan_name)
+        if not plan_config:
+            return jsonify({'error': 'Plano inválido'}), 400
+            
+        price_id = plan_config.get('stripe_price_id')
+        if not price_id:
+             return jsonify({'error': 'Configuração de preço ausente'}), 500
+
+        checkout_session = stripe.checkout.Session.create(
+            customer_email=current_user.email,
+            client_reference_id=str(current_user.id),
+            payment_method_types=['card'],
+            line_items=[
+                {
+                    'price': price_id,
+                    'quantity': 1,
+                },
+            ],
+            mode='subscription',
+            success_url=url_for('dashboard', _external=True) + '?session_id={CHECKOUT_SESSION_ID}&success=true',
+            cancel_url=url_for('index', _external=True) + '#pricing',
+            metadata={
+                'user_id': current_user.id,
+                'plan': plan_name
+            }
+        )
+        return jsonify({'sessionId': checkout_session.id, 'url': checkout_session.url})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/stripe_webhook', methods=['POST'])
+def stripe_webhook():
+    payload = request.get_data(as_text=True)
+    sig_header = request.headers.get('Stripe-Signature')
+    endpoint_secret = app.config['STRIPE_WEBHOOK_SECRET']
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        return 'Invalid payload', 400
+    except stripe.error.SignatureVerificationError as e:
+        return 'Invalid signature', 400
+
+    # Handle the event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        # Fulfill the purchase...
+        handle_checkout_session(session)
+    elif event['type'] == 'invoice.payment_succeeded':
+        # Extend subscription...
+        pass
+    elif event['type'] == 'customer.subscription.deleted':
+        subscription = event['data']['object']
+        handle_subscription_deleted(subscription)
+
+    return 'Success', 200
+
+def handle_checkout_session(session):
+    client_reference_id = session.get('client_reference_id')
+    user_id = client_reference_id
+    
+    # Tentar pegar do metadata se não tiver no reference
+    if not user_id:
+        user_id = session.get('metadata', {}).get('user_id')
+        
+    if user_id:
+        user = User.query.get(user_id)
+        if user:
+            # Identificar plano baseado no price_id ou metadata
+            # Simplificação: assumir que metadata tem o plano, ou inferir
+            plan_name = session.get('metadata', {}).get('plan')
+            
+            # Fallback: tentar descobrir plano pelo amount
+            if not plan_name:
+                amount = session.get('amount_total') # cents
+                if amount == 2990: # 29.90
+                    plan_name = 'pro'
+                elif amount == 7990: # 79.90
+                    plan_name = 'business'
+            
+            if plan_name:
+                user.subscription_plan = plan_name
+                user.subscription_status = 'active'
+                db.session.commit()
+                print(f"User {user.username} upgraded to {plan_name}")
+
+def handle_subscription_deleted(subscription):
+    # Encontrar usuário pelo customer id (ideal ter customer_id no User model)
+    # Como fallback, downgrade se encontrar
+    pass
 
 # ==================== SOCKETIO EVENTS ====================
 
