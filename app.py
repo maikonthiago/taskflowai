@@ -1092,7 +1092,59 @@ def admin_dashboard():
     # Buscar últimos 10 usuários
     recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
     
+    
     return render_template('admin_dashboard.html', stats=stats, recent_users=recent_users)
+
+@app.route('/admin/users')
+@login_required
+@admin_required
+def admin_users():
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    plan = request.args.get('plan', '')
+    
+    query = User.query
+    
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter((User.username.ilike(search_term)) | (User.email.ilike(search_term)) | (User.full_name.ilike(search_term)))
+    
+    if plan:
+        query = query.filter(User.subscription_plan == plan)
+        
+    users = query.order_by(User.created_at.desc()).paginate(page=page, per_page=20)
+    
+    return render_template('admin_users.html', users=users)
+
+@app.route('/admin/users/<int:user_id>/toggle_status', methods=['POST'])
+@login_required
+@admin_required
+def admin_toggle_user_status(user_id):
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('Você não pode desativar a si mesmo!', 'danger')
+        return redirect(url_for('admin_users'))
+        
+    user.is_active = not user.is_active
+    db.session.commit()
+    
+    status = "ativado" if user.is_active else "desativado"
+    flash(f'Usuário {user.username} {status} com sucesso.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/admin/financial')
+@login_required
+@admin_required
+def admin_financial():
+    # Placeholder for Financial Page
+    return render_template('admin_financial.html')
+
+@app.route('/admin/settings')
+@login_required
+@admin_required
+def admin_settings():
+    # Placeholder for Settings Page
+    return render_template('admin_settings.html')
 # ==================== ADMIN API ====================
 
 

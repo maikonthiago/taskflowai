@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard - TaskFlowAI{% endblock %}
+{% block title %}Gerenciar Usuários - Admin TaskFlowAI{% endblock %}
 
 {% block content %}
 <div class="d-flex" id="wrapper">
@@ -13,11 +13,11 @@
         </div>
         <div class="list-group list-group-flush pt-3">
             <a href="{{ url_for('admin_dashboard') }}"
-                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 active">
+                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3">
                 <i class="bi bi-speedometer2 me-2"></i> Visão Geral
             </a>
             <a href="{{ url_for('admin_users') }}"
-                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3">
+                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 active">
                 <i class="bi bi-people me-2"></i> Usuários
             </a>
             <a href="{{ url_for('admin_financial') }}"
@@ -41,7 +41,7 @@
         <!-- Topbar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3 px-4">
             <div class="container-fluid">
-                <h4 class="mb-0 fw-bold">SaaS Overview</h4>
+                <h4 class="mb-0 fw-bold">Gerenciar Usuários</h4>
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2" type="button"
                         id="adminDropdown" data-bs-toggle="dropdown">
@@ -59,75 +59,38 @@
         </nav>
 
         <div class="container-fluid px-4 py-4">
-            <!-- Stats Grid -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-0">Total Usuários</h6>
-                                <div class="bg-primary-subtle text-primary rounded p-2">
-                                    <i class="bi bi-people-fill"></i>
-                                </div>
+            <!-- Search & Filters -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form method="GET" action="{{ url_for('admin_users') }}" class="row g-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                                <input type="text" name="search" class="form-control bg-light border-start-0"
+                                    placeholder="Buscar por nome ou email..."
+                                    value="{{ request.args.get('search', '') }}">
                             </div>
-                            <h2 class="fw-bold mb-0">{{ stats.total_users }}</h2>
-                            <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> +{{ stats.new_users }}
-                                este mês</small>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-0">Assinaturas Ativas</h6>
-                                <div class="bg-success-subtle text-success rounded p-2">
-                                    <i class="bi bi-credit-card-2-front-fill"></i>
-                                </div>
-                            </div>
-                            <h2 class="fw-bold mb-0">{{ stats.active_subs }}</h2>
-                            <small class="text-muted">Planos Pagos</small>
+                        <div class="col-md-3">
+                            <select name="plan" class="form-select bg-light">
+                                <option value="">Todos os Planos</option>
+                                <option value="free" {% if request.args.get('plan')=='free' %}selected{% endif %}>
+                                    Gratuito</option>
+                                <option value="pro" {% if request.args.get('plan')=='pro' %}selected{% endif %}>Pro
+                                </option>
+                                <option value="business" {% if request.args.get('plan')=='business' %}selected{% endif
+                                    %}>Business</option>
+                            </select>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-0">MRR Estimado</h6>
-                                <div class="bg-warning-subtle text-warning rounded p-2">
-                                    <i class="bi bi-currency-dollar"></i>
-                                </div>
-                            </div>
-                            <h2 class="fw-bold mb-0">R$ {{ stats.mrr }}</h2>
-                            <small class="text-success fw-bold"><i class="bi bi-graph-up"></i> +12% vs mês
-                                anterior</small>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary-custom w-100 fw-bold">Filtrar</button>
                         </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h6 class="text-muted text-uppercase small fw-bold mb-0">Projetos Totais</h6>
-                                <div class="bg-info-subtle text-info rounded p-2">
-                                    <i class="bi bi-kanban-fill"></i>
-                                </div>
-                            </div>
-                            <h2 class="fw-bold mb-0">{{ stats.total_projects }}</h2>
-                            <small class="text-muted">Em {{ stats.active_workspaces }} workspaces</small>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
 
-            <!-- Recent Users Table -->
+            <!-- Users Table -->
             <div class="card border-0 shadow-sm">
-                <div
-                    class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold mb-0">Últimos Usuários Cadastrados</h5>
-                    <button class="btn btn-sm btn-outline-primary">Ver Todos</button>
-                </div>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
                         <thead class="bg-light">
@@ -135,12 +98,13 @@
                                 <th class="px-4 py-3 text-muted small text-uppercase">Usuário</th>
                                 <th class="py-3 text-muted small text-uppercase">Plano</th>
                                 <th class="py-3 text-muted small text-uppercase">Status</th>
+                                <th class="py-3 text-muted small text-uppercase">Projetos</th>
                                 <th class="py-3 text-muted small text-uppercase">Data Registro</th>
                                 <th class="px-4 py-3 text-muted small text-uppercase text-end">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for user in recent_users %}
+                            {% for user in users.items %}
                             <tr>
                                 <td class="px-4">
                                     <div class="d-flex align-items-center gap-3">
@@ -168,26 +132,73 @@
                                 </td>
                                 <td>
                                     {% if user.is_active %}
-                                    <span class="d-flex align-items-center gap-2">
-                                        <span class="bg-success rounded-circle" style="width: 8px; height: 8px;"></span>
-                                        Ativo
-                                    </span>
+                                    <span class="d-flex align-items-center gap-2"><span
+                                            class="bg-success rounded-circle" style="width: 8px; height: 8px;"></span>
+                                        Ativo</span>
                                     {% else %}
-                                    <span class="d-flex align-items-center gap-2">
-                                        <span class="bg-danger rounded-circle" style="width: 8px; height: 8px;"></span>
-                                        Inativo
-                                    </span>
+                                    <span class="d-flex align-items-center gap-2"><span class="bg-danger rounded-circle"
+                                            style="width: 8px; height: 8px;"></span> Inativo</span>
                                     {% endif %}
                                 </td>
+                                <td>{{ user.projects|length }}</td>
                                 <td class="text-muted">{{ user.created_at.strftime('%d/%m/%Y') }}</td>
                                 <td class="px-4 text-end">
-                                    <button class="btn btn-sm btn-light border"><i
-                                            class="bi bi-three-dots"></i></button>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-light border" type="button"
+                                            data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="#">Editar</a></li>
+                                            <li><a class="dropdown-item" href="#">Mudar Plano</a></li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <form
+                                                    action="{{ url_for('admin_toggle_user_status', user_id=user.id) }}"
+                                                    method="POST" style="display: inline;">
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        {% if user.is_active %}Desativar{% else %}Ativar{% endif %}
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Nenhum usuário encontrado.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+                <!-- Pagination -->
+                <div class="card-footer bg-white py-3">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if users.has_prev %}
+                            <li class="page-item"><a class="page-link"
+                                    href="{{ url_for('admin_users', page=users.prev_num, search=request.args.get('search'), plan=request.args.get('plan')) }}">Anterior</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+                            {% endif %}
+
+                            <li class="page-item active"><span class="page-link">{{ users.page }} de {{ users.pages
+                                    }}</span></li>
+
+                            {% if users.has_next %}
+                            <li class="page-item"><a class="page-link"
+                                    href="{{ url_for('admin_users', page=users.next_num, search=request.args.get('search'), plan=request.args.get('plan')) }}">Próxima</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled"><span class="page-link">Próxima</span></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
