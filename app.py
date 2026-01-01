@@ -1050,7 +1050,40 @@ def api_ai_generate_tasks():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# ==================== ADMIN DASHBOARD UI ====================
 
+@app.route('/admin')
+@login_required
+@admin_required
+def admin_dashboard():
+    # Calcular estatísticas reais
+    now = datetime.utcnow()
+    total_users = User.query.count()
+    new_users = User.query.filter(User.created_at >= (now - timedelta(days=30))).count()
+    
+    # Assinaturas (Exemplo simples, idealmente buscaria do User.subscription_plan)
+    active_subs = User.query.filter(User.subscription_plan.in_(['pro', 'business'])).count()
+    total_projects = Project.query.count()
+    active_workspaces = Workspace.query.count()
+    
+    # Estimativa de MRR (Monthly Recurring Revenue)
+    pro_users = User.query.filter_by(subscription_plan='pro').count()
+    business_users = User.query.filter_by(subscription_plan='business').count()
+    mrr = (pro_users * 49) + (business_users * 99)
+    
+    stats = {
+        'total_users': total_users,
+        'new_users': new_users,
+        'active_subs': active_subs,
+        'mrr': f"{mrr:,.2f}",
+        'total_projects': total_projects,
+        'active_workspaces': active_workspaces
+    }
+    
+    # Buscar últimos 10 usuários
+    recent_users = User.query.order_by(User.created_at.desc()).limit(10).all()
+    
+    return render_template('admin_dashboard.html', stats=stats, recent_users=recent_users)
 # ==================== ADMIN API ====================
 
 
