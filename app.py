@@ -255,10 +255,14 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.before_first_request
-def bootstrap_defaults():
-    db.create_all()
-    ensure_default_data()
+# ==================== INICIALIZAÇÃO ====================
+
+with app.app_context():
+    try:
+        db.create_all()
+        ensure_default_data()
+    except Exception as e:
+        print(f"Erro na inicialização: {e}")
 
 # ==================== ROTAS PÚBLICAS ====================
 
