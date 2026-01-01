@@ -45,19 +45,19 @@
 
             <form method="POST" action="{{ url_for('register') }}">
                 <div class="mb-4">
-                    <label class="form-label text-uppercase small text-muted fw-bold">Nome Completo</label>
+                    <label class="form-label fw-bold">Nome Completo</label>
                     <input type="text" name="full_name" class="form-control form-control-lg bg-light border-0"
                         placeholder="Seu nome" required>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label text-uppercase small text-muted fw-bold">Email Profissional</label>
+                    <label class="form-label fw-bold">Email Profissional</label>
                     <input type="email" name="email" class="form-control form-control-lg bg-light border-0"
                         placeholder="nome@empresa.com" required>
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label text-uppercase small text-muted fw-bold">Senha</label>
+                    <label class="form-label fw-bold">Senha</label>
                     <div class="input-group">
                         <input type="password" name="password" id="password"
                             class="form-control form-control-lg bg-light border-0" placeholder="Mínimo 8 caracteres"
@@ -74,15 +74,16 @@
 
                 <div class="mb-4 form-check">
                     <input type="checkbox" class="form-check-input" id="terms" required>
-                    <label class="form-check-label small text-muted" for="terms">
+                    <label class="form-check-label text-muted small" for="terms">
                         Concordo com os <a href="#" class="text-decoration-none">Termos de Serviço</a> e <a href="#"
                             class="text-decoration-none">Política de Privacidade</a>.
                     </label>
                 </div>
 
                 <div class="d-grid gap-3 mb-4">
-                    <button type="submit" class="btn btn-primary-custom btn-lg w-100">Criar Conta Gratuita</button>
-                    <button type="button" class="btn btn-outline-dark btn-lg w-100">
+                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold shadow-sm">Criar Conta
+                        Gratuita</button>
+                    <button type="button" class="btn btn-outline-dark w-100 py-3 fw-bold">
                         <i class="bi bi-google me-2"></i> Cadastrar com Google
                     </button>
                 </div>
