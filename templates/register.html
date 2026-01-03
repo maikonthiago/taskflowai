@@ -1,100 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Criar Conta - TaskFlowAI{% endblock %}
+{% block title %}Criar Conta - RitualOS{% endblock %}
 
 {% block content %}
 <div class="row g-0 min-vh-100">
-    <!-- Left Side - Marketing (Hidden on Mobile) -->
-    <div
-        class="col-lg-6 d-none d-lg-flex bg-primary align-items-center justify-content-center position-relative overflow-hidden">
-        <div class="position-absolute w-100 h-100"
-            style="background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);"></div>
-        <!-- Abstract Shapes -->
-        <div class="position-absolute top-0 end-0 bg-white opacity-10 rounded-circle"
-            style="width: 400px; height: 400px; margin-top: -100px; margin-right: -100px;"></div>
-        <div class="position-absolute bottom-0 start-0 bg-white opacity-10 rounded-circle"
-            style="width: 300px; height: 300px; margin-bottom: -50px; margin-left: -50px;"></div>
-
-        <div class="position-relative z-2 text-white p-5 max-w-lg">
-            <h1 class="display-4 fw-bold mb-4">Comece grátis hoje.</h1>
-            <ul class="list-unstyled lead text-white-75 mb-0 d-flex flex-column gap-3">
-                <li class="d-flex align-items-center gap-3">
-                    <i class="bi bi-check-circle-fill text-white"></i> 14 dias de teste do plano Pro
-                </li>
-                <li class="d-flex align-items-center gap-3">
-                    <i class="bi bi-check-circle-fill text-white"></i> Sem cartão de crédito necessário
-                </li>
-                <li class="d-flex align-items-center gap-3">
-                    <i class="bi bi-check-circle-fill text-white"></i> Acesso a todas as IA features
-                </li>
-            </ul>
+    <!-- Left Side - Zen -->
+    <div class="col-lg-6 d-none d-lg-flex bg-dark align-items-center justify-content-center position-relative">
+        <div class="p-5 max-w-lg text-center text-white">
+            <h1 class="display-4 fw-bolder mb-4 tracking-tight" style="line-height: 1.2;">
+                Comece Pequeno.
+            </h1>
+            <p class="lead text-white-50 mb-0 font-light">
+                "A jornada de mil milhas começa com um único passo." <br>— Lao Tzu
+            </p>
         </div>
     </div>
 
     <!-- Right Side - Form -->
     <div class="col-lg-6 d-flex align-items-center justify-content-center bg-white">
-        <div class="w-100 p-4 p-md-5" style="max-width: 550px;">
-            <div class="mb-5">
+        <div class="w-100 p-4 p-md-5" style="max-width: 450px;">
+            <div class="mb-5 text-center">
                 <a href="{{ url_for('index') }}"
-                    class="d-flex align-items-center gap-2 text-decoration-none text-dark mb-4">
-                    <i class="bi bi-arrow-left"></i> Voltar
-                </a>
-                <h2 class="fw-bold display-6 mb-2">Crie sua conta</h2>
-                <p class="text-muted">Vamos configurar seu workspace em segundos.</p>
+                    class="text-dark small text-uppercase tracking-widest text-decoration-none mb-3 d-block">RitualOS</a>
+                <h2 class="fw-bold mb-2">Criar Conta</h2>
+                <p class="text-muted">Seu primeiro ritual começa agora.</p>
             </div>
 
             <form method="POST" action="{{ url_for('register') }}">
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Nome Completo</label>
-                    <input type="text" name="full_name" class="form-control form-control-lg bg-light border-0"
-                        placeholder="Seu nome" required>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Email Profissional</label>
-                    <input type="email" name="email" class="form-control form-control-lg bg-light border-0"
-                        placeholder="nome@empresa.com" required>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Senha</label>
-                    <div class="input-group">
-                        <input type="password" name="password" id="password"
-                            class="form-control form-control-lg bg-light border-0" placeholder="Mínimo 8 caracteres"
-                            required onkeyup="checkStrength(this.value)">
-                        <button type="button" class="btn btn-light border-0" onclick="togglePassword()">
-                            <i class="bi bi-eye text-muted"></i>
-                        </button>
-                    </div>
-                    <!-- Password Strength Bar -->
-                    <div class="progress mt-2" style="height: 4px;">
-                        <div class="progress-bar" id="password-strength" role="progressbar" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="mb-4 form-check">
-                    <input type="checkbox" class="form-check-input" id="terms" required>
-                    <label class="form-check-label text-muted small" for="terms">
-                        Concordo com os <a href="#" class="text-decoration-none">Termos de Serviço</a> e <a href="#"
-                            class="text-decoration-none">Política de Privacidade</a>.
-                    </label>
-                </div>
-
-                <div class="d-grid gap-3 mb-4">
-                    <button type="submit" class="btn btn-primary-custom w-100 py-3 fw-bold shadow-sm">Criar Conta
-                        Gratuita</button>
-                    <button type="button" class="btn btn-outline-dark w-100 py-3 fw-bold">
-                        <i class="bi bi-google me-2"></i> Cadastrar com Google
-                    </button>
-                </div>
-
-                <p class="text-center text-muted small mb-0">
-                    Já tem uma conta? <a href="{{ url_for('login') }}"
-                        class="fw-bold text-primary text-decoration-none">Entrar</a>
-                </p>
-            </form>
+                Gratuita</button>
+                <button type="button" class="btn btn-outline-dark w-100 py-3 fw-bold">
+                    <i class="bi bi-google me-2"></i> Cadastrar com Google
+                </button>
         </div>
+
+        <p class="text-center text-muted small mb-0">
+            Já tem uma conta? <a href="{{ url_for('login') }}"
+                class="fw-bold text-primary text-decoration-none">Entrar</a>
+        </p>
+        </form>
     </div>
+</div>
 </div>
 
 <script>
