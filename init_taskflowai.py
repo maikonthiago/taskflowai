@@ -28,8 +28,57 @@ def init_database():
         from app import ensure_default_data
         ensure_default_data()
         
+        # Create Plans
+        create_plans()
+        
         print("✓ Banco de dados inicializado com sucesso!")
         print()
+
+
+def create_plans():
+    """Cria planos de assinatura do RitualOS"""
+    print("💳 Criando planos de assinatura...")
+    from app import app, db
+    from models import SubscriptionPlan
+    
+    plans = [
+        {
+            'name': 'Gratuito',
+            'slug': 'free',
+            'description': 'Para quem está começando a construir hábitos.',
+            'price_monthly': 0.00,
+            'features': ['1 Ritual Ativo', 'Acesso ao Dashboard Zen', 'Histórico de 7 dias'],
+            'is_default': True
+        },
+        {
+            'name': 'RitualOS Pro',
+            'slug': 'pro',
+            'description': 'Domine seus dias com ferramentas de antifragilidade.',
+            'price_monthly': 29.90,
+            'features': ['Rituais Ilimitados', 'Modo Resiliência (Dia Ruim)', 'Estatísticas Avançadas', 'IA Coach Ilimitado'],
+            'highlight': True,
+            'badge_text': 'Recomendado'
+        }
+    ]
+    
+    for p_data in plans:
+        plan = SubscriptionPlan.query.filter_by(slug=p_data['slug']).first()
+        if not plan:
+            plan = SubscriptionPlan(**p_data)
+            db.session.add(plan)
+            print(f"   + Plano criado: {p_data['name']}")
+        else:
+            # Update existing
+            plan.name = p_data['name']
+            plan.description = p_data['description']
+            plan.price_monthly = p_data['price_monthly']
+            plan.features = p_data['features']
+            if 'highlight' in p_data: plan.highlight = p_data['highlight']
+            if 'badge_text' in p_data: plan.badge_text = p_data['badge_text']
+            print(f"   . Plano atualizado: {p_data['name']}")
+            
+    db.session.commit()
+
 
 
 def create_admin():

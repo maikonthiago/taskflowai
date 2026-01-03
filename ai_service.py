@@ -299,4 +299,70 @@ class AIService:
             
         except Exception as e:
             print(f"Erro ao responder pergunta: {e}")
-            return "Desculpe, não consegui processar sua pergunta no momento."
+    def generate_ritual_system(self, goal: str, pillar: str = "general") -> Dict[str, Any]:
+        """
+        Gera um Sistema (Ritual) a partir de uma Meta, seguindo a filosofia Kaizen.
+        Retorna estrutura com versão Ideal e versão Pior Dia.
+        """
+        if not self.api_key:
+            return self._generate_ritual_fallback(goal)
+            
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini", # Usar modelo inteligente
+                messages=[
+                    {
+                        "role": "system",
+                        "content": """Você é um Arquiteto de Hábitos especialista em Kaizen e Antifragilidade.
+                        Sua missão: Converter Metas abstratas em Sistemas repetíveis.
+                        
+                        REGRAS:
+                        1. FILOSOFIA KAIZEN: O passo inicial deve ser ridiculamente pequeno.
+                        2. MODOS DUPLOS: Crie duas versões da rotina:
+                           - MODO IDEAL: O que fazer num dia normal (desafiador mas possível).
+                           - MODO PIOR DIA: O mínimo absoluto para não quebrar a corrente (ex: 1 flexão, ler 1 frase).
+                        
+                        SAÍDA JSON OBRIGATÓRIA:
+                        {
+                            "system_title": "Nome criativo do ritual (ex: Protocolo X)",
+                            "description": "Explicação breve do porquê funciona",
+                            "frequency": "daily",
+                            "time_of_day": "morning",
+                            "micro_actions": [
+                                {
+                                    "action_ideal": "Ação completa (ex: Correr 5km)",
+                                    "action_bad_day": "Ação de sobrevivência (ex: Vestir o tênis e andar 5min)",
+                                    "duration_minutes": 30
+                                }
+                            ]
+                        }"""
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Crie um sistema para a meta: '{goal}'. Pilar: {pillar}."
+                    }
+                ],
+                temperature=0.7
+            )
+            
+            return json.loads(response.choices[0].message.content)
+            
+        except Exception as e:
+            print(f"Erro ao gerar ritual: {e}")
+            return self._generate_ritual_fallback(goal)
+
+    def _generate_ritual_fallback(self, goal: str) -> Dict[str, Any]:
+        return {
+            "system_title": f"Ritual para {goal}",
+            "description": "Sistema gerado automaticamente (modo offline).",
+            "frequency": "daily",
+            "time_of_day": "morning",
+            "micro_actions": [
+                {
+                    "action_ideal": f"Trabalhar 20min em {goal}",
+                    "action_bad_day": f"Pensar sobre {goal} por 1min",
+                    "duration_minutes": 20
+                }
+            ]
+        }
+

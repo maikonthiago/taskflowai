@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Header Zen -->
+    <div class="text-center mb-12">
+        <h1 class="text-3xl font-light text-gray-800 dark:text-gray-100 mb-2">RitualOS</h1>
+        <p class="text-gray-500 italic" id="date-display"></p>
+    </div>
+
+    <!-- Mood Check-in -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8 border border-gray-100 dark:border-gray-700">
+        <h2 class="text-xl font-medium mb-4 text-center">Como você está se sentindo hoje?</h2>
+        <div class="flex justify-center gap-4">
+            <button onclick="setMood('normal')" id="btn-normal"
+                class="px-6 py-3 rounded-full border-2 border-green-500 text-green-600 hover:bg-green-50 transition-all focus:outline-none ring-offset-2 focus:ring-2 ring-green-500 flex items-center gap-2">
+                <span>🌞</span> Dia Normal
+            </button>
+            <button onclick="setMood('hard')" id="btn-hard"
+                class="px-6 py-3 rounded-full border-2 border-slate-300 text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all focus:outline-none ring-offset-2 focus:ring-2 ring-orange-500 flex items-center gap-2">
+                <span>🌧️</span> Dia Difícil
+            </button>
+        </div>
+        <p id="resilience-msg" class="text-center text-sm text-gray-400 mt-4 hidden">
+            <span class="font-bold text-orange-500">Modo Resiliência Ativo.</span> Foco na consistência, não na
+            intensidade.
+        </p>
+    </div>
+
+    <!-- Goals & Systems -->
+    <div id="rituals-container" class="space-y-6">
+        <!-- Content injected by JS -->
+        <div class="animate-pulse flex space-x-4">
+            <div class="flex-1 space-y-4 py-1">
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div class="space-y-2">
+                    <div class="h-4 bg-gray-200 rounded"></div>
+                    <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Goal FAB -->
+    <button onclick="openGoalModal()"
+        class="fixed bottom-8 right-8 bg-black text-white p-4 rounded-full shadow-lg hover:scale-105 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-12H4" />
+        </svg>
+    </button>
+</div>
+
+<!-- Goal Modal -->
+<div id="goal-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full mx-4">
+        <h3 class="text-2xl font-light mb-6">Novo Destino</h3>
+        <input type="text" id="goal-input" placeholder="Ex: Escrever um livro"
+            class="w-full p-4 rounded-xl border border-gray-200 mb-4 focus:ring-2 focus:ring-black focus:outline-none dark:bg-gray-700 dark:border-gray-600">
+
+        <div class="grid grid-cols-2 gap-2 mb-6">
+            <button onclick="createRitual('health')" class="p-2 rounded-lg border hover:bg-gray-50 text-sm">💪
+                Corpo</button>
+            <button onclick="createRitual('mind')" class="p-2 rounded-lg border hover:bg-gray-50 text-sm">🧠
+                Mente</button>
+            <button onclick="createRitual('work')" class="p-2 rounded-lg border hover:bg-gray-50 text-sm">💼
+                Trabalho</button>
+            <button onclick="createRitual('spirit')" class="p-2 rounded-lg border hover:bg-gray-50 text-sm">🧘
+                Espírito</button>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <button onclick="closeGoalModal()" class="text-gray-500 hover:text-black">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confetti Lib -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+    let currentMood = 'normal';
+
+    // Init
+    document.getElementById('date-display').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    loadRituals();
+
+    function setMood(mood) {
+        currentMood = mood;
+        const btnNormal = document.getElementById('btn-normal');
+        const btnHard = document.getElementById('btn-hard');
+        const msg = document.getElementById('resilience-msg');
+
+        if (mood === 'hard') {
+            btnHard.classList.add('bg-orange-50', 'border-orange-500', 'text-orange-600');
+            btnNormal.classList.remove('bg-green-50', 'border-green-500', 'text-green-600');
+            btnNormal.classList.add('text-gray-400', 'border-gray-200');
+            msg.classList.remove('hidden');
+        } else {
+            btnNormal.classList.add('bg-green-50', 'border-green-500', 'text-green-600');
+            btnHard.classList.remove('bg-orange-50', 'border-orange-500', 'text-orange-600');
+            btnNormal.classList.remove('text-gray-400', 'border-gray-200');
+            msg.classList.add('hidden');
+        }
+        loadRituals(); // Reload tasks based on mood
+    }
+
+    async function loadRituals() {
+        const container = document.getElementById('rituals-container');
+        try {
+            const res = await fetch(`/api/ritual/systems?mood=${currentMood}`);
+            const data = await res.json();
+
+            container.innerHTML = '';
+
+            if (data.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-10">Nenhum ritual definido. Comece pequeno.</div>`;
+                return;
+            }
+
+            data.forEach(system => {
+                const action = currentMood === 'hard' ? system.action_bad_day : system.action_ideal;
+                const duration = system.duration_minutes;
+                const isCompleted = system.completed; // Now comes from API
+                const streak = system.streak || 0;
+
+                const card = `
+                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border-l-4 ${currentMood === 'hard' ? 'border-orange-400' : 'border-black'} flex items-center justify-between group hover:shadow-md transition-all ${isCompleted ? 'opacity-70' : ''}">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">${system.goal_title}</span>
+                                ${streak > 0 ? `<span class="text-xs font-bold text-orange-500 flex items-center gap-0.5">🔥 ${streak}</span>` : ''}
+                            </div>
+                            <h3 class="text-lg font-medium transition-all ${isCompleted ? 'line-through text-gray-300' : ''}">${action}</h3>
+                            <div class="text-sm text-gray-400 mt-1 flex gap-2 items-center">
+                                <span>⏱ ${duration} min</span>
+                                ${currentMood === 'hard' ? '<span class="text-orange-500 text-xs bg-orange-100 px-2 py-0.5 rounded">Modo Resiliência</span>' : ''}
+                            </div>
+                        </div>
+                        <button onclick="toggleComplete(${system.id}, this)" ${isCompleted ? 'disabled' : ''} class="h-10 w-10 rounded-full border-2 flex items-center justify-center transition-all ${isCompleted ? 'bg-green-500 border-green-500 text-white cursor-default' : 'border-gray-300 hover:border-green-400 text-transparent hover:text-green-400'}">
+                            ✓
+                        </button>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function toggleComplete(actionId, btn) {
+        // Optimistic UI update
+        btn.classList.remove('border-gray-300', 'hover:border-green-400', 'text-transparent', 'hover:text-green-400');
+        btn.classList.add('bg-green-500', 'border-green-500', 'text-white');
+        btn.disabled = true;
+
+        // Confetti!
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+
+        try {
+            await fetch('/api/ritual/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action_id: actionId,
+                    mood: currentMood
+                })
+            });
+            // Reload to sync state/streaks
+            setTimeout(loadRituals, 1000);
+
+        } catch (e) {
+            console.error("Failed to complete", e);
+            // Revert on error (skipped for simplicity)
+        }
+    }
+
+    async function createRitual(pillar) {
+        const input = document.getElementById('goal-input');
+        const goal = input.value;
+        if (!goal) return;
+
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "Criando...";
+
+        try {
+            const res = await fetch('/api/ritual/generate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ goal, pillar })
+            });
+            const data = await res.json();
+            closeGoalModal();
+            loadRituals();
+        } catch (e) {
+            alert("Erro ao criar ritual");
+        }
+    }
+
+    function openGoalModal() {
+        document.getElementById('goal-modal').classList.remove('hidden');
+    }
+    function closeGoalModal() {
+        document.getElementById('goal-modal').classList.add('hidden');
+    }
+</script>
+{% endblock %}

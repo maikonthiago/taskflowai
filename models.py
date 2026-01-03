@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -595,3 +595,198 @@ class ActivityLog(db.Model):
     workspace_id = db.Column(db.Integer, db.ForeignKey('workspaces.id'))
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# ==========================================
+# RITUAL OS MODELS (New Architecture)
+# ==========================================
+
+class Goal(db.Model):
+    """
+    O 'Destino' ou 'Projeto'. 
+    Representa o objetivo macro. Ex: 'Escrever um livro', 'Correr Maratona'.
+    Substitui o conceito tradicional de Projeto em Project Management.
+    """
+    __tablename__ = 'goals'
+
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(255), nullable=False)
+    why = db.Column(db.Text)  # O 'Motivo' (Framework MPA)
+    
+    # Pilares da Vida
+    pillar = db.Column(db.String(50), default='general') # mind, body, spirit, work, studies
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    status = db.Column(db.String(50), default='active')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Um Goal tem vários Systems (veículos) para ser atingido
+    systems = db.relationship('System', backref='goal', lazy=True, cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'why': self.why,
+            'pillar': self.pillar,
+            'status': self.status,
+            'systems': [s.to_dict() for s in self.systems]
+        }
+
+
+class System(db.Model):
+    """
+    O 'Veículo'. 
+    Conjunto de ações recorrentes. Não foca no fim, mas no processo.
+    Ex: 'Rotina de Escrita Matinal', 'Treino de Base'.
+    """
+    __tablename__ = 'systems'
+
+    id = db.Column(db.Integer, primary_key=True)
+    uuid = db.Column(db.String(36), unique=True, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    
+    goal_id = db.Column(db.Integer, db.ForeignKey('goals.id'), nullable=False)
+    
+    # Frequência (Ex: 'mon,wed,fri' ou 'daily')
+    frequency = db.Column(db.String(100), default='daily')
+    time_of_day = db.Column(db.String(50)) # morning, afternoon, evening
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Um System tem MicroActions (o que fazer exatamente)
+    micro_actions = db.relationship('MicroAction', backref='system', lazy=True, cascade='all, delete-orphan')
+
+    def get_current_streak(self):
+        """Calcula dias consecutivos de completamento (The Chain)"""
+        # Obter todos os logs onde alguma micro-ação deste sistema foi completada
+        # Simplificação: Considera completado se houver CompletedAction linkada a uma MicroAction deste sistema
+        
+        # SQL puro para performance ou query complexa
+        # 1. Pegar datas únicas onde houve completamento de ações deste sistema
+        completed_dates = db.session.query(DailyLog.date)\
+            .join(CompletedAction)\
+            .join(MicroAction)\
+            .filter(MicroAction.system_id == self.id)\
+            .order_by(DailyLog.date.desc())\
+            .distinct()\
+            .all()
+            
+        if not completed_dates:
+            return 0
+            
+        dates = [d[0] for d in completed_dates]
+        
+        # Verificar hoje ou ontem (para manter streak vivo)
+        today = datetime.utcnow().date()
+        yesterday = today - timedelta(days=1)
+        
+        if dates[0] != today and dates[0] != yesterday:
+            return 0
+            
+        streak = 0
+        current_check = dates[0]
+        
+        # Se a última foi hoje, começamos a checar de hoje. Se foi ontem, de ontem.
+        # Loop para trás
+        for i, date in enumerate(dates):
+            expected = current_check - timedelta(days=i)
+            # Na lógica real, precisamos verificar buracos.
+            # Aqui vamos simplificar: se a data[i] for igual a (data_inicial - i dias), streak++
+            
+            # Ajuste: dates é lista de datas reais.
+            # Se dates[0] é hoje (03/01), dates[1] deve ser ontem (02/01)
+            
+            # Vamos iterar verificando a continuidade
+            # Mas cuidado: a lista 'dates' pode ter buracos.
+            pass
+        
+        # Re-implementação robusta:
+        streak = 1
+        last_date = dates[0]
+        
+        for date in dates[1:]:
+            delta = (last_date - date).days
+            if delta == 1:
+                streak += 1
+                last_date = date
+            else:
+                break
+                
+        return streak
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'frequency': self.frequency,
+            'current_streak': self.get_current_streak(),
+            'micro_actions': [m.to_dict() for m in self.micro_actions]
+        }
+
+
+class MicroAction(db.Model):
+    """
+    A Unidade Atômica.
+    Contém a versão 'Ideal' e a versão 'Pior Dia' (Resiliência).
+    """
+    __tablename__ = 'micro_actions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    system_id = db.Column(db.Integer, db.ForeignKey('systems.id'), nullable=False)
+    
+    # Ação no dia Ideal (Ex: 'Escrever 1000 palavras')
+    action_ideal = db.Column(db.String(255), nullable=False)
+    
+    # Ação no Pior Dia (Ex: 'Escrever 1 frase') - Chave da filosofia
+    action_bad_day = db.Column(db.String(255), nullable=False)
+    
+    duration_minutes = db.Column(db.Integer, default=15)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'action_ideal': self.action_ideal,
+            'action_bad_day': self.action_bad_day,
+            'duration_minutes': self.duration_minutes
+        }
+
+
+class DailyLog(db.Model):
+    """
+    Registro do Dia.
+    Captura o 'Mood' do usuário e o que foi feito.
+    """
+    __tablename__ = 'daily_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    date = db.Column(db.Date, default=datetime.utcnow)
+    
+    # O estado do usuário naquele dia (determina qual versão da tarefa aparece)
+    mood = db.Column(db.String(20), default='normal') # normal, hard
+    
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Ações concluídas neste dia
+    completed_actions = db.relationship('CompletedAction', backref='daily_log', lazy=True, cascade='all, delete-orphan')
+
+
+class CompletedAction(db.Model):
+    """ Rastreia qual MicroAction foi feita e em qual modo """
+    __tablename__ = 'completed_actions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    daily_log_id = db.Column(db.Integer, db.ForeignKey('daily_logs.id'), nullable=False)
+    micro_action_id = db.Column(db.Integer, db.ForeignKey('micro_actions.id'), nullable=False)
+    
+    # Se fez a versão ideal ou a versão 'bad day'
+    version_completed = db.Column(db.String(20)) # ideal, bad_day
+    
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)

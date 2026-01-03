@@ -651,13 +651,15 @@ def subscription_settings():
 def admin_console():
     """Painel administrativo centralizado"""
     ensure_default_data()
-    now = datetime.utcnow()
     stats = {
         'total_users': User.query.count(),
         'active_users': User.query.filter_by(is_active=True).count(),
         'new_users': User.query.filter(User.created_at >= (now - timedelta(days=30))).count(),
         'admin_users': User.query.filter_by(is_admin=True).count(),
-        'paid_users': User.query.filter(User.subscription_plan != 'free').count()
+        'paid_users': User.query.filter(User.subscription_plan != 'free').count(),
+        'active_goals': Goal.query.filter_by(status='active').count(),
+        'total_systems': System.query.count(),
+        'total_completions': CompletedAction.query.count()
     }
 
     plans = get_active_plans(include_inactive=True)
@@ -1419,113 +1421,6 @@ def api_admin_update_setting(key):
     return jsonify(serialize_setting(setting))
 
 
-# ==================== STRIPE PAYMENT ====================
-
-@app.before_request
-def setup_stripe():
-    stripe.api_key = app.config['STRIPE_SECRET_KEY']
-
-@app.route('/api/create-checkout-session', methods=['POST'])
-@login_required
-def create_checkout_session():
-    try:
-        data = request.get_json()
-        plan_name = data.get('plan')
-        
-        # Obter ID do preço da configuração
-        plan_config = app.config['PLANS'].get(plan_name)
-        if not plan_config:
-            return jsonify({'error': 'Plano inválido'}), 400
-            
-        price_id = plan_config.get('stripe_price_id')
-        if not price_id:
-             return jsonify({'error': 'Configuração de preço ausente'}), 500
-
-        checkout_session = stripe.checkout.Session.create(
-            customer_email=current_user.email,
-            client_reference_id=str(current_user.id),
-            payment_method_types=['card'],
-            line_items=[
-                {
-                    'price': price_id,
-                    'quantity': 1,
-                },
-            ],
-            mode='subscription',
-            success_url=url_for('dashboard', _external=True) + '?session_id={CHECKOUT_SESSION_ID}&success=true',
-            cancel_url=url_for('index', _external=True) + '#pricing',
-            metadata={
-                'user_id': current_user.id,
-                'plan': plan_name
-            }
-        )
-        return jsonify({'sessionId': checkout_session.id, 'url': checkout_session.url})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/stripe_webhook', methods=['POST'])
-def stripe_webhook():
-    payload = request.get_data(as_text=True)
-    sig_header = request.headers.get('Stripe-Signature')
-    endpoint_secret = app.config['STRIPE_WEBHOOK_SECRET']
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
-    except ValueError as e:
-        return 'Invalid payload', 400
-    except stripe.error.SignatureVerificationError as e:
-        return 'Invalid signature', 400
-
-    # Handle the event
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        # Fulfill the purchase...
-        handle_checkout_session(session)
-    elif event['type'] == 'invoice.payment_succeeded':
-        # Extend subscription...
-        pass
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        handle_subscription_deleted(subscription)
-
-    return 'Success', 200
-
-def handle_checkout_session(session):
-    client_reference_id = session.get('client_reference_id')
-    user_id = client_reference_id
-    
-    # Tentar pegar do metadata se não tiver no reference
-    if not user_id:
-        user_id = session.get('metadata', {}).get('user_id')
-        
-    if user_id:
-        user = User.query.get(user_id)
-        if user:
-            # Identificar plano baseado no price_id ou metadata
-            # Simplificação: assumir que metadata tem o plano, ou inferir
-            plan_name = session.get('metadata', {}).get('plan')
-            
-            # Fallback: tentar descobrir plano pelo amount
-            if not plan_name:
-                amount = session.get('amount_total') # cents
-                if amount == 2990: # 29.90
-                    plan_name = 'pro'
-                elif amount == 7990: # 79.90
-                    plan_name = 'business'
-            
-            if plan_name:
-                user.subscription_plan = plan_name
-                user.subscription_status = 'active'
-                db.session.commit()
-                print(f"User {user.username} upgraded to {plan_name}")
-
-def handle_subscription_deleted(subscription):
-    # Encontrar usuário pelo customer id (ideal ter customer_id no User model)
-    # Como fallback, downgrade se encontrar
-    pass
-
 # ==================== SOCKETIO EVENTS ====================
 
 @socketio.on('join')
@@ -1613,6 +1508,173 @@ def create_admin():
     print('Usuário admin criado com sucesso!')
     print('Username: thiagolobo')
     print('Password: #Wolf@1902')
+
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "ok", "app": "TaskFlowAI", "version": "1.0.0"})
+
+
+# ==========================================
+# RITUAL OS ROUTES
+# ==========================================
+
+@app.route('/ritual')
+@login_required
+def ritual_dashboard():
+    return render_template('ritual_dashboard.html', user=current_user)
+
+@app.route('/api/ritual/generate', methods=['POST'])
+@login_required
+def generate_ritual():
+    data = request.json
+    goal_title = data.get('goal')
+    pillar = data.get('pillar', 'general')
+    
+    if not goal_title:
+        return jsonify({"error": "Goal required"}), 400
+        
+    # LIMIT CHECK (Free Plan)
+    if current_user.subscription_plan == 'free':
+        active_goals_count = Goal.query.filter_by(user_id=current_user.id, status='active').count()
+        if active_goals_count >= 1:
+            return jsonify({
+                "error": "Limite atingido",
+                "message": "O plano gratuito permite apenas 1 ritual ativo. Faça upgrade para ilimitado."
+            }), 403
+            
+    # 1. Criar Goal
+    new_goal = Goal(
+        title=goal_title,
+        pillar=pillar,
+        user_id=current_user.id
+    )
+    db.session.add(new_goal)
+    db.session.commit()
+    
+    # 2. Gerar System via AI
+    ai = AIService(os.getenv('OPENAI_API_KEY'))
+    system_data = ai.generate_ritual_system(goal_title, pillar)
+    
+    # 3. Salvar System
+    new_system = System(
+        title=system_data.get('system_title', f"Ritual: {goal_title}"),
+        description=system_data.get('description'),
+        frequency=system_data.get('frequency', 'daily'),
+        time_of_day=system_data.get('time_of_day', 'morning'),
+        goal_id=new_goal.id
+    )
+    db.session.add(new_system)
+    db.session.commit()
+    
+    # 4. Salvar MicroActions
+    for ma in system_data.get('micro_actions', []):
+        micro = MicroAction(
+            system_id=new_system.id,
+            action_ideal=ma.get('action_ideal'),
+            action_bad_day=ma.get('action_bad_day'),
+            duration_minutes=ma.get('duration_minutes', 15)
+        )
+        db.session.add(micro)
+    
+    db.session.commit()
+    
+    return jsonify({"status": "success", "system_id": new_system.id})
+
+@app.route('/api/ritual/complete', methods=['POST'])
+@login_required
+def complete_ritual():
+    data = request.json
+    action_id = data.get('action_id')
+    mood = data.get('mood', 'normal')
+    
+    if not action_id:
+        return jsonify({"error": "Action ID required"}), 400
+        
+    # Verificar se já completou hoje
+    today = datetime.utcnow().date()
+    existing_log = DailyLog.query.filter_by(user_id=current_user.id, date=today).first()
+    
+    if not existing_log:
+        existing_log = DailyLog(user_id=current_user.id, date=today, mood=mood)
+        db.session.add(existing_log)
+        db.session.commit()
+    
+    # Verificar se ação já foi completada neste log
+    existing_completion = CompletedAction.query.filter_by(
+        daily_log_id=existing_log.id,
+        micro_action_id=action_id
+    ).first()
+    
+    if existing_completion:
+        return jsonify({"message": "Already completed", "status": "exists"})
+        
+    # Registrar ação
+    version = 'bad_day' if mood == 'hard' else 'ideal'
+    completion = CompletedAction(
+        daily_log_id=existing_log.id,
+        micro_action_id=action_id,
+        version_completed=version
+    )
+    db.session.add(completion)
+    db.session.commit()
+    
+    return jsonify({"status": "success", "streak": 1}) # TODO: Return real streak
+
+@app.route('/api/ritual/systems', methods=['GET'])
+@login_required
+def get_rituals():
+    # Retorna os sistemas do usuário para o dia
+    goals = Goal.query.filter_by(user_id=current_user.id, status='active').all()
+    rituals = []
+    
+    # Cache do log de hoje
+    today = datetime.utcnow().date()
+    daily_log = DailyLog.query.filter_by(user_id=current_user.id, date=today).first()
+    completed_ids = []
+    if daily_log:
+        completed_ids = [c.micro_action_id for c in daily_log.completed_actions]
+    
+    for goal in goals:
+        for system in goal.systems:
+            streak = system.get_current_streak()
+            for action in system.micro_actions:
+                rituals.append({
+                    "id": action.id,
+                    "goal_title": goal.title,
+                    "system_title": system.title,
+                    "action_ideal": action.action_ideal,
+                    "action_bad_day": action.action_bad_day,
+                    "duration_minutes": action.duration_minutes,
+                    "completed": action.id in completed_ids,
+                    "streak": streak
+                })
+                
+    return jsonify(rituals)
+
+@app.route('/api/ritual/stats', methods=['GET'])
+@login_required
+def get_ritual_stats():
+    # Simples estatísticas de completamento nos últimos 7 dias
+    end_date = datetime.utcnow().date()
+    start_date = end_date - timedelta(days=6)
+    
+    logs = DailyLog.query.filter(
+        DailyLog.user_id == current_user.id,
+        DailyLog.date >= start_date
+    ).all()
+    
+    # Mapear data -> completados
+    stats = {}
+    current = start_date
+    while current <= end_date:
+        stats[current.isoformat()] = 0
+        current += timedelta(days=1)
+        
+    for log in logs:
+        stats[log.date.isoformat()] = len(log.completed_actions)
+        
+    return jsonify(stats)
+
 
 # ==================== RUN ====================
 
