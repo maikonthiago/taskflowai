@@ -263,7 +263,10 @@
         try {
             await fetch('/api/ritual/complete', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
                 body: JSON.stringify({
                     action_id: actionId,
                     mood: currentMood
@@ -290,7 +293,10 @@
         try {
             const res = await fetch('/api/ritual/generate', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
                 body: JSON.stringify({ goal, pillar })
             });
             const data = await res.json();
@@ -376,7 +382,10 @@
         btn.innerHTML = `<span class="animate-spin">🌀</span> Pensando...`;
 
         try {
-            const res = await fetch('/api/ritual/insight', { method: 'POST' });
+            const res = await fetch('/api/ritual/insight', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            });
             const data = await res.json();
 
             content.innerHTML = `<p>${data.insight}</p>`;
