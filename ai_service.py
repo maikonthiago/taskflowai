@@ -357,12 +357,41 @@ class AIService:
             "description": "Sistema gerado automaticamente (modo offline).",
             "frequency": "daily",
             "time_of_day": "morning",
-            "micro_actions": [
-                {
-                    "action_ideal": f"Trabalhar 20min em {goal}",
-                    "action_bad_day": f"Pensar sobre {goal} por 1min",
-                    "duration_minutes": 20
-                }
             ]
+        }
+
+    def generate_kaizen_insight(self, stats_data: Dict[str, Any]) -> str:
+        """
+        Gera um insight de melhoria contínua baseado nos dados da semana
+        """
+        if not self.api_key:
+            return "Continue consistente! A melhoria vem da repetição diária."
+            
+        prompt = f"""
+        Analise o desempenho semanal deste usuário no sistema RitualOS (Filosofia Kaizen):
+        Dados: {stats_data}
+        
+        Aja como um treinador estoico e gentil.
+        1. Elogie a consistência onde houver.
+        2. Se houver falhas, sugira tornar o hábito RIDICULAMENTE menor (Kaizen).
+        3. Dê uma única dica prática para a próxima semana.
+        
+        Responda em 1 parágrafo curto (max 3 frases) em PORTUGUÊS.
+        """
+        
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "Você é um coach Kaizen especialista em formação de hábitos."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=150
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Erro AI Insight: {e}")
+            return "A consistência é a chave. Continue aparecendo todos os dias, mesmo que seja para fazer o mínimo."
         }
 

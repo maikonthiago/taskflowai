@@ -1677,6 +1677,45 @@ def get_ritual_stats():
 
 
 # ==================== RUN ====================
+@app.route('/api/ritual/insight', methods=['POST'])
+@login_required
+def ritual_insight():
+    # 1. Coletar dados da última semana
+    today = datetime.utcnow().date()
+    week_ago = today - timedelta(days=7)
+    
+    logs = DailyLog.query.filter(
+        DailyLog.user_id == current_user.id,
+        DailyLog.date >= week_ago
+    ).all()
+    
+    # Simple aggregations
+    stats = {}
+    for log in logs:
+        date_str = log.date.strftime('%Y-%m-%d')
+        # Contar total de CompletedAction para esse log (assumindo que DailyLog é por dia)
+        # Na verdade DailyLog é 1 por dia. Precisamos contar quantosCompletedAction existem nesse dia?
+        # daily_log_id não está em completed_action, mas completed_action tem completed_at.
+        # Vamos usar a logica do get_ritual_stats que já retorna o heatmap.
+        pass
+        
+    # Reusing the existing stats logic for simplicity
+    raw_stats = {}
+    current_date = week_ago
+    while current_date <= today:
+        count = db.session.query(CompletedAction)\
+            .join(DailyLog, CompletedAction.daily_log_id == DailyLog.id)\
+            .filter(DailyLog.user_id == current_user.id)\
+            .filter(DailyLog.date == current_date)\
+            .count()
+        raw_stats[current_date.strftime('%Y-%m-%d')] = count
+        current_date += timedelta(days=1)
+            
+    # 2. Chamar AI
+    ai = AIService(os.getenv('OPENAI_API_KEY'))
+    insight_text = ai.generate_kaizen_insight(raw_stats)
+    
+    return jsonify({"insight": insight_text})
 
 if __name__ == '__main__':
     with app.app_context():

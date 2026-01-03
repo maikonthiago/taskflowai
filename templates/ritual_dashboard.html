@@ -3,9 +3,21 @@
 {% block content %}
 <div class="container mx-auto px-4 py-8 max-w-3xl">
     <!-- Header Zen -->
-    <div class="text-center mb-12">
-        <h1 class="text-3xl font-light text-gray-800 dark:text-gray-100 mb-2">RitualOS</h1>
-        <p class="text-gray-500 italic" id="date-display"></p>
+    <div class="flex justify-between items-center mb-12">
+        <div>
+            <h1 class="text-3xl font-light text-gray-800 dark:text-gray-100 mb-2">RitualOS</h1>
+            <p class="text-gray-500 italic" id="date-display"></p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="requestNotificationPermission()"
+                class="p-2 text-gray-400 hover:text-black transition-colors" title="Ativar Notificações">
+                🔔
+            </button>
+            <button onclick="openReviewModal()"
+                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
+                📊 Review Semanal
+            </button>
+        </div>
     </div>
 
     <!-- Mood Check-in -->
@@ -17,8 +29,14 @@
                 <span>🌞</span> Dia Normal
             </button>
             <button onclick="setMood('hard')" id="btn-hard"
-                class="px-6 py-3 rounded-full border-2 border-slate-300 text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all focus:outline-none ring-offset-2 focus:ring-2 ring-orange-500 flex items-center gap-2">
+                class="px-6 py-3 rounded-full border-2 border-slate-300 text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all focus:outline-none ring-offset-2 focus:ring-2 ring-orange-500 flex items-center gap-2 relative overflow-hidden">
                 <span>🌧️</span> Dia Difícil
+                {% if user.subscription_plan == 'free' %}
+                <div
+                    class="absolute inset-0 bg-gray-100 bg-opacity-80 flex items-center justify-center cursor-not-allowed">
+                    <span class="text-xs font-bold text-gray-500">🔒 PRO</span>
+                </div>
+                {% endif %}
             </button>
         </div>
         <p id="resilience-msg" class="text-center text-sm text-gray-400 mt-4 hidden">
@@ -43,7 +61,7 @@
 
     <!-- Add New Goal FAB -->
     <button onclick="openGoalModal()"
-        class="fixed bottom-8 right-8 bg-black text-white p-4 rounded-full shadow-lg hover:scale-105 transition-transform">
+        class="fixed bottom-8 right-8 bg-black text-white p-4 rounded-full shadow-lg hover:scale-105 transition-transform z-40">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-12H4" />
         </svg>
@@ -74,17 +92,95 @@
     </div>
 </div>
 
+<!-- Upgrade Modal -->
+<div id="upgrade-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-sm w-full mx-4 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-red-500"></div>
+        <div class="mb-4 text-4xl">🦸‍♂️</div>
+        <h3 class="text-2xl font-bold mb-2">Seja Antifrágil</h3>
+        <p class="text-gray-600 mb-6 font-light leading-relaxed">
+            O <strong>Modo Resiliência</strong> ("Dia Difícil") é exclusivo do RitualOS Pro. Não deixe dias ruins
+            quebrarem sua corrente.
+        </p>
+        <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left border">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-green-500">✓</span> <span class="text-sm">Rituais Ilimitados</span>
+            </div>
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-green-500">✓</span> <span class="text-sm font-bold">Modo Resiliência</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-green-500">✓</span> <span class="text-sm">Coach IA Semanal</span>
+            </div>
+        </div>
+        <a href="{{ url_for('pricing') }}"
+            class="block w-full py-3 bg-black text-white rounded-lg font-bold hover:bg-gray-800 transition-colors">
+            Upgrade por R$ 29,90
+        </a>
+        <button onclick="document.getElementById('upgrade-modal').classList.add('hidden')"
+            class="mt-4 text-sm text-gray-400 hover:text-gray-600">Agora não</button>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div id="review-modal"
+    class="fixed inset-0 bg-white bg-opacity-95 hidden flex items-center justify-center z-50 overflow-y-auto">
+    <div
+        class="bg-white rounded-none w-full h-full md:h-auto md:max-w-2xl md:rounded-2xl md:shadow-2xl md:bg-white p-0 flex flex-col">
+        <!-- Header -->
+        <div class="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+            <div>
+                <h2 class="text-2xl font-bold">Review Semanal</h2>
+                <p class="text-sm text-gray-500">Kaizen Check-in</p>
+            </div>
+            <button onclick="document.getElementById('review-modal').classList.add('hidden')"
+                class="p-2 hover:bg-gray-100 rounded-full">✕</button>
+        </div>
+
+        <div class="p-6 flex-1 overflow-y-auto">
+            <!-- Stats -->
+            <div class="grid grid-cols-7 gap-1 mb-8 text-center" id="review-heatmap">
+                <!-- Injected via JS -->
+            </div>
+
+            <!-- AI Insight -->
+            <div class="bg-blue-50 border border-blue-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="bg-blue-100 text-blue-600 p-2 rounded-lg">🤖 Kaizen AI</span>
+                </div>
+                <div id="insight-content" class="text-gray-700 leading-relaxed min-h-[100px]">
+                    <p class="text-gray-400 italic">Clique em "Gerar Análise" para receber feedback da IA sobre sua
+                        consistência...</p>
+                </div>
+            </div>
+
+            <button onclick="generateInsight()" id="btn-insight"
+                class="w-full py-4 bg-black text-white rounded-xl font-bold text-lg hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-lg">
+                <span class="animate-pulse">✨</span> Gerar Análise de Consistência
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Confetti Lib -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
     let currentMood = 'normal';
+    const userPlan = "{{ user.subscription_plan }}"; // Injected by Flask
 
     // Init
     document.getElementById('date-display').innerText = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     loadRituals();
+    checkNotificationPermission();
 
     function setMood(mood) {
+        // ENFORCEMENT
+        if (mood === 'hard' && userPlan === 'free') {
+            document.getElementById('upgrade-modal').classList.remove('hidden');
+            return;
+        }
+
         currentMood = mood;
         const btnNormal = document.getElementById('btn-normal');
         const btnHard = document.getElementById('btn-hard');
@@ -103,6 +199,8 @@
         }
         loadRituals(); // Reload tasks based on mood
     }
+
+    // ... (loadRituals and toggleComplete same as before, no changes needed, just referenced)
 
     async function loadRituals() {
         const container = document.getElementById('rituals-container');
@@ -196,8 +294,13 @@
                 body: JSON.stringify({ goal, pillar })
             });
             const data = await res.json();
-            closeGoalModal();
-            loadRituals();
+            if (res.ok) {
+                closeGoalModal();
+                loadRituals();
+            } else {
+                if (data.message) alert(data.message);
+            }
+
         } catch (e) {
             alert("Erro ao criar ritual");
         }
@@ -208,6 +311,81 @@
     }
     function closeGoalModal() {
         document.getElementById('goal-modal').classList.add('hidden');
+    }
+
+    // --- NOTIFICATIONS ---
+    function requestNotificationPermission() {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                new Notification("RitualOS", {
+                    body: "Notificações ativadas! Lembraremos você de manter a consistência.",
+                    icon: "/static/img/icon.png"
+                });
+            }
+        });
+    }
+
+    function checkNotificationPermission() {
+        if (Notification.permission === 'granted') {
+            // Logic to check if tasks are pending could go here
+        }
+    }
+
+    // --- WEEKLY REVIEW ---
+    async function openReviewModal() {
+        document.getElementById('review-modal').classList.remove('hidden');
+        const heatmap = document.getElementById('review-heatmap');
+        heatmap.innerHTML = '<div class="col-span-7 py-10 text-center text-gray-400">Carregando dados...</div>';
+
+        try {
+            const res = await fetch('/api/ritual/stats');
+            const data = await res.json();
+
+            // Build heatmap
+            heatmap.innerHTML = '';
+            // last 7 days keys
+            const sortedDates = Object.keys(data).sort();
+            const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+            sortedDates.forEach(dateStr => {
+                const count = data[dateStr];
+                const date = new Date(dateStr);
+                const dayName = days[date.getDay()];
+                const intensity = count > 0 ? (count >= 3 ? 'bg-green-500' : 'bg-green-300') : 'bg-gray-100';
+
+                heatmap.innerHTML += `
+                    <div class="flex flex-col items-center gap-2">
+                        <span class="text-xs text-gray-400 uppercase">${dayName}</span>
+                         <div class="w-8 h-8 rounded-lg ${intensity} flex items-center justify-center text-xs font-bold ${count > 0 ? 'text-white' : 'text-gray-300'}">
+                            ${count > 0 ? count : '-'}
+                         </div>
+                    </div>
+                `;
+            });
+
+        } catch (e) {
+            heatmap.innerHTML = 'Erro ao carregar';
+        }
+    }
+
+    async function generateInsight() {
+        const btn = document.getElementById('btn-insight');
+        const content = document.getElementById('insight-content');
+
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin">🌀</span> Pensando...`;
+
+        try {
+            const res = await fetch('/api/ritual/insight', { method: 'POST' });
+            const data = await res.json();
+
+            content.innerHTML = `<p>${data.insight}</p>`;
+            btn.innerHTML = `✨ Gerar Novo Insight`;
+            btn.disabled = false;
+        } catch (e) {
+            content.innerHTML = "Erro ao gerar insight.";
+            btn.disabled = false;
+        }
     }
 </script>
 {% endblock %}
