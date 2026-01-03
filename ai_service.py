@@ -299,7 +299,7 @@ class AIService:
             
         except Exception as e:
             print(f"Erro ao responder pergunta: {e}")
-    def generate_ritual_system(self, goal: str, pillar: str = "general") -> Dict[str, Any]:
+    def generate_ritual_system(self, goal: str, pillar: str = "general", language: str = 'pt') -> Dict[str, Any]:
         """
         Gera um Sistema (Ritual) a partir de uma Meta, seguindo a filosofia Kaizen.
         Retorna estrutura com versão Ideal e versão Pior Dia.
@@ -307,13 +307,17 @@ class AIService:
         if not self.api_key:
             return self._generate_ritual_fallback(goal)
             
+        lang_prompt = "PORTUGUESE"
+        if language == 'en': lang_prompt = "ENGLISH"
+        elif language == 'es': lang_prompt = "SPANISH"
+
         try:
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini", # Usar modelo inteligente
                 messages=[
                     {
                         "role": "system",
-                        "content": """Você é um Arquiteto de Hábitos especialista em Kaizen e Antifragilidade.
+                        "content": f"""Você é um Arquiteto de Hábitos especialista em Kaizen e Antifragilidade.
                         Sua missão: Converter Metas abstratas em Sistemas repetíveis.
                         
                         REGRAS:
@@ -321,25 +325,26 @@ class AIService:
                         2. MODOS DUPLOS: Crie duas versões da rotina:
                            - MODO IDEAL: O que fazer num dia normal (desafiador mas possível).
                            - MODO PIOR DIA: O mínimo absoluto para não quebrar a corrente (ex: 1 flexão, ler 1 frase).
+                        3. IDIOMA: Os valores dos campos devem ser em {lang_prompt}.
                         
-                        SAÍDA JSON OBRIGATÓRIA:
-                        {
+                        SAÍDA JSON OBRIGATÓRIA (Mantenha chaves em Inglês):
+                        {{
                             "system_title": "Nome criativo do ritual (ex: Protocolo X)",
                             "description": "Explicação breve do porquê funciona",
                             "frequency": "daily",
                             "time_of_day": "morning",
                             "micro_actions": [
-                                {
+                                {{
                                     "action_ideal": "Ação completa (ex: Correr 5km)",
                                     "action_bad_day": "Ação de sobrevivência (ex: Vestir o tênis e andar 5min)",
                                     "duration_minutes": 30
-                                }
+                                }}
                             ]
-                        }"""
+                        }}"""
                     },
                     {
                         "role": "user",
-                        "content": f"Crie um sistema para a meta: '{goal}'. Pilar: {pillar}."
+                        "content": f"Crie um sistema para a meta: '{{goal}}'. Pilar: {{pillar}}."
                     }
                 ],
                 temperature=0.7
@@ -356,17 +361,20 @@ class AIService:
             "system_title": f"Ritual para {goal}",
             "description": "Sistema gerado automaticamente (modo offline).",
             "frequency": "daily",
-            "time_of_day": "morning",
-            ]
+            "time_of_day": "morning"
         }
 
-    def generate_kaizen_insight(self, stats_data: Dict[str, Any]) -> str:
+    def generate_kaizen_insight(self, stats_data: Dict[str, Any], language: str = 'pt') -> str:
         """
         Gera um insight de melhoria contínua baseado nos dados da semana
         """
         if not self.api_key:
             return "Continue consistente! A melhoria vem da repetição diária."
             
+        lang_prompt = "PORTUGUESE"
+        if language == 'en': lang_prompt = "ENGLISH"
+        elif language == 'es': lang_prompt = "SPANISH"
+
         prompt = f"""
         Analise o desempenho semanal deste usuário no sistema RitualOS (Filosofia Kaizen):
         Dados: {stats_data}
@@ -376,7 +384,7 @@ class AIService:
         2. Se houver falhas, sugira tornar o hábito RIDICULAMENTE menor (Kaizen).
         3. Dê uma única dica prática para a próxima semana.
         
-        Responda em 1 parágrafo curto (max 3 frases) em PORTUGUÊS.
+        Responda em 1 parágrafo curto (max 3 frases) em {lang_prompt}.
         """
         
         try:
@@ -393,5 +401,4 @@ class AIService:
         except Exception as e:
             print(f"Erro AI Insight: {e}")
             return "A consistência é a chave. Continue aparecendo todos os dias, mesmo que seja para fazer o mínimo."
-        }
 

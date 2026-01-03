@@ -1,0 +1,81 @@
+# English translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-01-03 15:53-0300\n"
+"PO-Revision-Date: 2026-01-03 15:53-0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: en\n"
+"Language-Team: en <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: templates/landing.html:32
+msgid "Entrar"
+msgstr "Login"
+
+#: templates/landing.html:33
+msgid "Começar"
+msgstr "Get Started"
+
+#: templates/landing.html:47
+msgid "Esqueça as Metas."
+msgstr "Forget Goals."
+
+#: templates/landing.html:48
+msgid "Construa"
+msgstr "Build"
+
+#: templates/landing.html:48
+msgid "Sistemas"
+msgstr "Systems"
+
+#: templates/landing.html:51
+msgid ""
+"Você não sobe ao nível dos seus objetivos. Você desce ao nível dos seus "
+"sistemas. O RitualOS cria\n"
+"            micro-hábitos antifrágeis para dias bons e ruins."
+msgstr "You do not rise to the level of your goals. You fall to the level of your systems. RitualOS creates antifragile micro-habits for good and bad days."
+
+#: templates/landing.html:57
+msgid "CRIAR MEU PRIMEIRO RITUAL"
+msgstr "CREATE MY FIRST RITUAL"
+
+#: templates/ritual_dashboard.html:29
+msgid "Ativar Notificações"
+msgstr "Enable Notifications"
+
+#: templates/ritual_dashboard.html:34
+msgid "Review Semanal"
+msgstr "Weekly Review"
+
+#: templates/ritual_dashboard.html:41
+msgid "Como você está se sentindo hoje?"
+msgstr "How are you feeling today?"
+
+#: templates/ritual_dashboard.html:45
+msgid "Dia Normal"
+msgstr "Normal Day"
+
+#: templates/ritual_dashboard.html:49
+msgid "Dia Difícil"
+msgstr "Bad Day"
+
+#: templates/ritual_dashboard.html:59
+msgid "Modo Resiliência Ativo."
+msgstr "Resilience Mode Active."
+
+#: templates/ritual_dashboard.html:59
+msgid ""
+"Foco na\n"
+"            consistência, não na intensidade."
+msgstr "Focus on consistency, not intensity."
+

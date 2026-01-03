@@ -11,10 +11,26 @@
             <i class="bi bi-circle-fill text-dark" style="font-size: 0.8rem;"></i>
             <span class="tracking-widest text-dark uppercase small" style="letter-spacing: 2px;">RitualOS</span>
         </a>
-        <div class="d-flex gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <!-- Language Selector -->
+            <div class="dropdown">
+                <button class="btn btn-link text-decoration-none text-dark fw-bold small uppercase dropdown-toggle"
+                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    🌐 {{ session.get('lang', 'pt')|upper }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷
+                            Português</a></li>
+                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸
+                            English</a></li>
+                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸
+                            Español</a></li>
+                </ul>
+            </div>
+
             <a href="{{ url_for('login') }}"
-                class="btn btn-link text-decoration-none text-dark fw-bold small uppercase">Entrar</a>
-            <a href="{{ url_for('register') }}" class="btn btn-dark btn-sm px-4 rounded-full">Começar</a>
+                class="btn btn-link text-decoration-none text-dark fw-bold small uppercase">{{ _('Entrar') }}</a>
+            <a href="{{ url_for('register') }}" class="btn btn-dark btn-sm px-4 rounded-full">{{ _('Começar') }}</a>
         </div>
     </div>
 </nav>
@@ -28,17 +44,17 @@
             </span>
         </div>
         <h1 class="display-3 fw-bolder mb-4 tracking-tight" style="line-height: 1.1;">
-            Esqueça as Metas.<br>
-            Construa <span class="text-primary-emphasis opacity-50">Sistemas</span>.
+            {{ _('Esqueça as Metas.') }}<br>
+            {{ _('Construa') }} <span class="text-primary-emphasis opacity-50">{{ _('Sistemas') }}</span>.
         </h1>
         <p class="lead text-muted mb-5 mx-auto" style="max-width: 600px; font-weight: 300;">
-            Você não sobe ao nível dos seus objetivos. Você desce ao nível dos seus sistemas.
-            O RitualOS cria micro-hábitos antifrágeis para dias bons e ruins.
+            {{ _('Você não sobe ao nível dos seus objetivos. Você desce ao nível dos seus sistemas. O RitualOS cria
+            micro-hábitos antifrágeis para dias bons e ruins.') }}
         </p>
         <div class="d-flex gap-3 justify-content-center mb-5">
             <a href="{{ url_for('register') }}" class="btn btn-dark btn-lg px-5 py-3 rounded-0 shadow-lg"
                 style="letter-spacing: 1px;">
-                CRIAR MEU PRIMEIRO RITUAL
+                {{ _('CRIAR MEU PRIMEIRO RITUAL') }}
             </a>
         </div>
 

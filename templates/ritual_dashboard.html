@@ -8,29 +8,45 @@
             <h1 class="text-3xl font-light text-gray-800 dark:text-gray-100 mb-2">RitualOS</h1>
             <p class="text-gray-500 italic" id="date-display"></p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center">
+            <!-- Language Selector -->
+            <div class="dropdown me-2">
+                <button class="btn btn-sm btn-link text-decoration-none text-gray-400 hover:text-black dropdown-toggle"
+                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    🌐 {{ session.get('lang', 'pt')|upper }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷 PT</a>
+                    </li>
+                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸 EN</a>
+                    </li>
+                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸 ES</a>
+                    </li>
+                </ul>
+            </div>
+
             <button onclick="requestNotificationPermission()"
-                class="p-2 text-gray-400 hover:text-black transition-colors" title="Ativar Notificações">
+                class="p-2 text-gray-400 hover:text-black transition-colors" title="{{ _('Ativar Notificações') }}">
                 🔔
             </button>
             <button onclick="openReviewModal()"
                 class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
-                📊 Review Semanal
+                📊 {{ _('Review Semanal') }}
             </button>
         </div>
     </div>
 
     <!-- Mood Check-in -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8 border border-gray-100 dark:border-gray-700">
-        <h2 class="text-xl font-medium mb-4 text-center">Como você está se sentindo hoje?</h2>
+        <h2 class="text-xl font-medium mb-4 text-center">{{ _('Como você está se sentindo hoje?') }}</h2>
         <div class="flex justify-center gap-4">
             <button onclick="setMood('normal')" id="btn-normal"
                 class="px-6 py-3 rounded-full border-2 border-green-500 text-green-600 hover:bg-green-50 transition-all focus:outline-none ring-offset-2 focus:ring-2 ring-green-500 flex items-center gap-2">
-                <span>🌞</span> Dia Normal
+                <span>🌞</span> {{ _('Dia Normal') }}
             </button>
             <button onclick="setMood('hard')" id="btn-hard"
                 class="px-6 py-3 rounded-full border-2 border-slate-300 text-slate-500 hover:border-orange-400 hover:text-orange-500 hover:bg-orange-50 transition-all focus:outline-none ring-offset-2 focus:ring-2 ring-orange-500 flex items-center gap-2 relative overflow-hidden">
-                <span>🌧️</span> Dia Difícil
+                <span>🌧️</span> {{ _('Dia Difícil') }}
                 {% if user.subscription_plan == 'free' %}
                 <div
                     class="absolute inset-0 bg-gray-100 bg-opacity-80 flex items-center justify-center cursor-not-allowed">
@@ -40,8 +56,8 @@
             </button>
         </div>
         <p id="resilience-msg" class="text-center text-sm text-gray-400 mt-4 hidden">
-            <span class="font-bold text-orange-500">Modo Resiliência Ativo.</span> Foco na consistência, não na
-            intensidade.
+            <span class="font-bold text-orange-500">{{ _('Modo Resiliência Ativo.') }}</span> {{ _('Foco na
+            consistência, não na intensidade.') }}
         </p>
     </div>
 

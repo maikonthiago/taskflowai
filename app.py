@@ -34,12 +34,28 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_babel import Babel, _, refresh
 
 # ... imports ...
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_from_directory, session
 
 app = Flask(__name__)
 # Load config first
 app.config.from_object(config[os.environ.get('FLASK_ENV', 'development')])
+
+# I18N Config
+app.config['BABEL_DEFAULT_LOCALE'] = 'pt'
+app.config['BABEL_SUPPORTED_LOCALES'] = ['pt', 'en', 'es']
+
+def get_locale():
+    # 1. Check session
+    if 'lang' in session:
+        return session['lang']
+    # 2. Check user preference (if logged in) - skipped for now to keep simple
+    # 3. Check browser basic
+    return request.accept_languages.best_match(app.config['BABEL_SUPPORTED_LOCALES'])
+
+babel = Babel(app, locale_selector=get_locale)
 
 # Security Init
 csrf = CSRFProtect(app)
@@ -49,6 +65,13 @@ limiter = Limiter(
     default_limits=["2000 per day", "500 per hour"],
     storage_uri="memory://"
 )
+
+@app.route('/set_language/<lang_code>')
+def set_language(lang_code):
+    if lang_code in app.config['BABEL_SUPPORTED_LOCALES']:
+        session['lang'] = lang_code
+        refresh() # Refresh babel context
+    return redirect(request.referrer or url_for('landing'))
 
 # Configurar para funcionar em subpath /taskflowai
 app.config['APPLICATION_ROOT'] = '/taskflowai'
