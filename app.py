@@ -406,6 +406,7 @@ def reset_password_token(token):
         return redirect(url_for('forgot_password'))
 
 @app.route('/register', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def register():
     """Página de registro"""
     invite_token = request.args.get('invite_token') or request.form.get('invite_token')
