@@ -30,9 +30,25 @@ from models import (
 )
 from ai_service import AIService
 
-# Inicializar Flask
+from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+# ... imports ...
+
 app = Flask(__name__)
+# Load config first
 app.config.from_object(config[os.environ.get('FLASK_ENV', 'development')])
+
+# Security Init
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["2000 per day", "500 per hour"],
+    storage_uri="memory://"
+)
 
 # Configurar para funcionar em subpath /taskflowai
 app.config['APPLICATION_ROOT'] = '/taskflowai'
