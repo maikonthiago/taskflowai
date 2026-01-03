@@ -1717,6 +1717,59 @@ def ritual_insight():
     
     return jsonify({"insight": insight_text})
 
+@app.route('/create-checkout-session', methods=['POST'])
+@login_required
+def create_checkout_session():
+    domain_url = request.host_url
+    price_id = request.form.get('priceId')
+    
+    # Fallback for demo if no specific price sent, use a default Pro ID
+    if not price_id:
+        price_id = os.getenv('STRIPE_PRICE_ID_PRO', 'price_H5ggYJDqNyCc3p') 
+
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            success_url=domain_url + 'settings?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=domain_url + 'pricing',
+            payment_method_types=['card'],
+            mode='subscription',
+            line_items=[{
+                'price': price_id,
+                'quantity': 1,
+            }],
+            customer_email=current_user.email,
+            client_reference_id=str(current_user.id),
+            metadata={
+                'user_id': current_user.id
+            }
+        )
+        return redirect(checkout_session.url, code=303)
+    except Exception as e:
+        return jsonify(error=str(e)), 403
+
+@app.route('/create-portal-session', methods=['POST'])
+@login_required
+def create_portal_session():
+    domain_url = request.host_url
+    
+    # We need the stripe_customer_id saved on the user. 
+    # If not present (legacy user), we can't open portal easily without logic to find/create.
+    # For MVP, assuming new subs have it.
+    
+    # Mock for users without stripe_id to not crash
+    if not current_user.stripe_customer_id:
+        flash("Você ainda não tem uma assinatura ativa para gerenciar.", "warning")
+        return redirect(url_for('subscription_settings'))
+
+    try:
+        portal_session = stripe.billing_portal.Session.create(
+            customer=current_user.stripe_customer_id,
+            return_url=domain_url + 'settings',
+        )
+        return redirect(portal_session.url, code=303)
+    except Exception as e:
+        return jsonify(error=str(e)), 403
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

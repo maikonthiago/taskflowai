@@ -1,18 +1,104 @@
 {% extends "base.html" %}
-{% block title %}Configurações{% endblock %}
+{% block title %}Minha Conta - RitualOS{% endblock %}
+
 {% block content %}
-<div class="container p-4">
-    <h2>Configurações</h2>
-    <form method="POST">
-        <div class="mb-3">
-            <label class="form-label">Nome Completo</label>
-            <input type="text" class="form-control" name="full_name" value="{{ current_user.full_name }}">
+<div class="container py-5 max-w-4xl mx-auto">
+    <div class="row g-5">
+        <!-- Sidebar / Header on mobile -->
+        <div class="col-md-4">
+            <h1 class="h3 fw-light mb-2">Conta &<br><span class="fw-bold">Ajustes</span></h1>
+            <p class="text-muted mb-4 small">Gerencie seus dados e plano.</p>
+
+            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist">
+                <button class="nav-link active text-start rounded-pill mb-2 border" id="v-pills-profile-tab"
+                    data-bs-toggle="pill" data-bs-target="#v-pills-profile" type="button">
+                    👤 Perfil
+                </button>
+                <button class="nav-link text-start rounded-pill border" id="v-pills-billing-tab" data-bs-toggle="pill"
+                    data-bs-target="#v-pills-billing" type="button">
+                    💳 Assinatura
+                </button>
+            </div>
         </div>
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control" name="email" value="{{ current_user.email }}">
+
+        <!-- Content -->
+        <div class="col-md-8">
+            <div class="tab-content" id="v-pills-tabContent">
+
+                <!-- PROFILE TAB -->
+                <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel">
+                    <div class="card border-0 shadow-sm p-5">
+                        <h4 class="fw-bold mb-4">Dados Pessoais</h4>
+                        <form method="POST">
+                            <div class="mb-4">
+                                <label class="form-label text-muted small uppercase fw-bold">Nome Completo</label>
+                                <input type="text" class="form-control form-control-lg bg-light border-0"
+                                    name="full_name" value="{{ current_user.full_name or '' }}">
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label text-muted small uppercase fw-bold">Email</label>
+                                <input type="email" class="form-control form-control-lg bg-light border-0" name="email"
+                                    value="{{ current_user.email }}" readonly>
+                                <div class="form-text">Para alterar o email, contate o suporte.</div>
+                            </div>
+                            <button type="submit" class="btn btn-dark px-5 py-2 rounded-pill">Salvar Alterações</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- BILLING TAB -->
+                <div class="tab-pane fade" id="v-pills-billing" role="tabpanel">
+                    <div class="card border-0 shadow-sm p-0 overflow-hidden">
+                        <!-- Header Status -->
+                        <div
+                            class="p-5 {{ 'bg-dark text-white' if current_user.subscription_plan != 'free' else 'bg-light' }}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-uppercase tracking-widest opacity-75">Plano Atual</small>
+                                    <h2 class="display-6 fw-bold mb-0">
+                                        {{ 'RitualOS Pro' if current_user.subscription_plan != 'free' else 'Iniciante
+                                        (Free)' }}
+                                    </h2>
+                                </div>
+                                {% if current_user.subscription_plan != 'free' %}
+                                <span class="badge bg-success px-3 py-2 rounded-pill">ATIVO</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="p-5">
+                            {% if current_user.subscription_plan == 'free' %}
+                            <p class="lead mb-4">Você está perdendo o <strong>Modo Resiliência</strong> e o
+                                <strong>Coach IA</strong>.</p>
+
+                            <div class="border rounded-xl p-4 mb-4 bg-orange-50 border-orange-200">
+                                <h5 class="fw-bold text-orange-700 mb-2">⚡ Upgrade Recomendado</h5>
+                                <p class="small text-orange-800 mb-3">Desbloqueie rituais ilimitados e blinde sua rotina
+                                    contra dias ruins.</p>
+                                <form action="{{ url_for('create_checkout_session') }}" method="POST">
+                                    <!-- PRO PRICE ID -->
+                                    <input type="hidden" name="priceId" value="{{ config['STRIPE_PRICE_ID_PRO'] }}">
+                                    <button type="submit"
+                                        class="btn btn-dark w-100 py-3 rounded-lg fw-bold shadow-md hover:scale-105 transition-transform">
+                                        Fazer Upgrade por R$ 29,90
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <p class="mb-4">Gerencie seus cartões, baixe notas fiscais ou cancele sua assinatura no
+                                portal seguro.</p>
+                            <form action="{{ url_for('create_portal_session') }}" method="POST">
+                                <button type="submit" class="btn btn-outline-dark w-100 py-3 rounded-lg">
+                                    Abrir Portal de Assinatura
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">Salvar</button>
-    </form>
+    </div>
 </div>
 {% endblock %}
