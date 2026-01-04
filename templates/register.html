@@ -27,19 +27,44 @@
             </div>
 
             <form method="POST" action="{{ url_for('register') }}">
-                Gratuita</button>
-                <button type="button" class="btn btn-outline-dark w-100 py-3 fw-bold">
-                    <i class="bi bi-google me-2"></i> Cadastrar com Google
-                </button>
-        </div>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-        <p class="text-center text-muted small mb-0">
-            Já tem uma conta? <a href="{{ url_for('login') }}"
-                class="fw-bold text-primary text-decoration-none">Entrar</a>
-        </p>
-        </form>
+                <div class="mb-3">
+                    <input type="text" name="full_name" class="form-control form-control-lg bg-light border-0"
+                        placeholder="Nome Completo" required>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" name="username" class="form-control form-control-lg bg-light border-0"
+                        placeholder="Usuário" required>
+                </div>
+
+                <div class="mb-3">
+                    <input type="email" name="email" class="form-control form-control-lg bg-light border-0"
+                        placeholder="Email" required>
+                </div>
+
+                <div class="mb-4">
+                    <input type="password" name="password" id="password"
+                        class="form-control form-control-lg bg-light border-0" placeholder="Senha" required
+                        onkeyup="checkStrength(this.value)">
+                    <div class="progress mt-2" style="height: 4px;">
+                        <div id="password-strength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="btn btn-dark btn-lg w-100 rounded-0 py-3 shadow-md uppercase small tracking-wide">Criar Conta
+                    Gratuita</button>
+
+
+                <p class="text-center text-muted small mb-0">
+                    Já tem uma conta? <a href="{{ url_for('login') }}"
+                        class="fw-bold text-primary text-decoration-none">Entrar</a>
+                </p>
+            </form>
+        </div>
     </div>
-</div>
 </div>
 
 <script>
