@@ -1576,8 +1576,25 @@ def generate_ritual():
     db.session.commit()
     
     # 2. Gerar System via AI
-    ai = AIService(os.getenv('OPENAI_API_KEY'))
-    system_data = ai.generate_ritual_system(goal_title, pillar)
+    try:
+        ai = AIService(os.getenv('OPENAI_API_KEY'))
+        system_data = ai.generate_ritual_system(goal_title, pillar)
+    except Exception as e:
+        print(f"ERROR GENERATING RITUAL: {e}")
+        # Fallback to simple default if AI fails
+        system_data = {
+            'system_title': f"Ritual: {goal_title}",
+            'description': "Ritual criado automaticamente (Modo Fallback)",
+            'frequency': 'daily',
+            'time_of_day': 'morning',
+            'micro_actions': [
+                {
+                    'action_ideal': f"Trabalhar em {goal_title} por 20min",
+                    'action_bad_day': f"Pensar em {goal_title} por 1min",
+                    'duration_minutes': 20
+                }
+            ]
+        }
     
     # 3. Salvar System
     new_system = System(
