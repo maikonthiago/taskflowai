@@ -64,7 +64,8 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register("/sw.js")
+                const swUrl = "{{ url_for('service_worker') }}";
+                navigator.serviceWorker.register(swUrl)
                     .then(registration => console.log('SW Registered', registration))
                     .catch(err => console.log('SW Failed', err));
             });
