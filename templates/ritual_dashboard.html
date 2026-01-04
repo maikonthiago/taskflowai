@@ -282,6 +282,9 @@
     }
 
     async function toggleComplete(actionId, btn) {
+        // Obter token do meta tag
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         // Optimistic UI update
         btn.classList.remove('border-gray-300', 'hover:border-green-400', 'text-transparent', 'hover:text-green-400');
         btn.classList.add('bg-green-500', 'border-green-500', 'text-white');
@@ -342,6 +345,9 @@
         const queue = JSON.parse(localStorage.getItem('offline_queue') || '[]');
         if (queue.length === 0) return;
 
+        // Obter token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         console.log("Syncing offline actions...", queue.length);
         const toast = document.createElement('div');
         toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50';
@@ -387,6 +393,9 @@
     }
 
     async function createRitual(pillar) {
+        // Obter token do meta tag se não estiver definido
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
         const input = document.getElementById('goal-input');
         const goal = input.value;
         if (!goal) return;
@@ -394,6 +403,7 @@
         const btn = event.target;
         const originalText = btn.innerText;
         btn.innerText = "Criando...";
+        btn.disabled = true;
 
         try {
             const res = await fetch('/api/ritual/generate', {
@@ -404,16 +414,28 @@
                 },
                 body: JSON.stringify({ goal, pillar })
             });
+
             const data = await res.json();
+
             if (res.ok) {
                 closeGoalModal();
                 loadRituals();
+                // Reset button
+                btn.innerText = originalText;
+                btn.disabled = false;
+                input.value = ''; // Clear input
             } else {
-                if (data.message) alert(data.message);
+                console.error("Server Error:", data);
+                alert(data.message || data.error || "Erro ao criar ritual. Verifique o console.");
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
 
         } catch (e) {
-            alert("Erro ao criar ritual");
+            console.error("Network/JS Error:", e);
+            alert("Erro de conexão ou JS: " + e.message);
+            btn.innerText = originalText;
+            btn.disabled = false;
         }
     }
 
