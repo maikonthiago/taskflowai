@@ -1,7 +1,7 @@
 {
     "name": "RitualOS",
     "short_name": "RitualOS",
-    "start_url": "/ritual",
+    "start_url": "/taskflowai/dashboard",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#000000",
