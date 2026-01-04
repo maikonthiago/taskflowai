@@ -1,10 +1,10 @@
 const CACHE_NAME = 'ritualos-v1';
 const ASSETS_TO_CACHE = [
-    '/',
-    '/login',
-    '/ritualos/dashboard',
-    '/static/css/custom.css',
-    '/static/manifest.json',
+    '/taskflowai/',
+    '/taskflowai/login',
+    '/taskflowai/dashboard',
+    '/taskflowai/static/css/custom.css',
+    '/taskflowai/static/manifest.json',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
     'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css',
     'https://cdn.tailwindcss.com',
@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
                     }
                     // Fallback for HTML pages (offline page could be here)
                     if (event.request.headers.get('accept').includes('text/html')) {
-                        return caches.match('/ritualos/dashboard') || caches.match('/login');
+                        return caches.match('/taskflowai/dashboard') || caches.match('/taskflowai/login');
                     }
                 });
             })
