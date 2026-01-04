@@ -35,11 +35,31 @@
                         required style="padding: 1rem;">
                 </div>
 
-                <div class="mb-4">
+                <div class="mb-4 input-group">
                     <input type="password" name="password" id="password"
                         class="form-control form-control-lg bg-white border shadow-sm fs-6" placeholder="Senha" required
                         style="padding: 1rem;">
+                    <button class="btn btn-outline-secondary bg-white border-start-0 border shadow-sm" type="button"
+                        onclick="togglePasswordLogin()">
+                        <i class="bi bi-eye"></i>
+                    </button>
                 </div>
+
+                <script>
+                    function togglePasswordLogin() {
+                        const input = document.getElementById('password');
+                        const icon = event.currentTarget.querySelector('i');
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.remove('bi-eye');
+                            icon.classList.add('bi-eye-slash');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.remove('bi-eye-slash');
+                            icon.classList.add('bi-eye');
+                        }
+                    }
+                </script>
 
                 <button type="submit"
                     class="btn btn-dark btn-lg w-100 rounded-0 py-3 shadow-md uppercase small tracking-wide">
