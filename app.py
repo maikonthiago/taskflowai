@@ -656,6 +656,7 @@ def subscription_settings():
 def admin_console():
     """Painel administrativo centralizado"""
     ensure_default_data()
+    now = datetime.utcnow()
     stats = {
         'total_users': User.query.count(),
         'active_users': User.query.filter_by(is_active=True).count(),
