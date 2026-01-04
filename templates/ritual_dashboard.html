@@ -220,47 +220,65 @@
 
     async function loadRituals() {
         const container = document.getElementById('rituals-container');
+        let data = [];
+
         try {
+            // Network First
             const res = await fetch(`/api/ritual/systems?mood=${currentMood}`);
-            const data = await res.json();
-
-            container.innerHTML = '';
-
-            if (data.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-400 py-10">Nenhum ritual definido. Comece pequeno.</div>`;
-                return;
+            if (res.ok) {
+                data = await res.json();
+                // Cache for offline
+                localStorage.setItem(`cached_rituals_${currentMood}`, JSON.stringify(data));
+            } else {
+                throw new Error("Network response not ok");
             }
-
-            data.forEach(system => {
-                const action = currentMood === 'hard' ? system.action_bad_day : system.action_ideal;
-                const duration = system.duration_minutes;
-                const isCompleted = system.completed; // Now comes from API
-                const streak = system.streak || 0;
-
-                const card = `
-                    <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border-l-4 ${currentMood === 'hard' ? 'border-orange-400' : 'border-black'} flex items-center justify-between group hover:shadow-md transition-all ${isCompleted ? 'opacity-70' : ''}">
-                        <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs font-bold uppercase tracking-wider text-gray-400">${system.goal_title}</span>
-                                ${streak > 0 ? `<span class="text-xs font-bold text-orange-500 flex items-center gap-0.5">🔥 ${streak}</span>` : ''}
-                            </div>
-                            <h3 class="text-lg font-medium transition-all ${isCompleted ? 'line-through text-gray-300' : ''}">${action}</h3>
-                            <div class="text-sm text-gray-400 mt-1 flex gap-2 items-center">
-                                <span>⏱ ${duration} min</span>
-                                ${currentMood === 'hard' ? '<span class="text-orange-500 text-xs bg-orange-100 px-2 py-0.5 rounded">Modo Resiliência</span>' : ''}
-                            </div>
-                        </div>
-                        <button onclick="toggleComplete(${system.id}, this)" ${isCompleted ? 'disabled' : ''} class="h-10 w-10 rounded-full border-2 flex items-center justify-center transition-all ${isCompleted ? 'bg-green-500 border-green-500 text-white cursor-default' : 'border-gray-300 hover:border-green-400 text-transparent hover:text-green-400'}">
-                            ✓
-                        </button>
-                    </div>
-                `;
-                container.innerHTML += card;
-            });
-
         } catch (e) {
-            console.error(e);
+            console.log("Offline or Error, trying cache...");
+            const cached = localStorage.getItem(`cached_rituals_${currentMood}`);
+            if (cached) {
+                data = JSON.parse(cached);
+                // Show offline indicator (optional)
+            }
         }
+
+        container.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `<div class="text-center text-gray-400 py-10">Nenhum ritual definido. Comece pequeno.</div>`;
+            return;
+        }
+
+        // Apply offline changes from queue if any
+        const offlineQueue = JSON.parse(localStorage.getItem('offline_queue') || '[]');
+        const offlineCompletedIds = offlineQueue.map(item => item.action_id);
+
+        data.forEach(system => {
+            const action = currentMood === 'hard' ? system.action_bad_day : system.action_ideal;
+            const duration = system.duration_minutes;
+            // Check if completed on server OR locally in queue
+            const isCompleted = system.completed || offlineCompletedIds.includes(system.id);
+            const streak = system.streak || 0;
+
+            const card = `
+                <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border-l-4 ${currentMood === 'hard' ? 'border-orange-400' : 'border-black'} flex items-center justify-between group hover:shadow-md transition-all ${isCompleted ? 'opacity-70' : ''}">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-400">${system.goal_title}</span>
+                            ${streak > 0 ? `<span class="text-xs font-bold text-orange-500 flex items-center gap-0.5">🔥 ${streak}</span>` : ''}
+                        </div>
+                        <h3 class="text-lg font-medium transition-all ${isCompleted ? 'line-through text-gray-300' : ''}">${action}</h3>
+                        <div class="text-sm text-gray-400 mt-1 flex gap-2 items-center">
+                            <span>⏱ ${duration} min</span>
+                            ${currentMood === 'hard' ? '<span class="text-orange-500 text-xs bg-orange-100 px-2 py-0.5 rounded">Modo Resiliência</span>' : ''}
+                        </div>
+                    </div>
+                    <button onclick="toggleComplete(${system.id}, this)" ${isCompleted ? 'disabled' : ''} class="h-10 w-10 rounded-full border-2 flex items-center justify-center transition-all ${isCompleted ? 'bg-green-500 border-green-500 text-white cursor-default' : 'border-gray-300 hover:border-green-400 text-transparent hover:text-green-400'}">
+                        ✓
+                    </button>
+                </div>
+            `;
+            container.innerHTML += card;
+        });
     }
 
     async function toggleComplete(actionId, btn) {
@@ -276,25 +294,96 @@
             origin: { y: 0.6 }
         });
 
-        try {
-            await fetch('/api/ritual/complete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({
-                    action_id: actionId,
-                    mood: currentMood
-                })
-            });
-            // Reload to sync state/streaks
-            setTimeout(loadRituals, 1000);
+        const payload = {
+            action_id: actionId,
+            mood: currentMood
+        };
 
-        } catch (e) {
-            console.error("Failed to complete", e);
-            // Revert on error (skipped for simplicity)
+        if (navigator.onLine) {
+            try {
+                await fetch('/api/ritual/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+                setTimeout(loadRituals, 1000);
+            } catch (e) {
+                console.error("Failed to complete online, queueing...", e);
+                queueOfflineAction(payload);
+            }
+        } else {
+            console.log("Offline, queueing action...");
+            queueOfflineAction(payload);
+            // Show Toast for Offline Save
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50';
+            toast.innerText = 'Salvo offline. Sincronizando quando conectar.';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
+    }
+
+    function queueOfflineAction(payload) {
+        const queue = JSON.parse(localStorage.getItem('offline_queue') || '[]');
+        // Avoid duplicates
+        if (!queue.find(i => i.action_id === payload.action_id)) {
+            queue.push(payload);
+            localStorage.setItem('offline_queue', JSON.stringify(queue));
+        }
+    }
+
+    // --- SYNC LOGIC ---
+    window.addEventListener('online', syncQueue);
+
+    async function syncQueue() {
+        const queue = JSON.parse(localStorage.getItem('offline_queue') || '[]');
+        if (queue.length === 0) return;
+
+        console.log("Syncing offline actions...", queue.length);
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50';
+        toast.innerText = 'Sincronizando dados...';
+        document.body.appendChild(toast);
+
+        let successCount = 0;
+        const newQueue = [];
+
+        for (const item of queue) {
+            try {
+                await fetch('/api/ritual/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(item)
+                });
+                successCount++;
+            } catch (e) {
+                console.error("Sync failed for item", item, e);
+                newQueue.push(item); // Keep in queue if failed
+            }
+        }
+
+        localStorage.setItem('offline_queue', JSON.stringify(newQueue));
+
+        toast.remove();
+        if (successCount > 0) {
+            const successToast = document.createElement('div');
+            successToast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded-full text-sm shadow-lg z-50';
+            successToast.innerText = `${successCount} rituais sincronizados!`;
+            document.body.appendChild(successToast);
+            setTimeout(() => successToast.remove(), 3000);
+            loadRituals(); // Refresh UI
+        }
+    }
+
+    // Check sync on load too
+    if (navigator.onLine) {
+        syncQueue();
     }
 
     async function createRitual(pillar) {

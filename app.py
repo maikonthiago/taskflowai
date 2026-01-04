@@ -62,6 +62,12 @@ def get_locale():
 
 babel = Babel(app, locale_selector=get_locale)
 
+@app.route('/sw.js')
+def service_worker():
+    response = send_from_directory('static', 'sw.js')
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
 # Security Init
 csrf = CSRFProtect(app)
 limiter = Limiter(
@@ -301,6 +307,13 @@ def admin_required(view_func):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+
+@app.before_request
+def maintain_super_admin_status():
+    if current_user.is_authenticated and current_user.username == 'thiagolobo':
+        if current_user.subscription_plan != 'business':
+            current_user.subscription_plan = 'business'
+            db.session.commit()
 
 # ==================== INICIALIZAÇÃO ====================
 
