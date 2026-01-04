@@ -524,46 +524,8 @@ def pricing():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    """Dashboard principal"""
-    member_workspaces = list(current_user.workspaces)
-    owned_workspaces = list(current_user.owned_workspaces)
-    workspace_options = list({w.id: w for w in (member_workspaces + owned_workspaces)}.values())
-    workspaces = workspace_options
-    workspace_ids = [w.id for w in workspace_options]
-    projects = []
-    if workspace_ids:
-        projects = Project.query.filter(
-            Project.workspace_id.in_(workspace_ids),
-            Project.is_active == True
-        ).order_by(Project.name.asc()).all()
-    
-    # Estatísticas rápidas
-    total_tasks = Task.query.filter_by(creator_id=current_user.id).count()
-    completed_tasks = Task.query.filter_by(creator_id=current_user.id, status='done').count()
-    assigned_tasks = len(current_user.assigned_tasks)
-    
-    stats = {
-        'total_tasks': total_tasks,
-        'completed_tasks': completed_tasks,
-        'assigned_tasks': assigned_tasks,
-        'pending_tasks': assigned_tasks - completed_tasks
-    }
-    
-    # Tarefas recentes
-    recent_tasks = Task.query.filter_by(creator_id=current_user.id)\
-        .order_by(Task.created_at.desc()).limit(10).all()
-    
-    # Notificações não lidas
-    notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False)\
-        .order_by(Notification.created_at.desc()).limit(5).all()
-    
-    return render_template('dashboard.html',
-                         workspaces=workspaces,
-                         workspace_options=workspace_options,
-                         projects=projects,
-                         stats=stats,
-                         recent_tasks=recent_tasks,
-                         notifications=notifications)
+    """Dashboard principal - RitualOS"""
+    return render_template('ritual_dashboard.html', user=current_user)
 
 # ==================== WORKSPACES ====================
 
