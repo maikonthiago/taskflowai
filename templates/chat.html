@@ -8,20 +8,93 @@
         style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem;"></div>
     <div class="input-group">
         <input type="text" id="message-input" class="form-control" placeholder="Digite sua mensagem...">
+        <button class="btn btn-secondary" onclick="toggleVoice()" id="mic-btn" title="Falar">
+            🎤
+        </button>
         <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+    </div>
+    <div class="form-check form-switch mt-2">
+        <input class="form-check-input" type="checkbox" id="voice-reply-toggle">
+        <label class="form-check-label text-muted small" for="voice-reply-toggle">Ouvir respostas (TTS)</label>
     </div>
 </div>
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
-    const socket = io();
-    socket.on('new_message', (data) => {
-        const msgDiv = document.getElementById('chat-messages');
-        msgDiv.innerHTML += `<div><strong>${data.sender.username}:</strong> ${data.content}</div>`;
+    // FIX: Using correct path for subfolder deployment
+    const socket = io({
+        path: '/taskflowai/socket.io'
     });
+
+    const msgDiv = document.getElementById('chat-messages');
+
+    socket.on('connect_error', (err) => {
+        console.error("Connection Error:", err);
+    });
+
+    socket.on('new_message', (data) => {
+        msgDiv.innerHTML += `<div><strong>${data.sender.username}:</strong> ${data.content}</div>`;
+        msgDiv.scrollTop = msgDiv.scrollHeight; // Auto scroll
+
+        // Text-to-Speech (TTS) if enabled
+        const voiceToggle = document.getElementById('voice-reply-toggle');
+        if (voiceToggle && voiceToggle.checked && window.speechSynthesis) {
+            const utterance = new SpeechSynthesisUtterance(data.content);
+            utterance.lang = 'pt-BR';
+            window.speechSynthesis.speak(utterance);
+        }
+    });
+
     function sendMessage() {
         const input = document.getElementById('message-input');
+        if (input.value.trim() === '') return;
         socket.emit('send_message', { room: 'general', message: input.value });
         input.value = '';
     }
+
+    // --- VOICE RECOGNITION (STT) ---
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = function () {
+            document.getElementById('mic-btn').classList.remove('btn-secondary');
+            document.getElementById('mic-btn').classList.add('btn-danger', 'animate-pulse');
+        };
+
+        recognition.onend = function () {
+            document.getElementById('mic-btn').classList.add('btn-secondary');
+            document.getElementById('mic-btn').classList.remove('btn-danger', 'animate-pulse');
+        };
+
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript;
+            const input = document.getElementById('message-input');
+            input.value = transcript;
+            // Optional: Auto-send? Let's just fill for now.
+            // sendMessage(); 
+        };
+    } else {
+        document.getElementById('mic-btn').style.display = 'none';
+        console.log("Web Speech API not supported");
+    }
+
+    function toggleVoice() {
+        if (!recognition) return;
+        try {
+            recognition.start();
+        } catch (e) {
+            recognition.stop();
+        }
+    }
+
+    // Send on Enter
+    document.getElementById('message-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
 </script>
 {% endblock %}
