@@ -323,8 +323,8 @@ def index():
     """Landing page"""
     if current_user.is_authenticated:
         if current_user.is_admin:
-            return redirect('/admin')
-        return redirect('/taskflowai/dashboard')
+            return redirect(url_for('admin_console'))
+        return redirect(url_for('dashboard'))
     return render_template('landing.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -332,7 +332,7 @@ def index():
 def login():
     """Página de login"""
     if current_user.is_authenticated:
-        return redirect('/taskflowai/dashboard')
+        return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
         data = request.form if request.form else request.get_json()
@@ -349,9 +349,9 @@ def login():
             next_page = request.args.get('next')
             if not next_page or not next_page.startswith('/'):
                 if user.is_admin:
-                    next_page = '/admin'
+                    next_page = url_for('admin_console')
                 else:
-                    next_page = '/taskflowai/dashboard'
+                    next_page = url_for('dashboard')
             
             if request.is_json:
                 return jsonify({
