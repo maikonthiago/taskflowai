@@ -73,8 +73,10 @@ def set_language(lang_code):
         refresh() # Refresh babel context
     return redirect(request.referrer or url_for('landing'))
 
-# Configurar para funcionar em subpath /taskflowai
-app.config['APPLICATION_ROOT'] = '/taskflowai'
+# Configurar para funcionar em subpath /ritualos
+app.config['APPLICATION_ROOT'] = '/ritualos'
+app.config['SESSION_COOKIE_PATH'] = '/ritualos'
+app.config['WTF_CSRF_TIME_LIMIT'] = None  # Evita expiração prematura do token
 
 # Criar diretórios necessários
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
