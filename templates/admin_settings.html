@@ -3,44 +3,22 @@
 {% block title %}Configurações - Admin TaskFlowAI{% endblock %}
 
 {% block content %}
+{% set active_page = 'settings' %}
 <div class="d-flex" id="wrapper">
     <!-- Sidebar -->
-    <div class="bg-dark border-end" id="sidebar-wrapper"
-        style="width: 250px; position: fixed; height: 100vh; z-index: 1000;">
-        <div class="sidebar-heading text-white border-bottom border-secondary p-3 d-flex align-items-center gap-2">
-            <i class="bi bi-shield-lock-fill text-warning"></i>
-            <span class="fw-bold">Admin Panel</span>
-        </div>
-        <div class="list-group list-group-flush pt-3">
-            <a href="{{ url_for('admin_dashboard') }}"
-                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3">
-                <i class="bi bi-speedometer2 me-2"></i> Visão Geral
-            </a>
-            <a href="{{ url_for('admin_users') }}"
-                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3">
-                <i class="bi bi-people me-2"></i> Usuários
-            </a>
-            <a href="{{ url_for('admin_financial') }}"
-                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3">
-                <i class="bi bi-credit-card me-2"></i> Financeiro
-            </a>
-            <a href="{{ url_for('admin_settings') }}"
-                class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 active">
-                <i class="bi bi-gear me-2"></i> Configurações
-            </a>
-            <div class="mt-auto border-top border-secondary pt-3 mt-3 px-3">
-                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light w-100 btn-sm">
-                    <i class="bi bi-arrow-left"></i> Voltar ao App
-                </a>
-            </div>
-        </div>
-    </div>
+    {% include 'includes/admin_sidebar.html' %}
 
     <!-- Page Content -->
-    <div id="page-content-wrapper" style="margin-left: 250px; width: 100%;">
+    <div id="page-content-wrapper" class="w-100">
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3 px-4">
             <div class="container-fluid">
-                <h4 class="mb-0 fw-bold">Configurações do Sistema</h4>
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#sidebar-wrapper" aria-controls="sidebar-wrapper">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h4 class="mb-0 fw-bold">Configurações do Sistema</h4>
+                </div>
             </div>
         </nav>
         <div class="container-fluid px-4 py-4">

@@ -1,0 +1,63 @@
+<style>
+    @media (min-width: 768px) {
+        #sidebar-wrapper {
+            width: 250px;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transform: none !important;
+            visibility: visible !important;
+            top: 0;
+            left: 0;
+        }
+
+        #page-content-wrapper {
+            margin-left: 250px;
+            width: calc(100% - 250px) !important;
+        }
+    }
+
+    /* Ensure flex column works for pushing button to bottom */
+    #sidebar-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+
+<!-- Sidebar -->
+<div class="bg-dark border-end offcanvas-md offcanvas-start" tabindex="-1" id="sidebar-wrapper"
+    aria-labelledby="sidebarLabel">
+    <div class="offcanvas-header border-bottom border-secondary">
+        <h5 class="offcanvas-title text-white" id="sidebarLabel">Admin Panel</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+            data-bs-target="#sidebar-wrapper" aria-label="Close"></button>
+    </div>
+    <div class="sidebar-heading text-white border-bottom border-secondary p-3 d-flex align-items-center gap-2 d-none d-md-flex flex-shrink-0"
+        style="height: 65px;">
+        <i class="bi bi-shield-lock-fill text-warning"></i>
+        <span class="fw-bold">Admin Panel</span>
+    </div>
+    <div class="list-group list-group-flush pt-3 bg-dark flex-grow-1 overflow-auto d-flex flex-column">
+        <a href="{{ url_for('admin_dashboard') }}"
+            class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 {% if active_page == 'dashboard' %}active{% endif %}">
+            <i class="bi bi-speedometer2 me-2"></i> Visão Geral
+        </a>
+        <a href="{{ url_for('admin_users') }}"
+            class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 {% if active_page == 'users' %}active{% endif %}">
+            <i class="bi bi-people me-2"></i> Usuários
+        </a>
+        <a href="{{ url_for('admin_financial') }}"
+            class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 {% if active_page == 'financial' %}active{% endif %}">
+            <i class="bi bi-credit-card me-2"></i> Financeiro
+        </a>
+        <a href="{{ url_for('admin_settings') }}"
+            class="list-group-item list-group-item-action bg-dark text-white-50 border-0 py-3 {% if active_page == 'settings' %}active{% endif %}">
+            <i class="bi bi-gear me-2"></i> Configurações
+        </a>
+        <div class="mt-auto border-top border-secondary pt-3 mt-3 px-3 pb-3">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light w-100 btn-sm">
+                <i class="bi bi-arrow-left"></i> Voltar ao App
+            </a>
+        </div>
+    </div>
+</div>
