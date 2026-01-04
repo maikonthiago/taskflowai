@@ -1,0 +1,68 @@
+<nav
+    class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 pb-safe z-50 md:hidden">
+    <div class="flex justify-around items-center h-16">
+        <a href="{{ url_for('dashboard') }}"
+            class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-500 hover:text-black dark:hover:text-white {{ 'text-black dark:text-white font-medium' if request.endpoint == 'dashboard' else '' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-target">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+            </svg>
+            <span class="text-[10px]">Rituais</span>
+        </a>
+
+        <a href="{{ url_for('chat') }}"
+            class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-500 hover:text-black dark:hover:text-white {{ 'text-black dark:text-white font-medium' if request.endpoint == 'chat' else '' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-message-circle">
+                <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z" />
+            </svg>
+            <span class="text-[10px]">Coach</span>
+        </a>
+
+        <a href="{{ url_for('settings') }}"
+            class="flex flex-col items-center justify-center w-full h-full space-y-1 text-gray-500 hover:text-black dark:hover:text-white {{ 'text-black dark:text-white font-medium' if request.endpoint == 'settings' else '' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-user">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span class="text-[10px]">Perfil</span>
+        </a>
+    </div>
+</nav>
+
+<!-- Desktop Header (Visible only on md+) -->
+<header
+    class="hidden md:block fixed top-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 z-50">
+    <div class="container mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-8">
+            <a href="{{ url_for('dashboard') }}" class="text-xl font-light tracking-tight">RitualOS</a>
+
+            <nav class="flex items-center gap-6">
+                <a href="{{ url_for('dashboard') }}"
+                    class="text-sm font-medium hover:text-gray-600 transition-colors {{ 'text-black' if request.endpoint == 'dashboard' else 'text-gray-500' }}">Rituais</a>
+                <a href="{{ url_for('chat') }}"
+                    class="text-sm font-medium hover:text-gray-600 transition-colors {{ 'text-black' if request.endpoint == 'chat' else 'text-gray-500' }}">Coach
+                    AI</a>
+                <a href="{{ url_for('settings') }}"
+                    class="text-sm font-medium hover:text-gray-600 transition-colors {{ 'text-black' if request.endpoint == 'settings' else 'text-gray-500' }}">Configurações</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center gap-4">
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin_console') }}"
+                class="text-xs bg-black text-white px-3 py-1.5 rounded-full hover:bg-gray-800 transition-colors">Admin</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="text-sm text-gray-400 hover:text-red-500">Sair</a>
+        </div>
+    </div>
+</header>
+
+<!-- Spacer for content to not be hidden by fixed bars -->
+<div class="hidden md:block h-16"></div>

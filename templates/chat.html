@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Chat{% endblock %}
 {% block content %}
+{% include 'includes/user_navbar.html' %}
 <div class="container-fluid p-4">
     <h2>Chat</h2>
-    <div id="chat-messages" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem;"></div>
+    <div id="chat-messages"
+        style="height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem;"></div>
     <div class="input-group">
         <input type="text" id="message-input" class="form-control" placeholder="Digite sua mensagem...">
         <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
@@ -11,15 +13,15 @@
 </div>
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
-const socket = io();
-socket.on('new_message', (data) => {
-    const msgDiv = document.getElementById('chat-messages');
-    msgDiv.innerHTML += `<div><strong>${data.sender.username}:</strong> ${data.content}</div>`;
-});
-function sendMessage() {
-    const input = document.getElementById('message-input');
-    socket.emit('send_message', {room: 'general', message: input.value});
-    input.value = '';
-}
+    const socket = io();
+    socket.on('new_message', (data) => {
+        const msgDiv = document.getElementById('chat-messages');
+        msgDiv.innerHTML += `<div><strong>${data.sender.username}:</strong> ${data.content}</div>`;
+    });
+    function sendMessage() {
+        const input = document.getElementById('message-input');
+        socket.emit('send_message', { room: 'general', message: input.value });
+        input.value = '';
+    }
 </script>
 {% endblock %}

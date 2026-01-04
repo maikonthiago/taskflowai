@@ -2,6 +2,7 @@
 {% block title %}Minha Conta - RitualOS{% endblock %}
 
 {% block content %}
+{% include 'includes/user_navbar.html' %}
 <div class="container py-5 max-w-4xl mx-auto">
     <div class="row g-5">
         <!-- Sidebar / Header on mobile -->
@@ -70,7 +71,8 @@
                         <div class="p-5">
                             {% if current_user.subscription_plan == 'free' %}
                             <p class="lead mb-4">Você está perdendo o <strong>Modo Resiliência</strong> e o
-                                <strong>Coach IA</strong>.</p>
+                                <strong>Coach IA</strong>.
+                            </p>
 
                             <div class="border rounded-xl p-4 mb-4 bg-orange-50 border-orange-200">
                                 <h5 class="fw-bold text-orange-700 mb-2">⚡ Upgrade Recomendado</h5>
