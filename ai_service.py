@@ -1,3 +1,4 @@
+import httpx
 from openai import OpenAI
 import json
 import os
@@ -15,7 +16,12 @@ class AIService:
         """Atualiza a chave da API e reinstancia o cliente."""
         self.api_key = api_key
         if api_key:
-            self.client = OpenAI(api_key=api_key)
+            # Fix for 'proxies' argument error in older httpx versions
+            # We provide a clean http_client to bypass internal default creation
+            self.client = OpenAI(
+                api_key=api_key,
+                http_client=httpx.Client()
+            )
         else:
             self.client = None
     
