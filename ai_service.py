@@ -1,31 +1,33 @@
-import openai
+from openai import OpenAI
 import json
+import os
 from typing import List, Dict, Any, Optional
 
 class AIService:
-    """Serviço de integração com IA (OpenAI)"""
+    """Serviço de integração com IA (OpenAI - v1.x Compatible)"""
     
     def __init__(self, api_key: str = None):
         self.api_key = None
+        self.client = None
         self.set_api_key(api_key)
 
     def set_api_key(self, api_key: Optional[str]):
-        """Atualiza a chave da API em tempo real."""
+        """Atualiza a chave da API e reinstancia o cliente."""
         self.api_key = api_key
         if api_key:
-            openai.api_key = api_key
+            self.client = OpenAI(api_key=api_key)
         else:
-            openai.api_key = None
+            self.client = None
     
     def generate_tasks_from_description(self, description: str) -> List[Dict[str, Any]]:
         """
         Gera tarefas automaticamente a partir de uma descrição
         """
-        if not self.api_key:
+        if not self.client:
             return self._generate_tasks_fallback(description)
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -44,6 +46,8 @@ class AIService:
             )
             
             content = response.choices[0].message.content
+            # Sanitize content to ensure it's valid JSON
+            content = content.replace("```json", "").replace("```", "").strip()
             tasks = json.loads(content)
             return tasks
             
@@ -52,9 +56,6 @@ class AIService:
             return self._generate_tasks_fallback(description)
     
     def _generate_tasks_fallback(self, description: str) -> List[Dict[str, Any]]:
-        """
-        Fallback simples quando a API não está disponível
-        """
         return [
             {
                 "title": f"Tarefa gerada: {description[:50]}...",
@@ -64,14 +65,11 @@ class AIService:
         ]
     
     def summarize_text(self, text: str, max_length: int = 200) -> str:
-        """
-        Resume um texto longo
-        """
-        if not self.api_key:
+        if not self.client:
             return text[:max_length] + "..."
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -94,14 +92,11 @@ class AIService:
             return text[:max_length] + "..."
     
     def analyze_project_structure(self, project_description: str) -> Dict[str, Any]:
-        """
-        Analisa uma descrição de projeto e sugere estrutura completa
-        """
-        if not self.api_key:
+        if not self.client:
             return self._analyze_project_fallback(project_description)
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -126,6 +121,7 @@ class AIService:
             )
             
             content = response.choices[0].message.content
+            content = content.replace("```json", "").replace("```", "").strip()
             structure = json.loads(content)
             return structure
             
@@ -134,9 +130,6 @@ class AIService:
             return self._analyze_project_fallback(project_description)
     
     def _analyze_project_fallback(self, description: str) -> Dict[str, Any]:
-        """
-        Fallback para análise de projeto
-        """
         return {
             "project_name": "Novo Projeto",
             "description": description,
@@ -150,9 +143,6 @@ class AIService:
         }
     
     def suggest_deadline(self, task_description: str, complexity: str = "medium") -> str:
-        """
-        Sugere um prazo baseado na descrição da tarefa
-        """
         complexity_days = {
             "low": 2,
             "medium": 5,
@@ -165,14 +155,11 @@ class AIService:
         return suggested_date.strftime("%Y-%m-%d")
     
     def extract_action_items(self, meeting_notes: str) -> List[Dict[str, Any]]:
-        """
-        Extrai itens de ação de notas de reunião
-        """
-        if not self.api_key:
+        if not self.client:
             return []
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -190,6 +177,7 @@ class AIService:
             )
             
             content = response.choices[0].message.content
+            content = content.replace("```json", "").replace("```", "").strip()
             items = json.loads(content)
             return items
             
@@ -198,14 +186,11 @@ class AIService:
             return []
     
     def analyze_csv_data(self, csv_content: str) -> Dict[str, Any]:
-        """
-        Analisa dados CSV e gera insights
-        """
-        if not self.api_key:
+        if not self.client:
             return {"insights": [], "summary": "Análise não disponível"}
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -222,6 +207,7 @@ class AIService:
             )
             
             content = response.choices[0].message.content
+            content = content.replace("```json", "").replace("```", "").strip()
             analysis = json.loads(content)
             return analysis
             
@@ -230,14 +216,11 @@ class AIService:
             return {"insights": [], "summary": "Erro na análise"}
     
     def suggest_automation(self, workflow_description: str) -> Dict[str, Any]:
-        """
-        Sugere automações baseadas na descrição do fluxo de trabalho
-        """
-        if not self.api_key:
+        if not self.client:
             return {"automations": []}
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -255,6 +238,7 @@ class AIService:
             )
             
             content = response.choices[0].message.content
+            content = content.replace("```json", "").replace("```", "").strip()
             suggestions = json.loads(content)
             return suggestions
             
@@ -263,10 +247,7 @@ class AIService:
             return {"automations": []}
     
     def answer_question(self, question: str, context: str = "") -> str:
-        """
-        Responde perguntas sobre o workspace
-        """
-        if not self.api_key:
+        if not self.client:
             return "Serviço de IA não está configurado. Por favor, configure a chave da API OpenAI."
         
         try:
@@ -288,7 +269,7 @@ class AIService:
                 "content": question
             })
             
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
                 temperature=0.7,
@@ -299,12 +280,14 @@ class AIService:
             
         except Exception as e:
             print(f"Erro ao responder pergunta: {e}")
+            return "Não foi possível obter uma resposta no momento."
+
     def generate_ritual_system(self, goal: str, pillar: str = "general", language: str = 'pt') -> Dict[str, Any]:
         """
         Gera um Sistema (Ritual) a partir de uma Meta, seguindo a filosofia Kaizen.
         Retorna estrutura com versão Ideal e versão Pior Dia.
         """
-        if not self.api_key:
+        if not self.client:
             return self._generate_ritual_fallback(goal)
             
         lang_prompt = "PORTUGUESE"
@@ -312,7 +295,7 @@ class AIService:
         elif language == 'es': lang_prompt = "SPANISH"
 
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-4o-mini", # Usar modelo inteligente
                 messages=[
                     {
@@ -326,6 +309,7 @@ class AIService:
                            - MODO IDEAL: O que fazer num dia normal (desafiador mas possível).
                            - MODO PIOR DIA: O mínimo absoluto para não quebrar a corrente (ex: 1 flexão, ler 1 frase).
                         3. IDIOMA: Os valores dos campos devem ser em {lang_prompt}.
+                        4. APENAS JSON VÁLIDO.
                         
                         SAÍDA JSON OBRIGATÓRIA (Mantenha chaves em Inglês):
                         {{
@@ -344,13 +328,17 @@ class AIService:
                     },
                     {
                         "role": "user",
-                        "content": f"Crie um sistema para a meta: '{{goal}}'. Pilar: {{pillar}}."
+                        "content": f"Crie um sistema para a meta: '{goal}'. Pilar: {pillar}."
                     }
                 ],
                 temperature=0.7
             )
             
-            return json.loads(response.choices[0].message.content)
+            content = response.choices[0].message.content
+            # Sanitize
+            content = content.replace("```json", "").replace("```", "").strip()
+            
+            return json.loads(content)
             
         except Exception as e:
             print(f"Erro ao gerar ritual: {e}")
@@ -361,14 +349,21 @@ class AIService:
             "system_title": f"Ritual para {goal}",
             "description": "Sistema gerado automaticamente (modo offline).",
             "frequency": "daily",
-            "time_of_day": "morning"
+            "time_of_day": "morning",
+            'micro_actions': [
+                {
+                    'action_ideal': f"Ação ideal para {goal}",
+                    'action_bad_day': f"Ação mínima para {goal}",
+                    'duration_minutes': 15
+                }
+            ]
         }
 
     def generate_kaizen_insight(self, stats_data: Dict[str, Any], language: str = 'pt') -> str:
         """
         Gera um insight de melhoria contínua baseado nos dados da semana
         """
-        if not self.api_key:
+        if not self.client:
             return "Continue consistente! A melhoria vem da repetição diária."
             
         lang_prompt = "PORTUGUESE"
@@ -388,7 +383,7 @@ class AIService:
         """
         
         try:
-            response = openai.ChatCompletion.create(
+            response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "Você é um coach Kaizen especialista em formação de hábitos."},
@@ -401,4 +396,3 @@ class AIService:
         except Exception as e:
             print(f"Erro AI Insight: {e}")
             return "A consistência é a chave. Continue aparecendo todos os dias, mesmo que seja para fazer o mínimo."
-
