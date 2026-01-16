@@ -36,167 +36,494 @@
 </nav>
 
 <!-- Hero Section -->
-<section class="min-vh-100 d-flex align-items-center justify-content-center bg-white pt-5">
-    <div class="container text-center pt-5">
-        <div class="mb-4">
-            <span class="badge bg-gray-100 text-dark border px-3 py-2 rounded-full small tracking-wide uppercase">
-                Systems > Goals
+<section class="min-vh-100 d-flex align-items-center justify-content-center bg-white pt-5 relative overflow-hidden">
+    <!-- Abstract Background Elements -->
+    <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-[10%] right-[-5%] w-72 h-72 bg-orange-100/40 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="container text-center pt-5 relative z-10">
+        <div class="mb-4 animate-fade-in-up">
+            <span
+                class="badge bg-gray-100 text-dark border px-4 py-2 rounded-full small tracking-widest uppercase font-bold shadow-sm">
+                🚀 {{ _('Sistemas > Metas') }}
             </span>
         </div>
         <h1 class="display-3 fw-bolder mb-4 tracking-tight" style="line-height: 1.1;">
             {{ _('Esqueça as Metas.') }}<br>
-            {{ _('Construa') }} <span class="text-primary-emphasis opacity-50">{{ _('Sistemas') }}</span>.
+            {{ _('Construa') }} <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">{{ _('Sistemas')
+                }}</span>.
         </h1>
-        <p class="lead text-muted mb-5 mx-auto" style="max-width: 600px; font-weight: 300;">
+        <p class="lead text-muted mb-5 mx-auto text-lg" style="max-width: 650px; font-weight: 300;">
             {{ _('Você não sobe ao nível dos seus objetivos. Você desce ao nível dos seus sistemas. O RitualOS cria
-            micro-hábitos antifrágeis para dias bons e ruins.') }}
+            micro-hábitos antifrágeis que sobrevivem até aos seus piores dias.') }}
         </p>
         <div class="d-flex gap-3 justify-content-center mb-5">
-            <a href="{{ url_for('register') }}" class="btn btn-dark btn-lg px-5 py-3 rounded-0 shadow-lg"
-                style="letter-spacing: 1px;">
-                {{ _('CRIAR MEU PRIMEIRO RITUAL') }}
+            <a href="{{ url_for('register') }}"
+                class="btn btn-dark btn-lg px-8 py-4 rounded-full shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 font-bold tracking-wide"
+                style="min-width: 250px;">
+                {{ _('COMEÇAR AGORA') }} - {{ _('Grátis') }}
             </a>
         </div>
+        <p class="text-xs text-gray-400 uppercase tracking-widest mb-12">Sem cartão de crédito necessário</p>
 
         <!-- Demo UI -->
         <div class="row justify-content-center mt-5">
-            <div class="col-lg-8">
+            <div class="col-lg-9">
                 <div
-                    class="card border border-2 border-dark rounded-xl shadow-2xl overflow-hidden p-4 text-start bg-gray-50">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <small class="text-uppercase text-muted fw-bold tracking-widest"
-                                style="font-size: 0.7rem;">Hoje</small>
-                            <h5 class="fw-bold m-0">Segunda-feira</h5>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span
-                                class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded border border-orange-200">🔥
-                                12 Dias</span>
-                        </div>
-                    </div>
-
-                    <!-- Ritual Item -->
-                    <div
-                        class="p-4 bg-white rounded-lg shadow-sm border-l-4 border-black mb-3 flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-bold uppercase text-gray-400">Saúde</span>
-                            <h4 class="font-medium text-lg">Caminhar 15 minutos</h4>
-                        </div>
-                        <div class="h-8 w-8 rounded-full bg-green-500 text-white flex items-center justify-center">✓
-                        </div>
-                    </div>
-
-                    <!-- Ritual Item Bad Day -->
-                    <div class="p-4 bg-white rounded-lg shadow-sm border-l-4 border-orange-400 opacity-75">
-                        <span class="text-xs bg-orange-100 text-orange-600 px-1 rounded absolute -mt-6">Modo
-                            Resiliência</span>
-                        <div>
-                            <span class="text-xs font-bold uppercase text-gray-400">Escrita</span>
-                            <h4 class="font-medium text-lg">Escrever 1 frase</h4>
-                        </div>
-                        <div class="h-8 w-8 rounded-full border-2 border-gray-200"></div>
-                    </div>
+                    class="card border-0 rounded-2xl shadow-2xl overflow-hidden p-0 text-start bg-gray-50 transform rotate-1 hover:rotate-0 transition-all duration-700">
+                    <img src="https://cdn.dribbble.com/userupload/12560377/file/original-5094d23204961502444ba74384931985.png?resize=2400x1800"
+                        class="w-full h-auto opacity-90 hover:opacity-100 transition-opacity"
+                        alt="RitualOS Dashboard Interface Preview">
+                    <!-- Placeholder if image fails, kept simplistic. Ideally use a screenshot of the actual app here. -->
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Values Section -->
-<section class="py-5 border-top">
-    <div class="container py-5">
-        <div class="row g-5">
-            <div class="col-md-4">
-                <h3 class="fw-bold mb-3">Antifragilidade</h3>
-                <p class="text-muted">A maioria dos apps de hábitos falha porque exige perfeição. O RitualOS cria
-                    versões "Dia Ruim" dos seus hábitos para que você nunca quebre a corrente, mesmo no caos.</p>
+<!-- THE PROBLEM -->
+<section class="py-24 bg-gray-50 border-top border-bottom">
+    <div class="container">
+        <div class="text-center mb-16">
+            <h2 class="fw-bold display-6 mb-4">{{ _('Por que Apps de Todo Falham?') }}</h2>
+            <p class="text-muted lead max-w-2xl mx-auto">{{ _('Listas infinitas geram ansiedade, não produtividade.') }}
+            </p>
+        </div>
+
+        <div class="row g-5 align-items-center">
+            <!-- The Old Way -->
+            <div class="col-md-6">
+                <div
+                    class="p-8 bg-white rounded-3xl shadow-lg border border-red-100 relative overflow-hidden group hover:border-red-300 transition-all">
+                    <div
+                        class="absolute top-0 right-0 bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-bl-lg">
+                        JEITO VELHO</div>
+                    <h3 class="font-bold text-xl mb-4 text-gray-400 group-hover:text-red-500 transition-colors">Outros
+                        Apps</h3>
+                    <ul class="space-y-4 text-gray-500">
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-x-circle-fill text-red-400 mt-1"></i>
+                            <span><strong>Listas Gilgantes:</strong> Você adiciona 50 tarefas e faz 3. Resultado:
+                                Culpa.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-x-circle-fill text-red-400 mt-1"></i>
+                            <span><strong>Rigidez:</strong> Um dia doente quebra seu gráfico de "streak". Você
+                                desiste.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-x-circle-fill text-red-400 mt-1"></i>
+                            <span><strong>Complexidade:</strong> Gráficos de Gantt e Bases de Dados para beber
+                                água?</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h3 class="fw-bold mb-3">Kaizen AI</h3>
-                <p class="text-muted">Não sabe por onde começar? Nossa IA quebra grandes metas (como "Escrever um
-                    livro") em rituais ridicularmente simples (como "Abrir o editor de texto").</p>
+
+            <!-- The RitualOS Way -->
+            <div class="col-md-6">
+                <div
+                    class="p-8 bg-black text-white rounded-3xl shadow-2xl relative overflow-hidden transform md:scale-105 border border-gray-800">
+                    <div
+                        class="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                        JEITO RITUALOS</div>
+                    <div class="absolute -right-20 -top-20 w-64 h-64 bg-green-500/10 rounded-full blur-3xl"></div>
+
+                    <h3 class="font-bold text-xl mb-4 text-white">RitualOS</h3>
+                    <ul class="space-y-4 text-gray-300">
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-check-circle-fill text-green-400 mt-1"></i>
+                            <span><strong>Foco no Hoje:</strong> O que importa é ganhar o dia. O resto é ruído.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-check-circle-fill text-green-400 mt-1"></i>
+                            <span><strong>Antifragilidade:</strong> Dias ruins têm metas menores. A constância nunca
+                                para.</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i class="bi bi-check-circle-fill text-green-400 mt-1"></i>
+                            <span><strong>Simplicidade Radical:</strong> 3 a 5 rituais chaves. Nada mais.</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div class="col-md-4">
-                <h3 class="fw-bold mb-3">Minimalismo Radical</h3>
-                <p class="text-muted">Sem gráficos complexos, sem sprints, sem notificações chatas. Apenas o que você
-                    precisa fazer hoje para ser 1% melhor.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION (ClickUp Style Grid) -->
+<section class="py-24 bg-white">
+    <div class="container">
+        <div class="text-center mb-16">
+            <span class="text-blue-600 font-bold tracking-widest uppercase text-xs mb-2 block">POWERHOUSE</span>
+            <h2 class="fw-bold display-5 mb-4">{{ _('Uma plataforma. Todo o seu crescimento.') }}</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Card 1 -->
+            <div class="bg-gray-50 rounded-3xl p-8 hover:bg-gray-100 transition-colors">
+                <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600">
+                    <i class="bi bi-diagram-3-fill text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-3">Sistemas de Rituais</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Não crie tarefas isoladas. Crie sistemas recorrentes
+                    que progridem com você. Defina gatilhos, horários e dias.</p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="bg-gray-50 rounded-3xl p-8 hover:bg-gray-100 transition-colors">
+                <div class="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center mb-6 text-orange-600">
+                    <i class="bi bi-shield-check text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-3">Modo Resiliência</h3>
+                <p class="text-gray-500 text-sm leading-relaxed"> acordou gripado? Sem energia? Ative o modo
+                    resiliência. O app ajusta suas metas para o mínimo viável. Mantenha o hábito vivo.</p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="bg-gray-50 rounded-3xl p-8 hover:bg-gray-100 transition-colors">
+                <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mb-6 text-purple-600">
+                    <i class="bi bi-robot text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-3">AI Kaizen Coach</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">Seu coach pessoal disponível 24/7. Analisa seus dados,
+                    sugere ajustes e conversa com você por voz ou texto.</p>
+            </div>
+            <!-- Card 4 -->
+            <div class="bg-gray-50 rounded-3xl p-8 hover:bg-gray-100 transition-colors md:col-span-2">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="flex-1">
+                        <div
+                            class="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center mb-6 text-green-600">
+                            <i class="bi bi-graph-up-arrow text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-xl mb-3">Analytics Profundo</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed mb-4">Visualize seu progresso com Heatmaps,
+                            gráficos de consistência e análise de dias perfeitos.</p>
+                        <ul class="text-sm text-gray-500 space-y-2">
+                            <li><i class="bi bi-check text-green-500 mr-2"></i> Heatmap estilo GitHub</li>
+                            <li><i class="bi bi-check text-green-500 mr-2"></i> Taxa de conversão diária</li>
+                        </ul>
+                    </div>
+                    <div class="flex-1 bg-white p-4 rounded-xl shadow-sm border w-full">
+                        <!-- Tiny Mock Chart -->
+                        <div class="flex items-end gap-1 h-32 justify-between px-2">
+                            <div class="w-full bg-green-100 rounded-t h-1/3"></div>
+                            <div class="w-full bg-green-200 rounded-t h-2/3"></div>
+                            <div class="w-full bg-green-300 rounded-t h-1/2"></div>
+                            <div class="w-full bg-green-400 rounded-t h-3/4"></div>
+                            <div class="w-full bg-green-500 rounded-t h-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="bg-gray-900 text-white rounded-3xl p-8 hover:bg-gray-800 transition-colors">
+                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 text-white">
+                    <i class="bi bi-phone text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-3">Mobile First (PWA)</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Instale como um app nativo. Funciona offline.
+                    Sincroniza quando volta a internet. Rápido como o pensamento.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS (Masonry / Grid style) -->
+<section class="py-24 bg-gray-50 border-t">
+    <div class="container">
+        <div class="text-center mb-16">
+            <h2 class="fw-bold display-6 mb-4">{{ _('Amado por Executivos e Criativos') }}</h2>
+            <p class="text-muted lead max-w-2xl mx-auto">{{ _('Junte-se a milhares de pessoas que trocaram a ansiedade
+                pela consistência.') }}</p>
+        </div>
+
+        <div class="columns-1 md:columns-2 lg:columns-4 gap-6 space-y-6">
+
+            <!-- T1 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_sarah.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Sarah">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Sarah Jenkins</h5>
+                        <p class="text-xs text-gray-400 m-0">Product Manager</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"Eu tentava usar 5 apps diferentes. O RitualOS substituiu todos. A
+                    opção de 'Dia Ruim' salvou minha sanidade mental."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T2 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_mike.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Mike">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Mike T.</h5>
+                        <p class="text-xs text-gray-400 m-0">Desenvolvedor Senior</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"Simples. Direto. Sem besteira. Exatamente o que eu precisava para
+                    manter meus estudos de IA em dia."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T3 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_jessica.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Jessica">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Jessica Lee</h5>
+                        <p class="text-xs text-gray-400 m-0">Designer</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"O design é lindo, mas a funcionalidade é o que me prendeu. O Coach IA
+                    me dá conselhos que realmente funcionam."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T4 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_david.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="David">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">David Ross</h5>
+                        <p class="text-xs text-gray-400 m-0">CEO @ StartUp</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"Eu pago R$ 29,90 sorrindo. O valor que isso trouxe para minha rotina
+                    matinal é incalculável."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T5 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_kenji.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Kenji">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Kenji Sato</h5>
+                        <p class="text-xs text-gray-400 m-0">Estudante de Medicina</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"Conciliar plantões com estudos era impossível. O sistema de 'Sistemas'
+                    me ajudou a achar brechas produtivas."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T6 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_lisa.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Lisa">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Lisa M.</h5>
+                        <p class="text-xs text-gray-400 m-0">Advogada</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"A melhor parte é não se sentir culpada por fazer menos em dias
+                    difíceis. Isso mudou minha relação com produtividade."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T7 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_tom.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Tom">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Tom Harris</h5>
+                        <p class="text-xs text-gray-400 m-0">Músico</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"Uso para praticar guitarra. A consistência visual me viciou."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+            <!-- T8 -->
+            <div
+                class="break-inside-avoid bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 mb-4">
+                    <img src="{{ url_for('static', filename='avatars/avatar_priya.png') }}"
+                        class="w-12 h-12 rounded-full object-cover" alt="Priya">
+                    <div>
+                        <h5 class="font-bold text-sm m-0">Priya Patel</h5>
+                        <p class="text-xs text-gray-400 m-0">Consultora</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm">"Simplesmente funciona. Baixe."</p>
+                <div class="flex text-yellow-400 text-xs mt-3">★★★★★</div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FAQ SECTION -->
+<section class="py-24 bg-white border-top">
+    <div class="container max-w-4xl">
+        <div class="text-center mb-16">
+            <h2 class="fw-bold display-6 mb-4">{{ _('Perguntas Frequentes') }}</h2>
+        </div>
+
+        <div class="accordion accordion-flush" id="faqAccordion">
+            <!-- Q1 -->
+            <div class="accordion-item border-b">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed py-6 text-lg font-medium" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#faq1">
+                        O que é o Modo Resiliência?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body pb-6 text-gray-500">
+                        É um recurso exclusivo para dias ruins. Quando ativado, o RitualOS reduz drasticamente a
+                        dificuldade dos seus rituais para o "Mínimo Viável". Se você tinha que ler 10 páginas, passa a
+                        ser 1 parágrafo. O objetivo é não quebrar a corrente.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="accordion-item border-b">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed py-6 text-lg font-medium" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#faq2">
+                        Como funciona o pagamento?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body pb-6 text-gray-500">
+                        Comece grátis, sem cartão. Se quiser rituais ilimitados e o Coach IA, faça upgrade pro plano
+                        PRO. É cobrado mensalmente e você pode cancelar com 1 clique.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="accordion-item border-b">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed py-6 text-lg font-medium" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#faq3">
+                        Funciona offline?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body pb-6 text-gray-500">
+                        Sim! O RitualOS é um PWA (Progressive Web App). Você pode instalar no celular e usar mesmo sem
+                        internet. Ele sincroniza tudo quando conectar.
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Pricing -->
-<section class="py-5 bg-light border-top">
-    <div class="container py-5">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold display-5 mb-3">Escolha sua Consistência</h2>
-            <p class="text-muted lead">Comece pequeno, escale quando estiver pronto.</p>
+<section class="py-24 bg-black text-white relative overflow-hidden">
+    <!-- Abstract Decor -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-purple-900/40 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="container py-5 relative z-10">
+        <div class="text-center mb-16">
+            <h2 class="fw-bold display-5 mb-3">{{ _('Escolha sua Consistência') }}</h2>
+            <p class="text-gray-400 lead">{{ _('Investimento menor que um café por mês.') }}</p>
         </div>
         <div class="row justify-content-center gap-4">
             <!-- Free Plan -->
             <div class="col-md-4">
-                <div class="card border-0 shadow-sm p-4 h-100 bg-white d-flex flex-column">
-                    <h4 class="fw-bold text-muted">Iniciante</h4>
-                    <h2 class="display-4 fw-bold my-3">R$ 0</h2>
-                    <p class="text-muted mb-4">Para provar que funciona.</p>
+                <div
+                    class="card border-0 shadow-lg p-8 h-100 bg-gray-900 text-white d-flex flex-column rounded-3xl relative overflow-hidden">
+                    <h4 class="fw-bold text-gray-400 uppercase tracking-widest text-xs mb-2">Iniciante</h4>
+                    <h2 class="display-4 fw-bold mb-4">R$ 0</h2>
+                    <p class="text-gray-400 mb-8 border-b border-gray-800 pb-8">Para provar que o método funciona antes
+                        de investir.</p>
 
-                    <ul class="list-unstyled mb-4 d-flex flex-column gap-3 flex-grow-1">
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-dark"></i> 1 Ritual Ativo
+                    <ul class="list-unstyled mb-8 space-y-4 flex-grow-1 text-gray-300 text-sm">
+                        <li class="flex items-center gap-3">
+                            <i class="bi bi-check-circle-fill text-gray-500"></i> 1 Ritual Ativo
                         </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-dark"></i> Dashboard Zen
+                        <li class="flex items-center gap-3">
+                            <i class="bi bi-check-circle-fill text-gray-500"></i> Dashboard Zen
                         </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-dark"></i> Notificações Básicas
+                        <li class="flex items-center gap-3">
+                            <i class="bi bi-check-circle-fill text-gray-500"></i> Notificações Básicas
                         </li>
-                        <li class="d-flex align-items-center gap-2 text-muted opacity-50">
+                        <li class="flex items-center gap-3 text-gray-600">
                             <i class="bi bi-x-circle"></i> Modo Resiliência ("Dia Ruim")
                         </li>
-                        <li class="d-flex align-items-center gap-2 text-muted opacity-50">
+                        <li class="flex items-center gap-3 text-gray-600">
                             <i class="bi bi-x-circle"></i> Coach IA Semanal
                         </li>
                     </ul>
 
                     <a href="{{ url_for('register') }}"
-                        class="btn btn-outline-dark w-100 rounded-0 py-3 mt-auto">Começar Grátis</a>
+                        class="btn btn-outline-light w-100 rounded-full py-3 mt-auto border-gray-700 hover:bg-gray-800 hover:border-gray-600 transition-all">Começar
+                        Grátis</a>
                 </div>
             </div>
 
             <!-- Pro Plan -->
             <div class="col-md-4">
                 <div
-                    class="card border-2 border-dark shadow-lg p-4 h-100 bg-white relative overflow-hidden d-flex flex-column transform hover:-translate-y-1 transition-all duration-300">
+                    class="card border-0 shadow-2xl p-8 h-100 bg-white text-black d-flex flex-column rounded-3xl relative overflow-hidden transform md:-translate-y-4 hover:scale-105 transition-transform duration-500">
                     <div
-                        class="bg-dark text-white text-xs uppercase px-3 py-1 absolute top-0 right-0 font-bold tracking-widest">
-                        Antifrágil</div>
-                    <h4 class="fw-bold">RitualOS Pro</h4>
-                    <h2 class="display-4 fw-bold my-3">R$ 29<small class="fs-6">,90</small></h2>
-                    <p class="text-muted mb-4">A caixa de ferramentas completa.</p>
+                        class="absolute top-0 right-0 bg-black text-white text-[10px] uppercase font-bold px-4 py-2 rounded-bl-xl">
+                        Mais Escolhido</div>
 
-                    <ul class="list-unstyled mb-4 d-flex flex-column gap-3 flex-grow-1">
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> <strong>Rituais Ilimitados</strong>
+                    <h4
+                        class="fw-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 uppercase tracking-widest text-xs mb-2">
+                        RitualOS Pro</h4>
+                    <h2 class="display-4 fw-bold mb-4">R$ 29<small class="fs-6 text-gray-500">,90</small></h2>
+                    <p class="text-gray-500 mb-8 border-b border-gray-100 pb-8">A caixa de ferramentas completa para sua
+                        antifragilidade.</p>
+
+                    <ul class="list-unstyled mb-8 space-y-4 flex-grow-1 text-sm font-medium">
+                        <li class="flex items-center gap-3">
+                            <div
+                                class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
+                                <i class="bi bi-check"></i></div>
+                            <strong>Rituais Ilimitados</strong>
                         </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> <strong>Modo Resiliência</strong>
-                            (Chave!)
+                        <li class="flex items-center gap-3">
+                            <div
+                                class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                                <i class="bi bi-shield-check"></i></div>
+                            <strong>Modo Resiliência</strong> (Chave!)
                         </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> <strong>Coach IA Semanal</strong>
+                        <li class="flex items-center gap-3">
+                            <div
+                                class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                                <i class="bi bi-robot"></i></div>
+                            <strong>Coach IA Semanal</strong>
                         </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Estatísticas Avançadas
-                        </li>
-                        <li class="d-flex align-items-center gap-2">
-                            <i class="bi bi-check-circle-fill text-success"></i> Prioridade no Suporte
+                        <li class="flex items-center gap-3">
+                            <div
+                                class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center shrink-0">
+                                <i class="bi bi-bar-chart"></i></div>
+                            Estatísticas Avançadas
                         </li>
                     </ul>
 
                     <a href="{{ url_for('register') }}"
-                        class="btn btn-dark w-100 rounded-0 py-3 fw-bold mt-auto shadow-md">Tornar-se Pro</a>
-                    <p class="text-center text-muted small mt-3 mb-0">Cancele quando quiser.</p>
+                        class="btn btn-black bg-black text-white w-100 rounded-full py-4 fw-bold mt-auto shadow-xl hover:bg-gray-900 transition-all">Tornar-se
+                        Pro</a>
+                    <p class="text-center text-gray-400 text-xs mt-4 mb-0">Cancele quando quiser.</p>
                 </div>
             </div>
         </div>
