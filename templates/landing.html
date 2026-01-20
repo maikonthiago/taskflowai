@@ -4,39 +4,51 @@
 
 {% block content %}
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white border-bottom"
+<nav class="navbar navbar-expand-lg fixed-top navbar-light bg-white dark:bg-gray-900 border-bottom dark:border-gray-800 transition-colors duration-300"
     style="backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.95);">
     <div class="container">
         <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="{{ url_for('index') }}">
-            <i class="bi bi-circle-fill text-dark" style="font-size: 0.8rem;"></i>
-            <span class="tracking-widest text-dark uppercase small" style="letter-spacing: 2px;">RitualOS</span>
+            <i class="bi bi-circle-fill text-dark dark:text-white" style="font-size: 0.8rem;"></i>
+            <span class="tracking-widest text-dark dark:text-white uppercase small"
+                style="letter-spacing: 2px;">RitualOS</span>
         </a>
         <div class="d-flex align-items-center gap-3">
+            <!-- Dark Mode Toggle -->
+            <button onclick="toggleDarkMode()"
+                class="btn btn-link text-decoration-none text-dark dark:text-white p-0 border-0 fs-5 transition-transform hover:scale-110"
+                aria-label="Toggle Dark Mode">
+                <span class="block dark:hidden">🌙</span>
+                <span class="hidden dark:block">☀️</span>
+            </button>
             <!-- Language Selector -->
             <div class="dropdown">
-                <button class="btn btn-link text-decoration-none text-dark fw-bold small uppercase dropdown-toggle"
-                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    🌐 {{ session.get('lang', 'pt')|upper }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷
-                            Português</a></li>
-                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸
-                            English</a></li>
-                    <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸
-                            Español</a></li>
-                </ul>
-            </div>
+                <div class="dropdown">
+                    <button
+                        class="btn btn-link text-decoration-none text-dark dark:text-white fw-bold small uppercase dropdown-toggle"
+                        type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        🌐 {{ session.get('lang', 'pt')|upper }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                        <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='pt') }}">🇧🇷
+                                Português</a></li>
+                        <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='en') }}">🇺🇸
+                                English</a></li>
+                        <li><a class="dropdown-item small" href="{{ url_for('set_language', lang_code='es') }}">🇪🇸
+                                Español</a></li>
+                    </ul>
+                </div>
 
-            <a href="{{ url_for('login') }}"
-                class="btn btn-link text-decoration-none text-dark fw-bold small uppercase">{{ _('Entrar') }}</a>
-            <a href="{{ url_for('register') }}" class="btn btn-dark btn-sm px-4 rounded-full">{{ _('Começar') }}</a>
+                <a href="{{ url_for('login') }}"
+                    class="btn btn-link text-decoration-none text-dark dark:text-white fw-bold small uppercase">{{
+                    _('Entrar') }}</a>
+                <a href="{{ url_for('register') }}" class="btn btn-dark btn-sm px-4 rounded-full">{{ _('Começar') }}</a>
+            </div>
         </div>
-    </div>
 </nav>
 
 <!-- Hero Section -->
-<section class="min-vh-100 d-flex align-items-center justify-content-center bg-white pt-5 relative overflow-hidden">
+<section
+    class="min-vh-100 d-flex align-items-center justify-content-center bg-white dark:bg-black pt-5 relative overflow-hidden transition-colors duration-300">
     <!-- Abstract Background Elements -->
     <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-purple-200/30 rounded-full blur-3xl"></div>
@@ -46,16 +58,16 @@
     <div class="container text-center pt-5 relative z-10">
         <div class="mb-4 animate-fade-in-up">
             <span
-                class="badge bg-gray-100 text-dark border px-4 py-2 rounded-full small tracking-widest uppercase font-bold shadow-sm">
+                class="badge bg-gray-100 text-dark dark:bg-gray-800 dark:text-gray-200 border dark:border-gray-700 px-4 py-2 rounded-full small tracking-widest uppercase font-bold shadow-sm">
                 🚀 {{ _('Sistemas > Metas') }}
             </span>
         </div>
-        <h1 class="display-3 fw-bolder mb-4 tracking-tight" style="line-height: 1.1;">
+        <h1 class="display-3 fw-bolder mb-4 tracking-tight text-dark dark:text-white" style="line-height: 1.1;">
             {{ _('Pare de desistir quando') }}<br>
             <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">{{ _('a motivação
                 acaba') }}</span>.
         </h1>
-        <p class="lead text-muted mb-5 mx-auto text-lg" style="max-width: 650px; font-weight: 300;">
+        <p class="lead text-muted dark:text-gray-400 mb-5 mx-auto text-lg" style="max-width: 650px; font-weight: 300;">
             {{ _('Metas rígidas quebram você. O RitualOS cria sistemas antifrágeis que se adaptam aos seus dias ruins.
             Consistência vence intensidade.') }}
         </p>
