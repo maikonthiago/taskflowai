@@ -99,6 +99,7 @@ os.makedirs('static/avatars', exist_ok=True)
 
 # Inicializar extensões
 db.init_app(app)
+migrate = Migrate(app, db)
 mail = Mail(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
