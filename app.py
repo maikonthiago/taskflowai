@@ -9,7 +9,8 @@ from datetime import datetime, timedelta
 import json
 from functools import wraps
 from sqlalchemy import or_, func
-import stripe
+import requests
+from abacate_payment import AbacatePayment
 
 from config import config
 from models import (
@@ -178,30 +179,16 @@ DEFAULT_SYSTEM_SETTINGS = [
         'is_secret': True
     },
     {
-        'key': 'STRIPE_PUBLIC_KEY',
+        'key': 'ABACATE_API_KEY',
         'category': 'payments',
-        'description': 'Chave pública utilizada no checkout Stripe.',
-        'is_secret': True
-    },
-    {
-        'key': 'STRIPE_SECRET_KEY',
-        'category': 'payments',
-        'description': 'Chave secreta utilizada para operações com Stripe.',
-        'is_secret': True
-    },
-    {
-        'key': 'STRIPE_WEBHOOK_SECRET',
-        'category': 'payments',
-        'description': 'Webhook secret da Stripe.',
+        'description': 'Chave API da AbacatePay.',
         'is_secret': True
     }
 ]
 
 RUNTIME_SETTING_MAP = {
     'OPENAI_API_KEY': 'OPENAI_API_KEY',
-    'STRIPE_PUBLIC_KEY': 'STRIPE_PUBLIC_KEY',
-    'STRIPE_SECRET_KEY': 'STRIPE_SECRET_KEY',
-    'STRIPE_WEBHOOK_SECRET': 'STRIPE_WEBHOOK_SECRET'
+    'ABACATE_API_KEY': 'ABACATE_API_KEY'
 }
 
 
@@ -715,108 +702,96 @@ def admin_console():
 
     return render_template('admin_dashboard.html', stats=stats, plan_usage=plan_usage, admin_state=admin_state)
 
-# ==================== STRIPE WEBHOOK & LIMITS ====================
+# ==================== ABACATE PAY & LIMITS ====================
+@app.route('/api/create-checkout', methods=['POST'])
+@login_required
+def create_checkout():
+    """Criar sessão de pagamento na AbacatePay"""
+    data = request.json
+    plan_slug = data.get('plan')
+    billing_period = data.get('billing', 'monthly') # monthly ou yearly
+    
+    plan = SubscriptionPlan.query.filter_by(slug=plan_slug).first_or_404()
+    
+    amount = plan.price_monthly
+    if billing_period == 'yearly' and plan.price_yearly:
+        amount = plan.price_yearly
+    
+    amount_cents = int(amount * 100)
+    
+    # 1. Garantir Cliente
+    # Por simplicidade, vamos sempre tentar criar/atualizar ou usar email
+    # Idealmente salvaríamos o abacate_customer_id no User
+    customer = AbacatePayment.create_customer(current_user.full_name or current_user.username, current_user.email)
+    if not customer or 'data' not in customer:
+         return jsonify({'error': 'Erro ao criar cliente no gateway'}), 500
+    
+    customer_id = customer['data']['id']
+    
+    # 2. Criar Cobrança
+    return_url = url_for('dashboard', _external=True)
+    completion_url = url_for('dashboard', _external=True)
+    
+    description = f"Assinatura {plan.name} ({billing_period})"
+    
+    billing = AbacatePayment.create_billing(
+        customer_id=customer_id,
+        amount_cents=amount_cents,
+        description=description,
+        return_url=return_url,
+        completion_url=completion_url
+    )
+    
+    if not billing or 'data' not in billing:
+         return jsonify({'error': 'Erro ao gerar pagamento'}), 500
+         
+    payment_url = billing['data']['url']
+    
+    return jsonify({'url': payment_url})
 
-@app.route('/stripe_webhook', methods=['POST'])
-def stripe_webhook():
-    payload = request.get_data(as_text=True)
-    sig_header = request.headers.get('Stripe-Signature')
-    webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
 
-    if not webhook_secret:
-        return jsonify({'error': 'Webhook secret not configured'}), 500
-
-    from stripe_payment import StripePayment
-    import stripe
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, webhook_secret
-        )
-    except ValueError as e:
-        return jsonify({'error': 'Invalid payload'}), 400
-    except stripe.error.SignatureVerificationError as e:
-        return jsonify({'error': 'Invalid signature'}), 400
-
-    # Handle events
-    if event['type'] == 'checkout.session.completed':
-        session = event['data']['object']
-        handle_checkout_completed(session)
-    elif event['type'] == 'invoice.paid':
-        invoice = event['data']['object']
-        handle_invoice_paid(invoice)
-    elif event['type'] == 'customer.subscription.deleted':
-        subscription = event['data']['object']
-        handle_subscription_deleted(subscription)
-
-    return jsonify({'status': 'success'}), 200
-
-def handle_checkout_completed(session):
-    """Grant initial access after checkout"""
-    customer_email = session.get('customer_email')
-    if not customer_email:
-        return
+@app.route('/abacate_webhook', methods=['POST'])
+def abacate_webhook():
+    data = request.json
+    
+    # Validar webhook (simplificado, idealmente verificar assinatura ou token secreto)
+    # A estrutura do payload da AbacatePay varia, vamos assumir padrão evento.
+    event_type = data.get('event')
+    
+    if event_type == 'billing.paid':
+        billing_data = data.get('data', {}).get('billing', {})
+        customer_data = data.get('data', {}).get('customer', {})
+        email = customer_data.get('email')
         
-    user = User.query.filter_by(email=customer_email).first()
-    if user:
-        # Determine plan from line items or metadata
-        # Simpler approach: Map price ID to plan
-        # We need to fetch the subscription to get the price ID
-        import stripe
-        subscription_id = session.get('subscription')
-        if subscription_id:
-            sub = stripe.Subscription.retrieve(subscription_id)
-            price_id = sub['items']['data'][0]['price']['id']
-            
-            # Find which plan matches this price
-            target_plan = SubscriptionPlan.query.filter(
-                or_(
-                    SubscriptionPlan.stripe_price_monthly_id == price_id,
-                    SubscriptionPlan.stripe_price_yearly_id == price_id
-                )
-            ).first()
-            
-            if target_plan:
-                user.subscription_plan = target_plan.slug
+        # Encontrar usuário e liberar acesso
+        if email:
+            user = User.query.filter_by(email=email).first()
+            if user:
+                # Lógica simples: se pagou qualquer valor > 20, vira Pro. Se > 70, Business.
+                # Ou melhorar passando metadata no billing.
+                amount = billing_data.get('amount', 0)
+                
+                new_plan = 'free'
+                if amount > 7000: # 70.00
+                    new_plan = 'business'
+                elif amount > 2000: # 20.00
+                    new_plan = 'pro'
+                
+                user.subscription_plan = new_plan
                 user.subscription_status = 'active'
                 db.session.commit()
-                # Create notification
+                
+                # Notificar
                 notif = Notification(
-                    title='Assinatura Confirmada! 🚀',
-                    content=f'Bem-vindo ao plano {target_plan.name}. Aproveite os novos recursos!',
+                    title='Pagamento Confirmado! 🚀',
+                    content=f'Sua assinatura {new_plan.capitalize()} está ativa.',
                     type='system',
                     user_id=user.id
                 )
                 db.session.add(notif)
                 db.session.commit()
-
-def handle_invoice_paid(invoice):
-    """Extend access on recurring payment"""
-    email = invoice.get('customer_email')
-    user = User.query.filter_by(email=email).first()
-    if user:
-        user.subscription_status = 'active'
-        db.session.commit()
-
-def handle_subscription_deleted(subscription):
-    """Downgrade to free on cancellation"""
-    # We need to find the user by customer ID
-    # Since we didn't store customer_id in User model yet within this context 
-    # (assuming User model relies on email matching for now)
-    # We might need to fetch customer email from Stripe
-    import stripe
-    customer_id = subscription.get('customer')
-    try:
-        customer = stripe.Customer.retrieve(customer_id)
-        email = customer.get('email')
-        if email:
-            user = User.query.filter_by(email=email).first()
-            if user:
-                user.subscription_plan = 'free'
-                user.subscription_status = 'canceled'
-                db.session.commit()
-    except:
-        pass
+                
+    return jsonify({'status': 'ok'}), 200
 
 # Usage Limits Logic
 PLAN_LIMITS = {

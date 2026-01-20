@@ -158,41 +158,18 @@
     </div>
 </footer>
 
-<!-- Stripe Checkout Modal -->
-<div class="modal fade" id="checkoutModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Finalizar Assinatura</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="payment-form">
-                    <div id="card-element" class="form-control mb-3"></div>
-                    <button class="btn btn-primary w-100" id="submit-payment">
-                        Confirmar Pagamento
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://js.stripe.com/v3/"></script>
 <script>
     let selectedPlan = null;
-    let selectedBilling = 'monthly';
     let billingMode = 'monthly';
     const checkAuthUrl = "{{ url_for('api_check_auth') }}";
     const registerUrl = "{{ url_for('register') }}";
-    const subscriptionUrl = "{{ url_for('subscription_settings') }}";
     
     function toggleBilling() {
         const toggle = document.getElementById('billingToggle');
         billingMode = toggle.checked ? 'annual' : 'monthly';
-        selectedBilling = billingMode;
         document.querySelectorAll('.price-number').forEach(el => {
             const monthly = parseFloat(el.dataset.monthly || '0');
             const annual = parseFloat(el.dataset.annual || monthly);
@@ -208,7 +185,6 @@
     
     async function selectPlan(plan) {
         selectedPlan = plan;
-        selectedBilling = billingMode;
         
         // Verificar se usuário está logado
         const response = await fetch(checkAuthUrl);
@@ -216,9 +192,40 @@
             window.location.href = `${registerUrl}?plan=${plan}`;
             return;
         }
-        
-        // Redirecionar para as configurações de assinatura com o plano selecionado
-        window.location.href = `${subscriptionUrl}?plan=${plan}&billing=${selectedBilling}`;
+
+        // Criar Checkout AbacatePay
+        try {
+            const btn = document.querySelector(`button[onclick="selectPlan('${plan}')"]`);
+            const originalText = btn.innerText;
+            btn.innerText = 'Processando...';
+            btn.disabled = true;
+
+            const checkoutRes = await fetch('/api/create-checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': "{{ csrf_token() }}" 
+                },
+                body: JSON.stringify({
+                    plan: plan,
+                    billing: billingMode
+                })
+            });
+            
+            const data = await checkoutRes.json();
+            
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                alert('Erro ao iniciar pagamento: ' + (data.error || 'Erro desconhecido'));
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+            
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao conectar ao servidor de pagamento.');
+        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
