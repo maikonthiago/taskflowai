@@ -1,5 +1,7 @@
 import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_from_directory
+from flask_mail import Mail, Message
+from threading import Thread
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -97,6 +99,7 @@ os.makedirs('static/avatars', exist_ok=True)
 
 # Inicializar extensões
 db.init_app(app)
+mail = Mail(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -303,6 +306,24 @@ def maintain_super_admin_status():
             current_user.subscription_plan = 'business'
             db.session.commit()
 
+# ==================== EMAIL HELPER ====================
+def send_async_email(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+        except Exception as e:
+            print(f"Erro ao enviar email: {e}")
+
+def send_email(to, subject, template):
+    msg = Message(
+        subject,
+        recipients=[to],
+        html=template,
+        sender=app.config.get('MAIL_USERNAME')
+    )
+    Thread(target=send_async_email, args=(app, msg)).start()
+
+
 # ==================== INICIALIZAÇÃO ====================
 
 with app.app_context():
@@ -383,13 +404,19 @@ def forgot_password():
             expires = timedelta(hours=1)
             reset_token = create_access_token(identity=user.id, expires_delta=expires, additional_claims={'type': 'reset'})
             
-            # Aqui seria o envio de email real. 
-            # Como não temos SMTP configurado, vamos apenas "logar" o link para o admin ver.
+            # Envio de Email Real
             reset_link = url_for('reset_password_token', token=reset_token, _external=True)
-            print(f"==================================================")
-            print(f"LINK DE RESET DE SENHA PARA {email}:")
-            print(f"{reset_link}")
-            print(f"==================================================")
+            
+            html_body = f"""
+            <h3>Recuperação de Senha - RitualOS</h3>
+            <p>Olá {user.full_name},</p>
+            <p>Você solicitou a redefinição de sua senha. Clique no link abaixo para prosseguir:</p>
+            <p><a href="{reset_link}">{reset_link}</a></p>
+            <p>Se você não solicitou isso, ignore este email.</p>
+            """
+            
+            send_email(user.email, "Recuperação de Senha - RitualOS", html_body)
+
             
             flash('Se o email existir, enviamos um link para redefinir sua senha. (Cheque o console do servidor para o link simulado)', 'info')
         else:
@@ -496,8 +523,20 @@ def register():
                 invite.status = 'accepted'
                 invite.accepted_at = datetime.utcnow()
                 db.session.commit()
+                invite.accepted_at = datetime.utcnow()
+                db.session.commit()
                 flash(f'Convite aceito! Você agora participa do workspace {target_workspace.name}', 'success')
         
+        # Admin Notification
+        try:
+            admin_email = 'thiagolobopersonaltrainer@gmail.com'
+            send_email(admin_email, f"Novo Usuário: {full_name}", f"Usuário {username} ({email}) acabou de se registrar.")
+            
+            # Welcome Email
+            send_email(email, "Bem-vindo ao RitualOS", f"Olá {full_name},<br>Bem-vindo ao RitualOS! Sua jornada de consistência começa agora.")
+        except:
+             pass
+
         login_user(user)
         
         if request.is_json:
@@ -781,7 +820,7 @@ def abacate_webhook():
                 user.subscription_status = 'active'
                 db.session.commit()
                 
-                # Notificar
+                # Notificar Sistema
                 notif = Notification(
                     title='Pagamento Confirmado! 🚀',
                     content=f'Sua assinatura {new_plan.capitalize()} está ativa.',
@@ -790,6 +829,15 @@ def abacate_webhook():
                 )
                 db.session.add(notif)
                 db.session.commit()
+                
+                # Email User
+                send_email(email, "Pagamento Confirmado - RitualOS", f"Sua assinatura {new_plan} foi confirmada! Aproveite.")
+                
+                # Email Admin
+                try:
+                    send_email('thiagolobopersonaltrainer@gmail.com', "Venda Realizada!", f"Usuário {email} assinou o plano {new_plan}. Valor: {amount/100}")
+                except:
+                    pass
                 
     return jsonify({'status': 'ok'}), 200
 
