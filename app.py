@@ -324,6 +324,52 @@ def send_email(to, subject, template):
     Thread(target=send_async_email, args=(app, msg)).start()
 
 
+# ==================== HELPERS ====================
+
+def get_heatmap_data(user_id):
+    """Retorna dados para o heatmap (últimos 365 dias)"""
+    end_date = datetime.utcnow().date()
+    start_date = end_date - timedelta(days=364) # 52 weeks
+    
+    logs = DailyLog.query.filter(
+        DailyLog.user_id == user_id,
+        DailyLog.date >= start_date,
+        DailyLog.date <= end_date
+    ).all()
+    
+    # Map dates to intensity (0-4)
+    data = {}
+    for log in logs:
+        count = len(log.completed_actions)
+        if count == 0: intensity = 0
+        elif count <= 2: intensity = 1
+        elif count <= 4: intensity = 2
+        elif count <= 6: intensity = 3
+        else: intensity = 4
+        
+        data[log.date.strftime('%Y-%m-%d')] = intensity
+        
+    return data
+
+@app.route('/api/set-mood', methods=['POST'])
+@login_required
+def set_mood():
+    data = request.json
+    mood = data.get('mood') # 'normal' or 'resilience' (low battery)
+    
+    today = datetime.utcnow().date()
+    daily_log = DailyLog.query.filter_by(user_id=current_user.id, date=today).first()
+    
+    if not daily_log:
+        daily_log = DailyLog(user_id=current_user.id, date=today)
+        db.session.add(daily_log)
+    
+    daily_log.mood = mood
+    db.session.commit()
+    
+    return jsonify({'status': 'ok', 'mood': mood})
+
+
 # ==================== INICIALIZAÇÃO ====================
 
 with app.app_context():
@@ -570,7 +616,20 @@ def pricing():
 @login_required
 def dashboard():
     """Dashboard principal - RitualOS"""
-    return render_template('ritual_dashboard.html', user=current_user)
+    # Garantir que existe log de hoje para o Mood
+    today = datetime.utcnow().date()
+    daily_log = DailyLog.query.filter_by(user_id=current_user.id, date=today).first()
+    if not daily_log:
+        daily_log = DailyLog(user_id=current_user.id, date=today, mood='normal')
+        db.session.add(daily_log)
+        db.session.commit()
+    
+    heatmap_data = get_heatmap_data(current_user.id)
+    
+    return render_template('ritual_dashboard.html', 
+                         user=current_user,
+                         current_mood=daily_log.mood,
+                         heatmap_data=heatmap_data)
 
 # ==================== WORKSPACES ====================
 
