@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Preços - TaskFlowAI{% endblock %}
+{% block title %}Preços - RitualOS{% endblock %}
 
 {% block content %}
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('index') }}"><i class="bi bi-check2-circle"></i> TaskFlowAI</a>
+        <a class="navbar-brand" href="{{ url_for('index') }}"><i class="bi bi-check2-circle"></i> RitualOS</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -14,7 +14,8 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Entrar</a></li>
-                <li class="nav-item"><a href="{{ url_for('register') }}" class="btn btn-primary-custom">Começar Grátis</a></li>
+                <li class="nav-item"><a href="{{ url_for('register') }}" class="btn btn-primary-custom">Começar
+                        Grátis</a></li>
             </ul>
         </div>
     </div>
@@ -26,7 +27,7 @@
             <div class="col-lg-8 mx-auto text-center">
                 <h1 class="display-3 fw-bold mb-3">Escolha o plano perfeito para você</h1>
                 <p class="lead text-muted">Comece grátis. Faça upgrade quando precisar.</p>
-                
+
                 <!-- Toggle Anual/Mensal -->
                 <div class="d-inline-flex align-items-center gap-3 mt-4 p-2 bg-light rounded-pill">
                     <span class="fw-semibold">Mensal</span>
@@ -37,11 +38,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="row g-4 align-items-stretch">
             {% for plan in plans %}
             <div class="col-lg-4 col-md-6">
-                <div class="card card-custom h-100 p-4 position-relative {{ 'border-primary shadow-lg' if plan.highlight else '' }}">
+                <div
+                    class="card card-custom h-100 p-4 position-relative {{ 'border-primary shadow-lg' if plan.highlight else '' }}">
                     {% if plan.badge_text %}
                     <div class="position-absolute top-0 start-50 translate-middle">
                         <span class="badge bg-primary px-4 py-2 text-uppercase">{{ plan.badge_text }}</span>
@@ -52,17 +54,22 @@
                         <p class="text-muted mb-4">{{ plan.description }}</p>
 
                         <div class="mb-4">
-                            {% set monthly_price = 'R$ {:,.2f}'.format(plan.price_monthly).replace(',', 'X').replace('.', ',').replace('X', '.') %}
+                            {% set monthly_price = 'R$ {:,.2f}'.format(plan.price_monthly).replace(',',
+                            'X').replace('.', ',').replace('X', '.') %}
                             {% set yearly_monthly = (plan.price_yearly or 0) / 12 %}
-                            {% set annual_price = 'R$ {:,.2f}'.format(yearly_monthly).replace(',', 'X').replace('.', ',').replace('X', '.') %}
+                            {% set annual_price = 'R$ {:,.2f}'.format(yearly_monthly).replace(',', 'X').replace('.',
+                            ',').replace('X', '.') %}
                             <h1 class="display-5 fw-bold">
-                                <span class="price-number" data-plan="{{ plan.slug }}" data-monthly="{{ '{:.2f}'.format(plan.price_monthly) }}" data-annual="{{ '{:.2f}'.format(yearly_monthly) }}">
+                                <span class="price-number" data-plan="{{ plan.slug }}"
+                                    data-monthly="{{ '{:.2f}'.format(plan.price_monthly) }}"
+                                    data-annual="{{ '{:.2f}'.format(yearly_monthly) }}">
                                     {{ monthly_price }}
                                 </span>
                                 <small class="fs-5 text-muted">/mês</small>
                             </h1>
                             {% if plan.price_yearly %}
-                            <small class="text-muted">ou R$ {{ '{:,.2f}'.format(plan.price_yearly).replace(',', 'X').replace('.', ',').replace('X', '.') }} / ano</small>
+                            <small class="text-muted">ou R$ {{ '{:,.2f}'.format(plan.price_yearly).replace(',',
+                                'X').replace('.', ',').replace('X', '.') }} / ano</small>
                             {% else %}
                             <small class="text-muted">para sempre</small>
                             {% endif %}
@@ -87,61 +94,70 @@
             </div>
             {% endfor %}
         </div>
-        
+
         <!-- FAQ Section -->
         <div class="row mt-5 pt-5">
             <div class="col-lg-8 mx-auto">
                 <h2 class="text-center fw-bold mb-5">Perguntas Frequentes</h2>
-                
+
                 <div class="accordion" id="faqAccordion">
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#faq1">
                                 Posso cancelar a qualquer momento?
                             </button>
                         </h2>
                         <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Sim! Você pode cancelar sua assinatura a qualquer momento sem taxas ou multas. Seu plano continuará ativo até o final do período pago.
+                                Sim! Você pode cancelar sua assinatura a qualquer momento sem taxas ou multas. Seu plano
+                                continuará ativo até o final do período pago.
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            <button class="accordion-button collapsed fw-semibold" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#faq2">
                                 Como funciona o teste grátis?
                             </button>
                         </h2>
                         <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Você tem 14 dias para testar todos os recursos do plano escolhido. Não cobramos nada durante o período de teste. Se não cancelar, a cobrança começará automaticamente após os 14 dias.
+                                Você tem 14 dias para testar todos os recursos do plano escolhido. Não cobramos nada
+                                durante o período de teste. Se não cancelar, a cobrança começará automaticamente após os
+                                14 dias.
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="accordion-item border-0 mb-3 shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            <button class="accordion-button collapsed fw-semibold" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#faq3">
                                 Posso mudar de plano depois?
                             </button>
                         </h2>
                         <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As mudanças serão aplicadas imediatamente e ajustaremos o valor proporcionalmente.
+                                Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. As mudanças
+                                serão aplicadas imediatamente e ajustaremos o valor proporcionalmente.
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="accordion-item border-0 shadow-sm">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            <button class="accordion-button collapsed fw-semibold" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#faq4">
                                 Quais métodos de pagamento são aceitos?
                             </button>
                         </h2>
                         <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                             <div class="accordion-body">
-                                Aceitamos cartões de crédito (Visa, Mastercard, American Express) e PIX. Todos os pagamentos são processados de forma segura pela Stripe.
+                                Aceitamos cartões de crédito (Visa, Mastercard, American Express) e PIX. Todos os
+                                pagamentos são processados de forma segura pela Stripe.
                             </div>
                         </div>
                     </div>
@@ -154,7 +170,7 @@
 <!-- Footer -->
 <footer class="footer">
     <div class="container text-center">
-        <p class="text-white-50 mb-0">© 2025 TaskFlowAI. Todos os direitos reservados.</p>
+        <p class="text-white-50 mb-0">© 2025 RitualOS. Todos os direitos reservados.</p>
     </div>
 </footer>
 
@@ -166,7 +182,7 @@
     let billingMode = 'monthly';
     const checkAuthUrl = "{{ url_for('api_check_auth') }}";
     const registerUrl = "{{ url_for('register') }}";
-    
+
     function toggleBilling() {
         const toggle = document.getElementById('billingToggle');
         billingMode = toggle.checked ? 'annual' : 'monthly';
@@ -177,15 +193,15 @@
             el.textContent = formatCurrency(value);
         });
     }
-    
+
     function formatCurrency(value) {
         const number = parseFloat(value || 0);
         return 'R$ ' + number.toFixed(2).replace('.', ',');
     }
-    
+
     async function selectPlan(plan) {
         selectedPlan = plan;
-        
+
         // Verificar se usuário está logado
         const response = await fetch(checkAuthUrl);
         if (!response.ok) {
@@ -204,16 +220,16 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': "{{ csrf_token() }}" 
+                    'X-CSRFToken': "{{ csrf_token() }}"
                 },
                 body: JSON.stringify({
                     plan: plan,
                     billing: billingMode
                 })
             });
-            
+
             const data = await checkoutRes.json();
-            
+
             if (data.url) {
                 window.location.href = data.url;
             } else {
@@ -221,7 +237,7 @@
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
-            
+
         } catch (error) {
             console.error('Erro:', error);
             alert('Erro ao conectar ao servidor de pagamento.');

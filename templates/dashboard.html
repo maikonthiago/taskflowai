@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - TaskFlowAI{% endblock %}
+{% block title %}Dashboard - RitualOS{% endblock %}
 
 {% block extra_css %}
 <!-- Custom Styles Moved to static/css/custom.css -->
@@ -15,7 +15,7 @@
             <i class="bi bi-list fs-4"></i>
         </button>
         <h4 class="mb-0 fw-bold text-primary">
-            <i class="bi bi-check2-circle"></i> TaskFlowAI
+            <i class="bi bi-check2-circle"></i> RitualOS
         </h4>
     </div>
 
@@ -72,14 +72,14 @@
                 </div>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2">
-                <li><a class="dropdown-item rounded-3 mb-1" href="/taskflowai/settings"><i
+                <li><a class="dropdown-item rounded-3 mb-1" href="{{ url_for('settings') }}"><i
                             class="bi bi-gear me-2 text-muted"></i>Configurações</a></li>
-                <li><a class="dropdown-item rounded-3 mb-1" href="/taskflowai/settings/subscription"><i
+                <li><a class="dropdown-item rounded-3 mb-1" href="{{ url_for('subscription') }}"><i
                             class="bi bi-credit-card me-2 text-muted"></i>Assinatura</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item rounded-3 text-danger" href="/taskflowai/logout"><i
+                <li><a class="dropdown-item rounded-3 text-danger" href="{{ url_for('logout') }}"><i
                             class="bi bi-box-arrow-right me-2"></i>Sair</a></li>
             </ul>
         </div>
@@ -97,7 +97,7 @@
     <div class="small text-uppercase fw-bold text-muted mb-2 px-3" style="font-size: 0.7rem;">Menu Principal</div>
     <ul class="nav flex-column mb-4">
         <li class="nav-item">
-            <a class="nav-link active" href="/taskflowai/dashboard">
+            <a class="nav-link active" href="{{ url_for('dashboard') }}">
                 <i class="bi bi-grid-1x2 me-3"></i>Dashboard
             </a>
         </li>
@@ -107,7 +107,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/taskflowai/chat">
+            <a class="nav-link" href="{{ url_for('chat') }}">
                 <i class="bi bi-chat-text me-3"></i>Chat
             </a>
         </li>

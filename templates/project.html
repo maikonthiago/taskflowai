@@ -5,9 +5,11 @@
     <h2>{{ project.name }}</h2>
     <p>{{ project.description }}</p>
     <div class="btn-group mb-3">
-        <a href="/taskflowai/project/{{ project.id }}?view=list" class="btn btn-outline-primary">Lista</a>
-        <a href="/taskflowai/project/{{ project.id }}/kanban" class="btn btn-outline-primary">Kanban</a>
-        <a href="/taskflowai/project/{{ project.id }}/calendar" class="btn btn-outline-primary">Calendário</a>
+        <a href="{{ url_for('project_detail', project_id=project.id, view='list') }}"
+            class="btn btn-outline-primary">Lista</a>
+        <a href="{{ url_for('project_kanban', project_id=project.id) }}" class="btn btn-outline-primary">Kanban</a>
+        <a href="{{ url_for('project_calendar', project_id=project.id) }}"
+            class="btn btn-outline-primary">Calendário</a>
     </div>
     <div id="tasks-container">
         {% for task in tasks %}

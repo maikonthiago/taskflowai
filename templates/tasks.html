@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Minhas Tarefas - TaskFlowAI{% endblock %}
+{% block title %}Minhas Tarefas - RitualOS{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -32,7 +32,7 @@
                     <td class="fw-semibold">
                         {{ task.title }}
                         {% if task.creator_id == current_user.id %}
-                            <span class="badge bg-secondary ms-2">Criada por você</span>
+                        <span class="badge bg-secondary ms-2">Criada por você</span>
                         {% endif %}
                     </td>
                     <td>
@@ -43,10 +43,10 @@
                     </td>
                     <td>
                         {% set status_classes = {
-                            'todo': 'bg-secondary',
-                            'in_progress': 'bg-primary',
-                            'review': 'bg-warning text-dark',
-                            'done': 'bg-success'
+                        'todo': 'bg-secondary',
+                        'in_progress': 'bg-primary',
+                        'review': 'bg-warning text-dark',
+                        'done': 'bg-success'
                         } %}
                         <span class="badge {{ status_classes.get(task.status, 'bg-secondary') }} text-uppercase">
                             {{ task.status.replace('_', ' ') }}
@@ -54,10 +54,10 @@
                     </td>
                     <td>
                         {% set priority_classes = {
-                            'low': 'text-muted',
-                            'medium': 'text-primary',
-                            'high': 'text-warning',
-                            'urgent': 'text-danger fw-bold'
+                        'low': 'text-muted',
+                        'medium': 'text-primary',
+                        'high': 'text-warning',
+                        'urgent': 'text-danger fw-bold'
                         } %}
                         <span class="{{ priority_classes.get(task.priority, 'text-muted') }}">
                             {{ task.priority|capitalize }}
@@ -65,9 +65,9 @@
                     </td>
                     <td>
                         {% if task.due_date %}
-                            {{ task.due_date.strftime('%d/%m/%Y') }}
+                        {{ task.due_date.strftime('%d/%m/%Y') }}
                         {% else %}
-                            <span class="text-muted">Sem data</span>
+                        <span class="text-muted">Sem data</span>
                         {% endif %}
                     </td>
                     <td class="text-end">

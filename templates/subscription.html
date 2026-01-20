@@ -4,8 +4,9 @@
 <div class="container py-5">
     <div class="mb-4">
         <span class="text-muted text-uppercase small">Assinatura</span>
-        <h2 class="fw-bold">Gerencie seu plano TaskFlowAI</h2>
-        <p class="text-muted">Plano atual: <strong>{{ user.subscription_plan|capitalize }}</strong> · Status: {{ user.subscription_status }}</p>
+        <h2 class="fw-bold">Gerencie seu plano RitualOS</h2>
+        <p class="text-muted">Plano atual: <strong>{{ user.subscription_plan|capitalize }}</strong> · Status: {{
+            user.subscription_status }}</p>
     </div>
 
     <div class="row g-4">
@@ -23,11 +24,13 @@
                     </div>
                     <p class="text-muted">{{ plan.description }}</p>
                     <h3 class="fw-bold text-primary">
-                        R$ {{ '{:,.2f}'.format(plan.price_monthly).replace(',', 'X').replace('.', ',').replace('X', '.') }}
+                        R$ {{ '{:,.2f}'.format(plan.price_monthly).replace(',', 'X').replace('.', ',').replace('X', '.')
+                        }}
                         <small class="text-muted fs-6">/mês</small>
                     </h3>
                     {% if plan.price_yearly %}
-                    <p class="text-muted small">ou R$ {{ '{:,.2f}'.format(plan.price_yearly).replace(',', 'X').replace('.', ',').replace('X', '.') }} / ano</p>
+                    <p class="text-muted small">ou R$ {{ '{:,.2f}'.format(plan.price_yearly).replace(',',
+                        'X').replace('.', ',').replace('X', '.') }} / ano</p>
                     {% endif %}
 
                     <ul class="small text-muted list-unstyled flex-grow-1 mt-3">
@@ -37,11 +40,12 @@
                     </ul>
 
                     {% if plan.slug == user.subscription_plan %}
-                        {% if plan.slug != 'free' %}
-                        <button class="btn btn-outline-danger w-100" disabled>Cancelar assinatura (em breve)</button>
-                        {% endif %}
+                    {% if plan.slug != 'free' %}
+                    <button class="btn btn-outline-danger w-100" disabled>Cancelar assinatura (em breve)</button>
+                    {% endif %}
                     {% else %}
-                    <button class="btn btn-outline-primary w-100" onclick="redirectToPricing('{{ plan.slug }}')">Mudar para este plano</button>
+                    <button class="btn btn-outline-primary w-100" onclick="redirectToPricing('{{ plan.slug }}')">Mudar
+                        para este plano</button>
                     {% endif %}
                 </div>
             </div>

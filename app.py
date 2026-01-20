@@ -289,7 +289,7 @@ def admin_required(view_func):
             if request.path.startswith('/api/') or request.is_json:
                 return jsonify({'error': 'Acesso restrito aos administradores'}), 403
             flash('Acesso restrito aos administradores.', 'danger')
-            return redirect('/taskflowai/dashboard')
+            return redirect(url_for('dashboard'))
         return view_func(*args, **kwargs)
 
     return wrapper
@@ -516,7 +516,7 @@ def register():
     invite_token = request.args.get('invite_token') or request.form.get('invite_token')
 
     if current_user.is_authenticated:
-        return redirect('/taskflowai/dashboard')
+        return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
         data = request.form if request.form else request.get_json()
@@ -589,11 +589,11 @@ def register():
             return jsonify({
                 'success': True,
                 'message': 'Conta criada com sucesso',
-                'redirect': '/taskflowai/dashboard'
+                'redirect': url_for('dashboard')
             })
         
         flash('Conta criada com sucesso!', 'success')
-        return redirect('/taskflowai/dashboard')
+        return redirect(url_for('dashboard'))
     
     return render_template('register.html', invite_token=invite_token)
 
@@ -602,7 +602,9 @@ def register():
 def logout():
     """Logout"""
     logout_user()
-    return redirect('/taskflowai/')
+    """Logout"""
+    logout_user()
+    return redirect(url_for('index'))
 
 @app.route('/pricing')
 def pricing():
