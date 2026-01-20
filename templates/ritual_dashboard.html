@@ -26,10 +26,50 @@
                 </ul>
             </div>
 
-            <button onclick="requestNotificationPermission()"
-                class="p-2 text-gray-400 hover:text-black transition-colors" title="{{ _('Ativar Notificações') }}">
-                🔔
-            </button>
+            <!-- Notification Dropdown -->
+            <div class="dropdown">
+                <button class="p-2 text-gray-400 hover:text-black transition-colors position-relative" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    🔔
+                    {% if notifications and notifications|length > 0 %}
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle p-1 bg-red-500 border border-light rounded-circle">
+                        <span class="visually-hidden">Novos alertas</span>
+                    </span>
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-0 overflow-hidden"
+                    style="width: 300px;">
+                    <li class="bg-gray-50 px-4 py-2 border-bottom">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Notificações</span>
+                    </li>
+                    {% if notifications %}
+                    {% for notif in notifications %}
+                    <li>
+                        <a class="dropdown-item p-4 border-bottom hover:bg-gray-50 transition-colors"
+                            href="{{ notif.link or '#' }}">
+                            <div class="flex gap-3">
+                                <div class="text-xl">
+                                    {% if notif.type == 'alert' %}🔥{% elif notif.type == 'briefing' %}☀️{% else %}📌{%
+                                    endif %}
+                                </div>
+                                <div>
+                                    <h6 class="text-sm font-bold mb-1">{{ notif.title }}</h6>
+                                    <p class="text-xs text-gray-500 mb-0 line-clamp-2">{{ notif.content }}</p>
+                                    <small class="text-xs text-gray-300 mt-1 block">{{
+                                        notif.created_at.strftime('%H:%M') }}</small>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    {% else %}
+                    <li class="p-6 text-center text-gray-400 text-sm">
+                        Tudo calmo por aqui. 🧘
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
             <button onclick="openReviewModal()"
                 class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors">
                 📊 {{ _('Review Semanal') }}
@@ -586,7 +626,7 @@
     // --- HEATMAP RENDERER (Canvas) ---
     function renderHeatmap() {
         // Data injected from Flask
-        const rawData = {{ heatmap_data| tojson
+        const rawData = {{ heatmap_data | tojson
     }};
     const canvas = document.getElementById('heatmapCanvas');
     if (!canvas) return; // if section is missing

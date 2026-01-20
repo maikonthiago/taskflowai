@@ -323,6 +323,10 @@ def send_email(to, subject, template):
     )
     Thread(target=send_async_email, args=(app, msg)).start()
 
+# ==================== SCHEDULER ====================
+from scheduler import init_scheduler
+
+
 
 # ==================== HELPERS ====================
 
@@ -376,6 +380,17 @@ with app.app_context():
     try:
         db.create_all()
         ensure_default_data()
+        
+        # Iniciar Scheduler se não estiver em modo debug/reload (evita duplicar jobs)
+        if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+            try:
+                # Precisa estar dentro do contexto? O init_scheduler já faz setup
+                # Mas no gunicorn o app é criado na importação.
+                # Vamos chamar direto aqui
+                init_scheduler(app)
+            except Exception as e:
+                print(f"Erro ao iniciar scheduler: {e}")
+                
     except Exception as e:
         print(f"Erro na inicialização: {e}")
 
@@ -628,10 +643,14 @@ def dashboard():
     
     heatmap_data = get_heatmap_data(current_user.id)
     
+    # Notifications
+    notifications = Notification.query.filter_by(user_id=current_user.id, is_read=False).order_by(Notification.created_at.desc()).limit(10).all()
+    
     return render_template('ritual_dashboard.html', 
                          user=current_user,
                          current_mood=daily_log.mood,
-                         heatmap_data=heatmap_data)
+                         heatmap_data=heatmap_data,
+                         notifications=notifications)
 
 # ==================== WORKSPACES ====================
 
