@@ -84,9 +84,10 @@ def set_language(lang_code):
         refresh() # Refresh babel context
     return redirect(request.referrer or url_for('landing'))
 
-# Configurar para funcionar em subpath /ritualos
-app.config['APPLICATION_ROOT'] = '/ritualos'
-app.config['SESSION_COOKIE_PATH'] = '/ritualos'
+# Configurar APPLICATION_ROOT de forma dinâmica
+app_root = os.environ.get('FLASK_APP_ROOT', '/')
+app.config['APPLICATION_ROOT'] = app_root
+app.config['SESSION_COOKIE_PATH'] = app_root
 app.config['WTF_CSRF_TIME_LIMIT'] = None  # Evita expiração prematura do token
 
 # Criar diretórios necessários

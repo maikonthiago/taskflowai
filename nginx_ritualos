@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    server_name ritualos.com.br www.ritualos.com.br;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/var/www/ritualos/ritualos.sock;
+    }
+
+    location /static {
+        alias /var/www/ritualos/static;
+        expires 30d;
+    }
+}
